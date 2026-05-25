@@ -37,6 +37,29 @@ interface Dict {
   next: string;
   difficulty: Record<"easy" | "medium" | "hard", string>;
   groups: Record<Group, string>;
+  practice: {
+    navLabel: string;
+    title: string;
+    intro: string;
+    practiceThisTopic: string;
+    practiceAll: string;
+    reviewFlagged: string;
+    questionsWord: string;
+    labelTrue: string;
+    labelFalse: string;
+    correct: string;
+    incorrect: string;
+    why: string;
+    next: string;
+    readNote: string;
+    wentThrough: string;
+    worthReview: string;
+    practiceThese: string;
+    newSet: string;
+    backToNotes: string;
+    allClear: string;
+    noQuestions: string;
+  };
 }
 
 export const STRINGS: Record<Locale, Dict> = {
@@ -78,6 +101,30 @@ export const STRINGS: Record<Locale, Dict> = {
       approximation: "Approximation & DP",
       reference: "Reference",
     },
+    practice: {
+      navLabel: "Practice",
+      title: "Practice",
+      intro:
+        "Quick True/False drills on real past-exam claims. Answer, then read why — this is practice, not a graded test.",
+      practiceThisTopic: "Practice this topic",
+      practiceAll: "Practice all",
+      reviewFlagged: "Review flagged claims",
+      questionsWord: "claims",
+      labelTrue: "True",
+      labelFalse: "False",
+      correct: "Correct",
+      incorrect: "Not quite",
+      why: "Why",
+      next: "Next",
+      readNote: "Read the note",
+      wentThrough: "You went through",
+      worthReview: "Worth another look",
+      practiceThese: "Practice these again",
+      newSet: "New set",
+      backToNotes: "Back to notes",
+      allClear: "Nice — nothing flagged for review.",
+      noQuestions: "No practice questions yet.",
+    },
   },
   he: {
     htmlTitle: "אלגו 2 — מחברת אינטראקטיבית",
@@ -116,6 +163,30 @@ export const STRINGS: Record<Locale, Dict> = {
       "flow-matching": "זרימה והתאמה",
       approximation: "קירוב ותכנון דינמי",
       reference: "עזר",
+    },
+    practice: {
+      navLabel: "תרגול",
+      title: "תרגול",
+      intro:
+        "תרגול נכון/לא-נכון מהיר על טענות אמיתיות ממבחנים. ענו, ואז קראו למה — זהו תרגול, לא מבחן עם ציון.",
+      practiceThisTopic: "תרגול הנושא הזה",
+      practiceAll: "תרגול הכול",
+      reviewFlagged: "חזרה על טענות מסומנות",
+      questionsWord: "טענות",
+      labelTrue: "נכון",
+      labelFalse: "לא נכון",
+      correct: "נכון!",
+      incorrect: "לא בדיוק",
+      why: "למה",
+      next: "הבא",
+      readNote: "למעבר לדף",
+      wentThrough: "עברת על",
+      worthReview: "שווה מבט נוסף",
+      practiceThese: "תרגול שוב",
+      newSet: "סבב חדש",
+      backToNotes: "חזרה לסיכומים",
+      allClear: "יפה — אין טענות מסומנות לחזרה.",
+      noQuestions: "אין עדיין שאלות תרגול.",
     },
   },
 };
