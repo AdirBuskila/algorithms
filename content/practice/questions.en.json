@@ -1,0 +1,47 @@
+[
+  {
+    "id": "scc-2024-sembA-q1a",
+    "algorithm": "scc",
+    "source": "2024 Sem-B Mo'ed A · Q1a",
+    "claim": "If $U$ is a strongly connected component, every directed path between two vertices of $U$ contains only vertices of $U$.",
+    "answer": true,
+    "explanation": "True — any two vertices of $U$ are mutually reachable, so every vertex on a directed path between them lies on a directed cycle with them and therefore belongs to the same component $U$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bipartite-matching-2024-sembB-q1c",
+    "algorithm": "bipartite-matching",
+    "source": "2024 Sem-B Mo'ed B · Q1c",
+    "claim": "If a graph is not bipartite, then it has no perfect matching.",
+    "answer": false,
+    "explanation": "False — counterexample: $K_4$ is not bipartite yet has a perfect matching. Being bipartite is not a requirement for a perfect matching.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dfs-2024-summerA-q1a",
+    "algorithm": "dfs",
+    "source": "2024 Summer Mo'ed A · Q1a",
+    "claim": "If a vertex $a \\neq s$ has more than one child in the DFS tree, then deleting $a$ necessarily disconnects the graph.",
+    "answer": false,
+    "explanation": "False — a child subtree can reconnect to the rest through a back edge, so the graph can stay connected after removing $a$. A small counterexample (a cycle plus a chord) suffices.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bfs-2023-sembB-q1",
+    "algorithm": "bfs",
+    "source": "2023 Sem-B Mo'ed B · Q1",
+    "claim": "This algorithm correctly computes the diameter of a tree: remove edge $(a,b)$, run BFS from $a$ and from $b$, and return $d_a + d_b + 1$.",
+    "answer": false,
+    "explanation": "False — the diameter need not pass through the removed edge $(a,b)$, so $d_a + d_b + 1$ undercounts it. A small tree where the longest path avoids $(a,b)$ is a counterexample.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "transitive-closure-2022-sembA-q1b",
+    "algorithm": "transitive-closure",
+    "source": "2022 Sem-B Mo'ed A · Q1b",
+    "claim": "If the transitive closure of $G_1$ equals the transitive closure of $G_2$, then $G_1 = G_2$.",
+    "answer": false,
+    "explanation": "False — different graphs can share the same transitive closure. Adding a single edge that is already implied by reachability (a transitive edge) changes the graph but not its closure.",
+    "difficulty": "easy"
+  }
+]
