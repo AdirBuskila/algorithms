@@ -237,18 +237,18 @@
   // Directed graph. Adjacency order (alphabetical) determines visit order.
   // A:[B,C]  B:[C,D]  C:[E]  D:[E,F]  E:[B]  F:[A]
   const dfsNodes = {
-    A: { x: 90,  y: 70  },
-    B: { x: 300, y: 60  },
-    C: { x: 500, y: 90  },
-    D: { x: 300, y: 200 },
-    E: { x: 500, y: 250 },
-    F: { x: 120, y: 270 }
+    A: { x: 90,  y: 75  },
+    B: { x: 300, y: 120 },
+    C: { x: 510, y: 75  },
+    D: { x: 300, y: 245 },
+    E: { x: 510, y: 260 },
+    F: { x: 120, y: 290 }
   };
 
   // type is the FINAL classification; revealed only once the algorithm classifies it.
   const dfsEdges = [
     { f: 'A', t: 'B', type: 'tree',    curve: 0   },
-    { f: 'A', t: 'C', type: 'forward', curve: -40 },
+    { f: 'A', t: 'C', type: 'forward', curve: -32 },
     { f: 'B', t: 'C', type: 'tree',    curve: 0   },
     { f: 'B', t: 'D', type: 'tree',    curve: 0   },
     { f: 'C', t: 'E', type: 'tree',    curve: 0   },
