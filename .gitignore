@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# reference-only raw notes synced from the Obsidian vault
+/content/_vault/
+
 # production
 /build
 

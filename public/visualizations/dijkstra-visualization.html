@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dijkstra's Algorithm — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --visited-fill: #9FE1CB;
+    --visited-stroke: #0F6E56;
+    --visited-text: #04342C;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --row-visited-bg: #E1F5EE;
+    --row-visited-text: #04342C;
+    --row-current-bg: #FAEEDA;
+    --row-current-text: #854F0B;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --visited-fill: #085041;
+      --visited-stroke: #5DCAA5;
+      --visited-text: #9FE1CB;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --row-visited-bg: #085041;
+      --row-visited-text: #9FE1CB;
+      --row-current-bg: #633806;
+      --row-current-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 64px;
+  }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 16px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.v { background: var(--row-visited-bg); color: var(--row-visited-text); }
+  td.c { background: var(--row-current-bg); color: var(--row-current-text); font-weight: 500; }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="title" id="dij-title">Step 1 — Initialize</div>
+    <div class="narr" id="dij-narr">All distances set to ∞ except start (A = 0). No nodes visited yet.</div>
+  </div>
+
+  <svg id="dij-svg" viewBox="0 0 600 370">
+    <g id="dij-edges"></g>
+    <g id="dij-nodes"></g>
+  </svg>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 60px;">dist</th>
+        <th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="dij-row"></tr>
+    </tbody>
+  </table>
+
+  <div class="ctrl">
+    <button id="dij-prev">← Previous</button>
+    <button id="dij-next">Next →</button>
+    <button id="dij-reset">Reset</button>
+    <span class="ctr" id="dij-counter">Step 1 / 7</span>
+  </div>
+</div>
+
+<script>
+  const dijNodes = {
+    A: { x: 60,  y: 185 },
+    B: { x: 200, y: 75  },
+    C: { x: 280, y: 200 },
+    D: { x: 310, y: 320 },
+    E: { x: 440, y: 95  },
+    F: { x: 540, y: 235 }
+  };
+
+  const dijEdges = [
+    { a: 'A', b: 'B', w: 4 },
+    { a: 'A', b: 'C', w: 2 },
+    { a: 'B', b: 'C', w: 1 },
+    { a: 'B', b: 'E', w: 5 },
+    { a: 'C', b: 'D', w: 8 },
+    { a: 'C', b: 'E', w: 10 },
+    { a: 'D', b: 'F', w: 2 },
+    { a: 'E', b: 'F', w: 3 }
+  ];
+
+  const dijSteps = [
+    {
+      title: "Step 1 — Initialize",
+      narr: "All distances set to ∞ except start (A = 0). No nodes visited yet.",
+      d: { A: 0, B: Infinity, C: Infinity, D: Infinity, E: Infinity, F: Infinity },
+      v: [], c: null, ae: []
+    },
+    {
+      title: "Step 2 — Pick A (distance 0)",
+      narr: "A has the smallest distance among unvisited. Mark it visited and relax neighbors: B becomes 4, C becomes 2.",
+      d: { A: 0, B: 4, C: 2, D: Infinity, E: Infinity, F: Infinity },
+      v: ['A'], c: 'A', ae: ['A-B', 'A-C']
+    },
+    {
+      title: "Step 3 — Pick C (distance 2)",
+      narr: "Smallest unvisited is C. Relax neighbors: B → min(4, 2+1) = 3 (improved!), D = 2+8 = 10, E = 2+10 = 12.",
+      d: { A: 0, B: 3, C: 2, D: 10, E: 12, F: Infinity },
+      v: ['A', 'C'], c: 'C', ae: ['B-C', 'C-D', 'C-E']
+    },
+    {
+      title: "Step 4 — Pick B (distance 3)",
+      narr: "B is next. Relax E: min(12, 3+5) = 8 — a better path to E found via B.",
+      d: { A: 0, B: 3, C: 2, D: 10, E: 8, F: Infinity },
+      v: ['A', 'B', 'C'], c: 'B', ae: ['B-E']
+    },
+    {
+      title: "Step 5 — Pick E (distance 8)",
+      narr: "E is next. Relax F: 8+3 = 11.",
+      d: { A: 0, B: 3, C: 2, D: 10, E: 8, F: 11 },
+      v: ['A', 'B', 'C', 'E'], c: 'E', ae: ['E-F']
+    },
+    {
+      title: "Step 6 — Pick D (distance 10)",
+      narr: "D is next. Try F via D: 10+2 = 12. Not better than 11 — no update.",
+      d: { A: 0, B: 3, C: 2, D: 10, E: 8, F: 11 },
+      v: ['A', 'B', 'C', 'D', 'E'], c: 'D', ae: ['D-F']
+    },
+    {
+      title: "Step 7 — Pick F (distance 11). Done!",
+      narr: "All nodes processed. Final shortest distances from A: A=0, B=3, C=2, D=10, E=8, F=11.",
+      d: { A: 0, B: 3, C: 2, D: 10, E: 8, F: 11 },
+      v: ['A', 'B', 'C', 'D', 'E', 'F'], c: 'F', ae: []
+    }
+  ];
+
+  let dijStep = 0;
+  const ek = (a, b) => [a, b].sort().join('-');
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function dijDraw() {
+    const s = dijSteps[dijStep];
+    const active = new Set(s.ae.map(e => e.split('-').sort().join('-')));
+    const eg = document.getElementById('dij-edges');
+    const ng = document.getElementById('dij-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+
+    dijEdges.forEach(e => {
+      const n1 = dijNodes[e.a], n2 = dijNodes[e.b];
+      const isActive = active.has(ek(e.a, e.b));
+      const stroke = isActive ? activeColor : edgeColor;
+      const sw = isActive ? 2.5 : 1.5;
+      eg.innerHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${stroke}" stroke-width="${sw}"/>`;
+      const mx = (n1.x + n2.x) / 2, my = (n1.y + n2.y) / 2;
+      eg.innerHTML += `<circle cx="${mx}" cy="${my}" r="12" fill="${bgPrimary}" stroke="${stroke}" stroke-width="1"/>`;
+      eg.innerHTML += `<text x="${mx}" y="${my}" text-anchor="middle" dy="4" font-size="12" font-weight="500" fill="${textPrimary}">${e.w}</text>`;
+    });
+
+    Object.keys(dijNodes).forEach(name => {
+      const n = dijNodes[name];
+      const isCur = s.c === name;
+      const isVis = s.v.includes(name);
+      let fill, stroke, tc;
+      if (isCur) {
+        fill = cssVar('--current-fill');
+        stroke = cssVar('--current-stroke');
+        tc = cssVar('--current-text');
+      } else if (isVis) {
+        fill = cssVar('--visited-fill');
+        stroke = cssVar('--visited-stroke');
+        tc = cssVar('--visited-text');
+      } else {
+        fill = bgPrimary;
+        stroke = nodeStroke;
+        tc = textPrimary;
+      }
+      const d = s.d[name];
+      const dl = d === Infinity ? '∞' : String(d);
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="16" font-weight="500" fill="${tc}">${name}</text>
+        <text x="${n.x}" y="${n.y - 32}" text-anchor="middle" font-size="13" font-weight="500" fill="${textSecondary}">d=${dl}</text>
+      </g>`;
+    });
+  }
+
+  function dijUpdate() {
+    const s = dijSteps[dijStep];
+    document.getElementById('dij-title').textContent = s.title;
+    document.getElementById('dij-narr').textContent = s.narr;
+    document.getElementById('dij-counter').textContent = `Step ${dijStep + 1} / ${dijSteps.length}`;
+
+    const row = document.getElementById('dij-row');
+    row.innerHTML = '<td style="color: var(--text-secondary);">from A</td>';
+    ['A', 'B', 'C', 'D', 'E', 'F'].forEach(n => {
+      const d = s.d[n];
+      let cls = '';
+      if (s.c === n) cls = 'c';
+      else if (s.v.includes(n)) cls = 'v';
+      row.innerHTML += `<td class="${cls}">${d === Infinity ? '∞' : d}</td>`;
+    });
+
+    document.getElementById('dij-prev').disabled = dijStep === 0;
+    document.getElementById('dij-next').disabled = dijStep === dijSteps.length - 1;
+    dijDraw();
+  }
+
+  document.getElementById('dij-next').addEventListener('click', () => {
+    if (dijStep < dijSteps.length - 1) { dijStep++; dijUpdate(); }
+  });
+  document.getElementById('dij-prev').addEventListener('click', () => {
+    if (dijStep > 0) { dijStep--; dijUpdate(); }
+  });
+  document.getElementById('dij-reset').addEventListener('click', () => {
+    dijStep = 0; dijUpdate();
+  });
+
+  // keyboard arrows
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && dijStep < dijSteps.length - 1) { dijStep++; dijUpdate(); }
+    else if (ev.key === 'ArrowLeft' && dijStep > 0) { dijStep--; dijUpdate(); }
+  });
+
+  // redraw on color scheme change
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', dijDraw);
+
+  dijUpdate();
+</script>
+</body>
+</html>

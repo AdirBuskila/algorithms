@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Algorithms 2 — Interactive Notes
 
-## Getting Started
+Bilingual (English + עברית), exam-focused course notes for **Algorithms 2 (HIT 73106)**,
+covering every topic that appears in the past exams. Each algorithm gets a page with:
 
-First, run the development server:
+1. **Explanation** — plain-language walkthrough, pseudocode, worked example.
+2. **Visualization** — a live, step-through widget *(shortest-path algorithms only, for now)*.
+3. **Complexity** — running time and space.
+4. **On the exam** — where and how it shows up, drawn from the past-exam question bank.
+
+Built with Next.js (static export), so it deploys anywhere and there's nothing to run for
+people you share it with.
+
+## Languages
+
+The site is fully bilingual with a Hebrew/English toggle (top-right of the header) and
+right-to-left layout for Hebrew. Pages live under a locale segment:
+
+- `/en` · `/en/algorithms/<slug>`
+- `/he` · `/he/algorithms/<slug>`
+
+`/` redirects to the visitor's saved choice (or browser language, default English).
+
+## Develop
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Build (static site)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build    # outputs a fully static site to ./out
+npx serve out    # preview the production build locally
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy
 
-## Learn More
+- **Vercel (recommended):** push to GitHub and "Import Project" on Vercel — auto-detects
+  Next.js, gives you a public URL to share, no config.
+- **GitHub Pages:** set `basePath: "/<repo-name>"` in `next.config.ts`, publish `out/`, and
+  prefix the iframe `src` in `src/components/Visualization.tsx` with the same basePath.
 
-To learn more about Next.js, take a look at the following resources:
+## Add a new algorithm
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+No code changes needed — the home grid, groups, and routes are generated from content.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Create **two** files, `content/algorithms/<slug>.en.md` and `<slug>.he.md` (copy an
+   existing pair such as `dijkstra.en.md` / `dijkstra.he.md` as a template). Keep
+   `slug, order, group, frequency, difficulty` and the `complexity` LaTeX identical across
+   the two; translate only the human-readable fields and the body.
 
-## Deploy on Vercel
+   Frontmatter:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```yaml
+   slug: <slug>          # must match the filename
+   order: <n>            # global sort order
+   group: traversal      # traversal | connectivity | shortest-paths | flow-matching | approximation | reference
+   title: "…"
+   summary: "…"          # one line, shown on the card
+   frequency: "13/19"    # exam appearances, shown as a badge
+   difficulty: medium    # easy | medium | hard
+   complexity:
+     time: 'O(…)'        # LaTeX (KaTeX). Single-quote it so backslashes stay literal.
+     timeNote: "…"       # plain text — use Unicode (·, √, Θ), NOT \cdot/\sqrt
+     space: 'O(…)'
+     spaceNote: "…"
+   examFrequency: "…"    # page subtitle
+   # Optional, shortest-path widgets only:
+   # visualization: <file>.html
+   # vizHeight: 880
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   Put the explanation prose above a divider heading and the exam material below it:
+   `## On the exam` in the English file, `## איך זה מופיע במבחן` in the Hebrew file.
+
+2. *(Only if it has a widget)* drop the interactive HTML at
+   `public/visualizations/<file>.html` and set `visualization` / `vizHeight` in frontmatter.
+3. `npm run dev` (or rebuild). Done.
+
+### Supported note syntax
+
+The Markdown pipeline understands the Obsidian flavor used in the source notes: `$…$` /
+`$$…$$` math (KaTeX), GitHub tables, `> [!note] / [!tip] / [!info] / [!example]` callouts,
+`[[Wikilinks]]` (target the related algorithm's **English title**; resolved to the current
+locale's page), and `==highlights==`. Diagrams (` ```mermaid `) and ` ```html-embed ` blocks
+are stripped — the widget comes from frontmatter, and worked examples use tables.
+
+## Sync from the Obsidian vault
+
+`npm run sync` copies the latest `*-visualization.html` widgets into `public/visualizations/`
+and the raw notes into `content/_vault/` (reference only). It never overwrites the curated
+notes in `content/algorithms/`. Override the vault location with `VAULT=...`.
+
+## Project layout
+
+```
+content/algorithms/    # curated bilingual notes <slug>.en.md / <slug>.he.md (source of truth)
+public/visualizations/ # the interactive HTML widgets (shortest-path algorithms)
+src/app/               # root redirect + /[lang] home + /[lang]/algorithms/[slug] + layouts
+src/components/         # NoteContent, Callout, Visualization, ComplexityCard, AlgorithmCard, LanguageToggle
+src/lib/               # content loading, i18n strings, Obsidian-markdown transforms
+scripts/sync-notes.mjs # vault → repo convenience copier
+```

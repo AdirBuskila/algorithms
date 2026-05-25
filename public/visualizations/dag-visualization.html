@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAG Shortest Path — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #888780;
+    --active-color: #BA7517;
+    --reached-fill: #9FE1CB;
+    --reached-stroke: #0F6E56;
+    --reached-text: #04342C;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --neg-fill: #FCEBEB;
+    --neg-stroke: #A32D2D;
+    --neg-text: #791F1F;
+    --row-reached-bg: #E1F5EE;
+    --row-reached-text: #04342C;
+    --row-current-bg: #FAEEDA;
+    --row-current-text: #854F0B;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #B4B2A9;
+      --reached-fill: #085041;
+      --reached-stroke: #5DCAA5;
+      --reached-text: #9FE1CB;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --neg-fill: #501313;
+      --neg-stroke: #F09595;
+      --neg-text: #F7C1C1;
+      --row-reached-bg: #085041;
+      --row-reached-text: #9FE1CB;
+      --row-current-bg: #633806;
+      --row-current-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 92px;
+  }
+  .meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 16px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.r { background: var(--row-reached-bg); color: var(--row-reached-text); }
+  td.c { background: var(--row-current-bg); color: var(--row-current-text); font-weight: 500; }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="meta" id="dag-meta"></div>
+    <div class="title" id="dag-title">Initialize</div>
+    <div class="narr" id="dag-narr">Topological order is A → C → B → D → E. Set A = 0, all others = ∞. We'll process each node once, in topo order.</div>
+  </div>
+
+  <svg id="dag-svg" viewBox="0 0 600 400">
+    <defs>
+      <marker id="dag-arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge-color)"/>
+      </marker>
+      <marker id="dag-arr-a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--active-color)"/>
+      </marker>
+    </defs>
+    <g id="dag-edges"></g>
+    <g id="dag-nodes"></g>
+  </svg>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 60px;">dist</th>
+        <th>A</th><th>B</th><th>C</th><th>D</th><th>E</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="dag-row"></tr>
+    </tbody>
+  </table>
+
+  <div class="ctrl">
+    <button id="dag-prev">← Previous</button>
+    <button id="dag-next">Next →</button>
+    <button id="dag-reset">Reset</button>
+    <span class="ctr" id="dag-counter">Step 1 / 7</span>
+  </div>
+</div>
+
+<script>
+  const dagNodes = {
+    A: { x: 60,  y: 200 },
+    C: { x: 220, y: 100 },
+    B: { x: 220, y: 300 },
+    D: { x: 380, y: 200 },
+    E: { x: 540, y: 280 }
+  };
+
+  const dagEdges = [
+    { f: 'A', t: 'B', w: 6 },
+    { f: 'A', t: 'C', w: 1 },
+    { f: 'C', t: 'B', w: 2 },
+    { f: 'B', t: 'D', w: 4 },
+    { f: 'C', t: 'D', w: 5 },
+    { f: 'B', t: 'E', w: 3 },
+    { f: 'D', t: 'E', w: -2 }
+  ];
+
+  const TOPO = ['A', 'C', 'B', 'D', 'E'];
+  const INF = Infinity;
+
+  const dagSteps = [
+    {
+      title: "Initialize",
+      narr: "Topological order is A → C → B → D → E. Set A = 0, all others = ∞. We'll process each node once, in topo order.",
+      d: { A: 0, B: INF, C: INF, D: INF, E: INF },
+      c: null, p: [], ae: []
+    },
+    {
+      title: "Process A (1st in topo order)",
+      narr: "Relax A's outgoing edges. A→B: dist[B] = 0 + 6 = 6. A→C: dist[C] = 0 + 1 = 1.",
+      d: { A: 0, B: 6, C: 1, D: INF, E: INF },
+      c: 'A', p: ['A'], ae: ['A-B', 'A-C']
+    },
+    {
+      title: "Process C (2nd in topo order)",
+      narr: "Relax C→B: 1 + 2 = 3 < 6, so dist[B] = 3 (big improvement). Relax C→D: dist[D] = 1 + 5 = 6.",
+      d: { A: 0, B: 3, C: 1, D: 6, E: INF },
+      c: 'C', p: ['A', 'C'], ae: ['C-B', 'C-D']
+    },
+    {
+      title: "Process B (3rd in topo order)",
+      narr: "B's distance is final at 3. Relax B→D: 3 + 4 = 7, not less than 6 — no update. Relax B→E: dist[E] = 3 + 3 = 6.",
+      d: { A: 0, B: 3, C: 1, D: 6, E: 6 },
+      c: 'B', p: ['A', 'B', 'C'], ae: ['B-D', 'B-E']
+    },
+    {
+      title: "Process D (4th in topo order)",
+      narr: "Relax D→E: 6 + (-2) = 4 < 6, so dist[E] = 4. The negative edge gives a shorter path — fine in a DAG since we never revisit.",
+      d: { A: 0, B: 3, C: 1, D: 6, E: 4 },
+      c: 'D', p: ['A', 'B', 'C', 'D'], ae: ['D-E']
+    },
+    {
+      title: "Process E (5th in topo order)",
+      narr: "E has no outgoing edges, so there's nothing to relax. Just mark it processed.",
+      d: { A: 0, B: 3, C: 1, D: 6, E: 4 },
+      c: 'E', p: ['A', 'B', 'C', 'D', 'E'], ae: []
+    },
+    {
+      title: "Done — all nodes processed",
+      narr: "Final shortest distances from A: A=0, B=3, C=1, D=6, E=4. The algorithm ran in O(V+E) time — one pass through each vertex's outgoing edges.",
+      d: { A: 0, B: 3, C: 1, D: 6, E: 4 },
+      c: null, p: ['A', 'B', 'C', 'D', 'E'], ae: []
+    }
+  ];
+
+  let dagStep = 0;
+  const dagKey = (f, t) => f + '-' + t;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function buildMeta(s) {
+    const parts = TOPO.map(n => {
+      if (n === s.c) return `<strong>${n}</strong>`;
+      if (s.p.includes(n)) return `<span style="opacity: 0.45;">${n}</span>`;
+      return n;
+    });
+    return 'Topo order: ' + parts.join(' → ');
+  }
+
+  function dagDraw() {
+    const s = dagSteps[dagStep];
+    const eg = document.getElementById('dag-edges');
+    const ng = document.getElementById('dag-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+    const negFill = cssVar('--neg-fill');
+    const negStroke = cssVar('--neg-stroke');
+    const negText = cssVar('--neg-text');
+
+    dagEdges.forEach(e => {
+      const n1 = dagNodes[e.f], n2 = dagNodes[e.t];
+      const isActive = s.ae.includes(dagKey(e.f, e.t));
+      const stroke = isActive ? activeColor : edgeColor;
+      const sw = isActive ? 2.5 : 1.5;
+      const marker = isActive ? 'url(#dag-arr-a)' : 'url(#dag-arr)';
+
+      const dx = n2.x - n1.x, dy = n2.y - n1.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len, uy = dy / len;
+      const r = 22;
+      const x1 = n1.x + ux * r, y1 = n1.y + uy * r;
+      const x2 = n2.x - ux * (r + 4), y2 = n2.y - uy * (r + 4);
+
+      eg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
+
+      const mx = (n1.x + n2.x) / 2, my = (n1.y + n2.y) / 2;
+      const isNeg = e.w < 0;
+      const wFill = isNeg ? negFill : bgPrimary;
+      const wStroke = isActive ? activeColor : (isNeg ? negStroke : edgeColor);
+      const wColor = isNeg ? negText : textPrimary;
+      eg.innerHTML += `<circle cx="${mx}" cy="${my}" r="13" fill="${wFill}" stroke="${wStroke}" stroke-width="1"/>`;
+      eg.innerHTML += `<text x="${mx}" y="${my}" text-anchor="middle" dy="4" font-size="12" font-weight="500" fill="${wColor}">${e.w}</text>`;
+    });
+
+    Object.keys(dagNodes).forEach(name => {
+      const n = dagNodes[name];
+      const d = s.d[name];
+      const isCur = s.c === name;
+      const isProc = s.p.includes(name);
+      let fill, stroke, tc;
+      if (isCur) {
+        fill = cssVar('--current-fill');
+        stroke = cssVar('--current-stroke');
+        tc = cssVar('--current-text');
+      } else if (isProc) {
+        fill = cssVar('--reached-fill');
+        stroke = cssVar('--reached-stroke');
+        tc = cssVar('--reached-text');
+      } else {
+        fill = bgPrimary;
+        stroke = nodeStroke;
+        tc = textPrimary;
+      }
+      const dl = d === INF ? '∞' : String(d);
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="16" font-weight="500" fill="${tc}">${name}</text>
+        <text x="${n.x}" y="${n.y - 32}" text-anchor="middle" font-size="13" font-weight="500" fill="${textSecondary}">d=${dl}</text>
+      </g>`;
+    });
+  }
+
+  function dagUpdate() {
+    const s = dagSteps[dagStep];
+    document.getElementById('dag-meta').innerHTML = buildMeta(s);
+    document.getElementById('dag-title').textContent = s.title;
+    document.getElementById('dag-narr').textContent = s.narr;
+    document.getElementById('dag-counter').textContent = `Step ${dagStep + 1} / ${dagSteps.length}`;
+
+    const row = document.getElementById('dag-row');
+    row.innerHTML = '<td style="color: var(--text-secondary);">from A</td>';
+    ['A', 'B', 'C', 'D', 'E'].forEach(n => {
+      const d = s.d[n];
+      let cls = '';
+      if (s.c === n) cls = 'c';
+      else if (s.p.includes(n)) cls = 'r';
+      row.innerHTML += `<td class="${cls}">${d === INF ? '∞' : d}</td>`;
+    });
+
+    document.getElementById('dag-prev').disabled = dagStep === 0;
+    document.getElementById('dag-next').disabled = dagStep === dagSteps.length - 1;
+    dagDraw();
+  }
+
+  document.getElementById('dag-next').addEventListener('click', () => {
+    if (dagStep < dagSteps.length - 1) { dagStep++; dagUpdate(); }
+  });
+  document.getElementById('dag-prev').addEventListener('click', () => {
+    if (dagStep > 0) { dagStep--; dagUpdate(); }
+  });
+  document.getElementById('dag-reset').addEventListener('click', () => {
+    dagStep = 0; dagUpdate();
+  });
+
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && dagStep < dagSteps.length - 1) { dagStep++; dagUpdate(); }
+    else if (ev.key === 'ArrowLeft' && dagStep > 0) { dagStep--; dagUpdate(); }
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', dagDraw);
+
+  dagUpdate();
+</script>
+</body>
+</html>

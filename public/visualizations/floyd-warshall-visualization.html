@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floyd–Warshall Algorithm — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --via-bg: #E1F5EE;
+    --via-text: #04342C;
+    --via-stroke: #0F6E56;
+    --imp-bg: #FAC775;
+    --imp-text: #412402;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --active-color: #EF9F27;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --via-bg: #085041;
+      --via-text: #9FE1CB;
+      --via-stroke: #5DCAA5;
+      --imp-bg: #633806;
+      --imp-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 640px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 76px;
+  }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .narr code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: var(--bg-primary);
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  svg { width: 100%; height: auto; display: block; max-width: 460px; margin: 0 auto; }
+
+  .mx-wrap { margin-top: 18px; }
+  .axis {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  table.mx {
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+  table.mx th, table.mx td {
+    width: 46px;
+    height: 42px;
+    text-align: center;
+    border: 0.5px solid var(--border);
+  }
+  table.mx th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 13px;
+    border: none;
+  }
+  table.mx th.corner { background: transparent; }
+  table.mx th.kh {
+    background: var(--current-fill);
+    color: var(--current-text);
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  table.mx td.diag { color: var(--text-secondary); }
+  table.mx td.via { background: var(--via-bg); color: var(--via-text); }
+  table.mx td.imp {
+    background: var(--imp-bg);
+    color: var(--imp-text);
+    font-weight: 700;
+  }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr { margin-left: auto; font-size: 13px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="title" id="fw-title"></div>
+    <div class="narr" id="fw-narr"></div>
+  </div>
+
+  <svg id="fw-svg" viewBox="0 0 600 320">
+    <g id="fw-edges"></g>
+    <g id="fw-nodes"></g>
+  </svg>
+
+  <div class="mx-wrap">
+    <div class="axis">columns = <b>to</b> vertex&nbsp;&nbsp;·&nbsp;&nbsp;rows = <b>from</b> vertex</div>
+    <table class="mx"><tbody id="fw-matrix"></tbody></table>
+  </div>
+
+  <div class="ctrl">
+    <button id="fw-prev">← Previous</button>
+    <button id="fw-next">Next →</button>
+    <button id="fw-reset">Reset</button>
+    <span class="ctr" id="fw-counter"></span>
+  </div>
+</div>
+
+<script>
+  const INF = Infinity;
+
+  // 4-node directed graph (matches the notebook example)
+  const fwNodes = {
+    1: { x: 300, y: 55  },
+    2: { x: 165, y: 160 },
+    3: { x: 435, y: 160 },
+    4: { x: 300, y: 265 }
+  };
+  const fwEdges = [
+    { a: 2, b: 1, w: 4  },
+    { a: 1, b: 3, w: -2 },
+    { a: 2, b: 3, w: 3  },
+    { a: 3, b: 4, w: 2  },
+    { a: 4, b: 2, w: -1 }
+  ];
+
+  const M = (a) => a.map(r => r.slice()); // clone matrix
+
+  const D0 = [
+    [0,   INF, -2,  INF],
+    [4,   0,   3,   INF],
+    [INF, INF, 0,   2  ],
+    [INF, -1,  INF, 0  ]
+  ];
+  const D1 = [
+    [0,   INF, -2,  INF],
+    [4,   0,   2,   INF],
+    [INF, INF, 0,   2  ],
+    [INF, -1,  INF, 0  ]
+  ];
+  const D2 = [
+    [0,   INF, -2,  INF],
+    [4,   0,   2,   INF],
+    [INF, INF, 0,   2  ],
+    [3,   -1,  1,   0  ]
+  ];
+  const D3 = [
+    [0,   INF, -2,  0  ],
+    [4,   0,   2,   4  ],
+    [INF, INF, 0,   2  ],
+    [3,   -1,  1,   0  ]
+  ];
+  const D4 = [
+    [0,   -1,  -2,  0  ],
+    [4,   0,   2,   4  ],
+    [5,   1,   0,   2  ],
+    [3,   -1,  1,   0  ]
+  ];
+
+  const fwSteps = [
+    {
+      title: "Initialize — D⁰",
+      narr: "Diagonal = 0 (a node reaches itself at cost 0). Each direct edge (u→v) is filled with its weight; every other pair starts at ∞.",
+      k: null, matrix: M(D0), imp: []
+    },
+    {
+      title: "k = 1 — paths allowed to pass through vertex 1",
+      narr: "For every pair, try going via 1: dist[i][j] = min(dist[i][j], dist[i][1] + dist[1][j]). Only 2→3 improves: 2→1→3 = 4 + (−2) = 2, beating the direct 3.",
+      k: 1, matrix: M(D1), imp: [[2,3]]
+    },
+    {
+      title: "k = 2 — also allow passing through vertex 2",
+      narr: "Now via 2. From 4: 4→2→1 = −1 + 4 = 3 (was ∞) and 4→2→3 = −1 + 2 = 1 (was ∞). Note 4→2→3 reuses the 2→3 = 2 we just found at k = 1.",
+      k: 2, matrix: M(D2), imp: [[4,1],[4,3]]
+    },
+    {
+      title: "k = 3 — also allow passing through vertex 3",
+      narr: "Now via 3. Reaching 4: 1→3→4 = −2 + 2 = 0 and 2→3→4 = 2 + 2 = 4 (both were ∞).",
+      k: 3, matrix: M(D3), imp: [[1,4],[2,4]]
+    },
+    {
+      title: "k = 4 — all vertices allowed. Done!",
+      narr: "Final pass via 4. 1→4→2 = 0 + (−1) = −1; from 3: 3→4→1 = 2 + 3 = 5 and 3→4→2 = 2 + (−1) = 1. The matrix now holds every shortest distance.",
+      k: 4, matrix: M(D4), imp: [[1,2],[3,1],[3,2]]
+    }
+  ];
+
+  let fwStep = 0;
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const fmt = (v) => v === INF ? "∞" : String(v);
+
+  function arrow(x1, y1, x2, y2, color, sw, r) {
+    const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const sx = x1 + ux * r, sy = y1 + uy * r;
+    const ex = x2 - ux * r, ey = y2 - uy * r;
+    const ah = 10, aw = 4.5;
+    const bx = ex - ux * ah, by = ey - uy * ah;
+    const px = -uy, py = ux;
+    const line = `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="${sw}"/>`;
+    const head = `<polygon points="${ex},${ey} ${bx + px * aw},${by + py * aw} ${bx - px * aw},${by - py * aw}" fill="${color}"/>`;
+    return { svg: line + head, mx: (sx + ex) / 2, my: (sy + ey) / 2 };
+  }
+
+  function fwDraw() {
+    const s = fwSteps[fwStep];
+    const eg = document.getElementById('fw-edges');
+    const ng = document.getElementById('fw-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const nodeStroke = cssVar('--node-stroke');
+
+    fwEdges.forEach(e => {
+      const n1 = fwNodes[e.a], n2 = fwNodes[e.b];
+      const a = arrow(n1.x, n1.y, n2.x, n2.y, edgeColor, 1.6, 26);
+      eg.innerHTML += a.svg;
+      // nudge the weight label off the line
+      const dx = n2.x - n1.x, dy = n2.y - n1.y, len = Math.hypot(dx, dy);
+      const ox = -dy / len * 13, oy = dx / len * 13;
+      eg.innerHTML += `<circle cx="${a.mx + ox}" cy="${a.my + oy}" r="12" fill="${bgPrimary}" stroke="${edgeColor}" stroke-width="1"/>`;
+      eg.innerHTML += `<text x="${a.mx + ox}" y="${a.my + oy}" text-anchor="middle" dy="4" font-size="12" font-weight="500" fill="${textPrimary}">${e.w}</text>`;
+    });
+
+    Object.keys(fwNodes).forEach(name => {
+      const n = fwNodes[name];
+      const isK = String(s.k) === String(name);
+      const fill   = isK ? cssVar('--current-fill')   : bgPrimary;
+      const stroke = isK ? cssVar('--current-stroke') : nodeStroke;
+      const tc     = isK ? cssVar('--current-text')   : textPrimary;
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="24" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="6" font-size="17" font-weight="600" fill="${tc}">${name}</text>
+      </g>`;
+    });
+  }
+
+  function fwDrawMatrix() {
+    const s = fwSteps[fwStep];
+    const k = s.k;
+    const impSet = new Set(s.imp.map(p => p[0] + ',' + p[1]));
+    const tb = document.getElementById('fw-matrix');
+
+    let html = '<tr><th class="corner"></th>';
+    for (let j = 1; j <= 4; j++) html += `<th class="${k === j ? 'kh' : ''}">${j}</th>`;
+    html += '</tr>';
+
+    for (let i = 1; i <= 4; i++) {
+      html += `<tr><th class="${k === i ? 'kh' : ''}">${i}</th>`;
+      for (let j = 1; j <= 4; j++) {
+        const v = s.matrix[i - 1][j - 1];
+        let cls = [];
+        if (impSet.has(i + ',' + j)) cls.push('imp');
+        else if (k !== null && (i === k || j === k)) cls.push('via');
+        if (i === j) cls.push('diag');
+        html += `<td class="${cls.join(' ')}">${fmt(v)}</td>`;
+      }
+      html += '</tr>';
+    }
+    tb.innerHTML = html;
+  }
+
+  function fwUpdate() {
+    const s = fwSteps[fwStep];
+    document.getElementById('fw-title').textContent = s.title;
+    document.getElementById('fw-narr').innerHTML = s.narr;
+    document.getElementById('fw-counter').textContent = `Step ${fwStep + 1} / ${fwSteps.length}`;
+    document.getElementById('fw-prev').disabled = fwStep === 0;
+    document.getElementById('fw-next').disabled = fwStep === fwSteps.length - 1;
+    fwDraw();
+    fwDrawMatrix();
+  }
+
+  document.getElementById('fw-next').addEventListener('click', () => {
+    if (fwStep < fwSteps.length - 1) { fwStep++; fwUpdate(); }
+  });
+  document.getElementById('fw-prev').addEventListener('click', () => {
+    if (fwStep > 0) { fwStep--; fwUpdate(); }
+  });
+  document.getElementById('fw-reset').addEventListener('click', () => {
+    fwStep = 0; fwUpdate();
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && fwStep < fwSteps.length - 1) { fwStep++; fwUpdate(); }
+    else if (ev.key === 'ArrowLeft' && fwStep > 0) { fwStep--; fwUpdate(); }
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', fwDraw);
+
+  fwUpdate();
+</script>
+</body>
+</html>
