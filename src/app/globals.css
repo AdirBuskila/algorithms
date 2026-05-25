@@ -1032,6 +1032,19 @@ a {
 .header-practice-link:hover {
   opacity: 1;
 }
+.beta-badge {
+  display: inline-block;
+  margin-inline-start: 5px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-amber) 18%, transparent);
+  color: var(--accent-amber);
+  vertical-align: middle;
+}
 .practice-cta {
   margin-top: 28px;
 }

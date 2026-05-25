@@ -40,6 +40,7 @@ export default async function LocaleLayout({
           <div className="header-actions">
             <Link href={`/${L}/practice/`} className="header-practice-link">
               {s.practice.navLabel}
+              <span className="beta-badge">beta</span>
             </Link>
             <CommandPalette
               items={searchItems}
