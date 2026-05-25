@@ -174,19 +174,22 @@
 
   <svg id="dfs-svg" viewBox="0 0 600 360">
     <defs>
-      <marker id="dfs-arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <marker id="dfs-arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge-color)"/>
       </marker>
-      <marker id="dfs-arr-tree" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <marker id="dfs-arr-active" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--active-color)"/>
+      </marker>
+      <marker id="dfs-arr-tree" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--tree-color)"/>
       </marker>
-      <marker id="dfs-arr-back" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <marker id="dfs-arr-back" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--back-color)"/>
       </marker>
-      <marker id="dfs-arr-forward" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <marker id="dfs-arr-forward" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--forward-color)"/>
       </marker>
-      <marker id="dfs-arr-cross" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <marker id="dfs-arr-cross" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="11" markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--cross-color)"/>
       </marker>
     </defs>
@@ -442,7 +445,7 @@
       const sw = isActive ? 3 : (isClassified ? 2.2 : 1.5);
 
       let marker = 'url(#dfs-arr)';
-      if (isActive) marker = 'url(#dfs-arr)'; // active arrow recolored below via stroke; keep neutral head
+      if (isActive) marker = 'url(#dfs-arr-active)'; // match the orange highlighted edge
       else if (isClassified) marker = typeMarker(e.type);
 
       const dx = n2.x - n1.x, dy = n2.y - n1.y;
@@ -458,11 +461,11 @@
         const d1x = cx - n1.x, d1y = cy - n1.y, l1 = Math.hypot(d1x, d1y);
         const d2x = cx - n2.x, d2y = cy - n2.y, l2 = Math.hypot(d2x, d2y);
         const x1 = n1.x + (d1x / l1) * r, y1 = n1.y + (d1y / l1) * r;
-        const x2 = n2.x + (d2x / l2) * (r + 4), y2 = n2.y + (d2y / l2) * (r + 4);
+        const x2 = n2.x + (d2x / l2) * (r + 2), y2 = n2.y + (d2y / l2) * (r + 2);
         eg.innerHTML += `<path d="M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}" fill="none" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
       } else {
         const x1 = n1.x + ux * r, y1 = n1.y + uy * r;
-        const x2 = n2.x - ux * (r + 4), y2 = n2.y - uy * (r + 4);
+        const x2 = n2.x - ux * (r + 2), y2 = n2.y - uy * (r + 2);
         eg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
       }
     });
