@@ -30,9 +30,12 @@ This is explicitly a **low-stakes practice tool, not a scored quiz.**
 
 ## Non-goals (YAGNI for v1)
 
-- The other three question formats (which-technique recognition, flashcard
-  self-rated recall, real Floyd-Warshall-style MC). Technique recognition is
-  the intended **next** layer but is out of scope here.
+- Flashcard self-rated recall and figure-based exam MC (Floyd-Warshall path
+  reconstruction, max-flow values) — out of scope (the latter needs graph
+  figures). **Which-technique multiple-choice IS agreed as Phase 2**, right
+  after the T/F v1 ships; it needs no figures. This plan delivers Phase 1
+  (T/F); the data model is a discriminated union so MC slots in without rework
+  (a question with no `type` field defaults to `"tf"`).
 - Scoring / grades / stats dashboards / spaced-repetition scheduling.
 - Timed full-exam ("mock paper") mode.
 - Accounts, cloud sync, any backend. Everything is static-export + client-side.
@@ -188,8 +191,10 @@ No test runner exists in the repo today, so v1 verification is:
 
 ## Future layers (out of scope, noted for direction)
 
-1. **Which-technique recognition** — the intended next layer; trains the Q2
+1. **Which-technique multiple-choice (Phase 2 — agreed next)** — trains the Q2
    design instinct (e.g. "linear algorithm on a digraph → SCC + condensation").
+   No figures needed. Slots into the same `PracticeQuestion` union (`type:
+   "mc"` with `prompt` / `options` / `answerIndex`) and the same session UI.
 2. Real MC items (Floyd-Warshall reconstruction, transitive-closure claims)
    with the needed graph figures.
 3. Optional spaced-repetition ordering of the review list.
