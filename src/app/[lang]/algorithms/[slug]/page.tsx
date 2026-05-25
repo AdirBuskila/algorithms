@@ -106,6 +106,15 @@ export default async function AlgorithmPage({
           <span />
         )}
       </nav>
+
+      <div className="practice-cta">
+        <Link
+          className="practice-cta-link"
+          href={`/${L}/practice/?algorithm=${slug}`}
+        >
+          {s.practice.practiceThisTopic} →
+        </Link>
+      </div>
     </main>
   );
 }

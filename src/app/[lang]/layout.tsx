@@ -38,6 +38,9 @@ export default async function LocaleLayout({
             {s.brand} <span>· {s.brandSuffix}</span>
           </Link>
           <div className="header-actions">
+            <Link href={`/${L}/practice/`} className="header-practice-link">
+              {s.practice.navLabel}
+            </Link>
             <CommandPalette
               items={searchItems}
               lang={L}
