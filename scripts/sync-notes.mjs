@@ -39,7 +39,11 @@ for (const entry of fs.readdirSync(VAULT)) {
   if (!fs.statSync(src).isFile()) continue;
 
   if (entry.endsWith("-visualization.html")) {
-    fs.copyFileSync(src, path.join(VIZ_DEST, entry));
+    // Write each widget as <name>/index.html so it resolves as a directory
+    // URL (/visualizations/<name>/) under trailingSlash:true on static hosts.
+    const dest = path.join(VIZ_DEST, entry.replace(/\.html$/, ""), "index.html");
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.copyFileSync(src, dest);
     viz++;
   } else if (entry.endsWith(".md")) {
     fs.copyFileSync(src, path.join(VAULT_DEST, entry));

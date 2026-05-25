@@ -7,9 +7,14 @@ export default function Visualization({
   height: number;
   title: string;
 }) {
-  // Root-relative path into public/visualizations/. If you deploy under a
-  // GitHub Pages subpath, prefix this with your basePath.
-  const src = `/visualizations/${file}`;
+  // Each widget lives at public/visualizations/<name>/index.html (the `file`
+  // frontmatter value is "<name>.html"). With trailingSlash:true, static hosts
+  // (Vercel, GitHub Pages, `serve`) serve the directory form `/.../<name>/`;
+  // `next dev` has no directory-index for public/, so it needs the explicit
+  // index.html. If you deploy under a GitHub Pages subpath, prefix with basePath.
+  const dir = `/visualizations/${file.replace(/\.html$/, "")}`;
+  const src =
+    process.env.NODE_ENV === "development" ? `${dir}/index.html` : `${dir}/`;
   return (
     <figure className="viz">
       <iframe

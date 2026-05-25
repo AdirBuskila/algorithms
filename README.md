@@ -22,7 +22,7 @@ right-to-left layout for Hebrew. Pages live under a locale segment:
 - `/en` · `/en/algorithms/<slug>`
 - `/he` · `/he/algorithms/<slug>`
 
-`/` redirects to the visitor's saved choice (or browser language, default English).
+`/` redirects to the visitor's saved choice, defaulting to Hebrew.
 
 ## Develop
 
@@ -79,7 +79,10 @@ No code changes needed — the home grid, groups, and routes are generated from 
    `## On the exam` in the English file, `## איך זה מופיע במבחן` in the Hebrew file.
 
 2. *(Only if it has a widget)* drop the interactive HTML at
-   `public/visualizations/<file>.html` and set `visualization` / `vizHeight` in frontmatter.
+   `public/visualizations/<name>/index.html` (where `<name>` is the `visualization`
+   frontmatter value without its `.html`) and set `visualization` / `vizHeight` in
+   frontmatter. `npm run sync` writes this folder layout for you. The folder form is
+   required so the widget resolves under `trailingSlash: true` on static hosts.
 3. `npm run dev` (or rebuild). Done.
 
 ### Supported note syntax
@@ -100,7 +103,7 @@ notes in `content/algorithms/`. Override the vault location with `VAULT=...`.
 
 ```
 content/algorithms/    # curated bilingual notes <slug>.en.md / <slug>.he.md (source of truth)
-public/visualizations/ # the interactive HTML widgets (shortest-path algorithms)
+public/visualizations/ # interactive HTML widgets, one per folder as <name>/index.html
 src/app/               # root redirect + /[lang] home + /[lang]/algorithms/[slug] + layouts
 src/components/         # NoteContent, Callout, Visualization, ComplexityCard, AlgorithmCard, LanguageToggle
 src/lib/               # content loading, i18n strings, Obsidian-markdown transforms
