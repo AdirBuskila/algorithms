@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topological Sort (Kahn) — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #888780;
+    --active-color: #BA7517;
+    --ready-fill: #FAC775;
+    --ready-stroke: #854F0B;
+    --ready-text: #412402;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --done-fill: #9FE1CB;
+    --done-stroke: #0F6E56;
+    --done-text: #04342C;
+    --row-done-bg: #E1F5EE;
+    --row-done-text: #04342C;
+    --row-ready-bg: #FAEEDA;
+    --row-ready-text: #854F0B;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #B4B2A9;
+      --active-color: #EF9F27;
+      --ready-fill: #633806;
+      --ready-stroke: #EF9F27;
+      --ready-text: #FAC775;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --done-fill: #085041;
+      --done-stroke: #5DCAA5;
+      --done-text: #9FE1CB;
+      --row-done-bg: #085041;
+      --row-done-text: #9FE1CB;
+      --row-ready-bg: #633806;
+      --row-ready-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 92px;
+  }
+  .meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 16px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.d { background: var(--row-done-bg); color: var(--row-done-text); }
+  td.c { background: var(--row-ready-bg); color: var(--row-ready-text); font-weight: 500; }
+
+  .order-box {
+    margin-top: 16px;
+    font-size: 13px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .order-label { color: var(--text-secondary); }
+  .order-chip {
+    padding: 4px 11px;
+    border-radius: 8px;
+    font-weight: 600;
+    background: var(--done-fill);
+    border: 1.5px solid var(--done-stroke);
+    color: var(--done-text);
+  }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="meta" id="topo-meta"></div>
+    <div class="title" id="topo-title">Initialize in-degrees</div>
+    <div class="narr" id="topo-narr">Count each vertex's in-degree (incoming edges). Only A has in-degree 0, so the ready queue starts as {A}.</div>
+  </div>
+
+  <svg id="topo-svg" viewBox="0 0 600 360">
+    <defs>
+      <marker id="topo-arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge-color)"/>
+      </marker>
+      <marker id="topo-arr-a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--active-color)"/>
+      </marker>
+    </defs>
+    <g id="topo-edges"></g>
+    <g id="topo-nodes"></g>
+  </svg>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 64px;">in-deg</th>
+        <th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="topo-row"></tr>
+    </tbody>
+  </table>
+
+  <div class="order-box" id="topo-order"></div>
+
+  <div class="ctrl">
+    <button id="topo-prev">← Previous</button>
+    <button id="topo-next">Next →</button>
+    <button id="topo-reset">Reset</button>
+    <span class="ctr" id="topo-counter">Step 1 / 8</span>
+  </div>
+</div>
+
+<script>
+  const topoNodes = {
+    A: { x: 70,  y: 180 },
+    B: { x: 210, y: 80  },
+    C: { x: 210, y: 280 },
+    D: { x: 360, y: 130 },
+    E: { x: 360, y: 300 },
+    F: { x: 530, y: 200 }
+  };
+
+  const topoEdges = [
+    { f: 'A', t: 'B' },
+    { f: 'A', t: 'C' },
+    { f: 'B', t: 'D' },
+    { f: 'C', t: 'D' },
+    { f: 'C', t: 'E' },
+    { f: 'D', t: 'F' },
+    { f: 'E', t: 'F' }
+  ];
+
+  const ALL = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+  const topoSteps = [
+    {
+      title: "Initialize in-degrees",
+      narr: "Count each vertex's in-degree (incoming edges): A=0, B=1, C=1, D=2, E=1, F=2. Only A has in-degree 0, so the ready queue starts as {A}.",
+      indeg: { A: 0, B: 1, C: 1, D: 2, E: 1, F: 2 },
+      ready: ['A'], cur: null, done: [], order: [], ae: []
+    },
+    {
+      title: "Pick A (in-degree 0)",
+      narr: "Output A. Decrement its neighbours: B 1→0 and C 1→0. Both reach 0, so the ready queue becomes {B, C}.",
+      indeg: { A: 0, B: 0, C: 0, D: 2, E: 1, F: 2 },
+      ready: ['B', 'C'], cur: 'A', done: [], order: ['A'], ae: ['A-B', 'A-C']
+    },
+    {
+      title: "Pick B (in-degree 0)",
+      narr: "Output B. Decrement its neighbour D: 2→1. D is not 0 yet (C still points to it), so it stays out of the queue. Ready queue: {C}.",
+      indeg: { A: 0, B: 0, C: 0, D: 1, E: 1, F: 2 },
+      ready: ['C'], cur: 'B', done: ['A'], order: ['A', 'B'], ae: ['B-D']
+    },
+    {
+      title: "Pick C (in-degree 0)",
+      narr: "Output C. Decrement neighbours D: 1→0 and E: 1→0. Both reach 0, so the ready queue becomes {D, E}.",
+      indeg: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 2 },
+      ready: ['D', 'E'], cur: 'C', done: ['A', 'B'], order: ['A', 'B', 'C'], ae: ['C-D', 'C-E']
+    },
+    {
+      title: "Pick D (in-degree 0)",
+      narr: "Output D. Decrement its neighbour F: 2→1. F still has E pointing to it, so it stays out. Ready queue: {E}.",
+      indeg: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 1 },
+      ready: ['E'], cur: 'D', done: ['A', 'B', 'C'], order: ['A', 'B', 'C', 'D'], ae: ['D-F']
+    },
+    {
+      title: "Pick E (in-degree 0)",
+      narr: "Output E. Decrement its neighbour F: 1→0. F now reaches 0, so the ready queue becomes {F}.",
+      indeg: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 },
+      ready: ['F'], cur: 'E', done: ['A', 'B', 'C', 'D'], order: ['A', 'B', 'C', 'D', 'E'], ae: ['E-F']
+    },
+    {
+      title: "Pick F (in-degree 0)",
+      narr: "Output F. It has no outgoing edges, so nothing to decrement. The ready queue is now empty.",
+      indeg: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 },
+      ready: [], cur: 'F', done: ['A', 'B', 'C', 'D', 'E'], order: ['A', 'B', 'C', 'D', 'E', 'F'], ae: []
+    },
+    {
+      title: "Done — valid topological order",
+      narr: "All 6 vertices were output, so the graph is a DAG. Order: A, B, C, D, E, F — every edge points forward. (B and C have no path between them, so swapping them gives another valid order — the sort is not unique.)",
+      indeg: { A: 0, B: 0, C: 0, D: 0, E: 0, F: 0 },
+      ready: [], cur: null, done: ['A', 'B', 'C', 'D', 'E', 'F'], order: ['A', 'B', 'C', 'D', 'E', 'F'], ae: []
+    }
+  ];
+
+  let topoStep = 0;
+  const topoKey = (f, t) => f + '-' + t;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function buildMeta(s) {
+    const q = s.ready.length ? '{' + s.ready.join(', ') + '}' : '∅';
+    return 'Ready queue (in-degree 0): ' + q;
+  }
+
+  function topoDraw() {
+    const s = topoSteps[topoStep];
+    const eg = document.getElementById('topo-edges');
+    const ng = document.getElementById('topo-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+
+    topoEdges.forEach(e => {
+      const n1 = topoNodes[e.f], n2 = topoNodes[e.t];
+      const isActive = s.ae.includes(topoKey(e.f, e.t));
+      const stroke = isActive ? activeColor : edgeColor;
+      const sw = isActive ? 2.5 : 1.5;
+      const marker = isActive ? 'url(#topo-arr-a)' : 'url(#topo-arr)';
+
+      const dx = n2.x - n1.x, dy = n2.y - n1.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len, uy = dy / len;
+      const r = 22;
+      const x1 = n1.x + ux * r, y1 = n1.y + uy * r;
+      const x2 = n2.x - ux * (r + 4), y2 = n2.y - uy * (r + 4);
+      eg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
+    });
+
+    Object.keys(topoNodes).forEach(name => {
+      const n = topoNodes[name];
+      const isCur = s.cur === name;
+      const isDone = s.done.includes(name);
+      const isReady = s.ready.includes(name);
+      let fill, stroke, tc;
+      if (isCur) {
+        fill = cssVar('--current-fill'); stroke = cssVar('--current-stroke'); tc = cssVar('--current-text');
+      } else if (isDone) {
+        fill = cssVar('--done-fill'); stroke = cssVar('--done-stroke'); tc = cssVar('--done-text');
+      } else if (isReady) {
+        fill = cssVar('--ready-fill'); stroke = cssVar('--ready-stroke'); tc = cssVar('--ready-text');
+      } else {
+        fill = bgPrimary; stroke = nodeStroke; tc = textPrimary;
+      }
+      const ind = s.indeg[name];
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="16" font-weight="500" fill="${tc}">${name}</text>
+        <text x="${n.x}" y="${n.y - 32}" text-anchor="middle" font-size="13" font-weight="500" fill="${textSecondary}">in=${ind}</text>
+      </g>`;
+    });
+  }
+
+  function topoUpdate() {
+    const s = topoSteps[topoStep];
+    document.getElementById('topo-meta').innerHTML = buildMeta(s);
+    document.getElementById('topo-title').textContent = s.title;
+    document.getElementById('topo-narr').textContent = s.narr;
+    document.getElementById('topo-counter').textContent = `Step ${topoStep + 1} / ${topoSteps.length}`;
+
+    const row = document.getElementById('topo-row');
+    row.innerHTML = '<td style="color: var(--text-secondary);">in-deg</td>';
+    ALL.forEach(n => {
+      const ind = s.indeg[n];
+      let cls = '';
+      if (s.cur === n) cls = 'c';
+      else if (s.done.includes(n)) cls = 'd';
+      row.innerHTML += `<td class="${cls}">${ind}</td>`;
+    });
+
+    const ob = document.getElementById('topo-order');
+    if (s.order.length === 0) {
+      ob.innerHTML = '<span class="order-label">Output order: (empty)</span>';
+    } else {
+      let html = '<span class="order-label">Output order:</span>';
+      s.order.forEach(v => { html += `<span class="order-chip">${v}</span>`; });
+      ob.innerHTML = html;
+    }
+
+    document.getElementById('topo-prev').disabled = topoStep === 0;
+    document.getElementById('topo-next').disabled = topoStep === topoSteps.length - 1;
+    topoDraw();
+  }
+
+  document.getElementById('topo-next').addEventListener('click', () => {
+    if (topoStep < topoSteps.length - 1) { topoStep++; topoUpdate(); }
+  });
+  document.getElementById('topo-prev').addEventListener('click', () => {
+    if (topoStep > 0) { topoStep--; topoUpdate(); }
+  });
+  document.getElementById('topo-reset').addEventListener('click', () => {
+    topoStep = 0; topoUpdate();
+  });
+
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && topoStep < topoSteps.length - 1) { topoStep++; topoUpdate(); }
+    else if (ev.key === 'ArrowLeft' && topoStep > 0) { topoStep--; topoUpdate(); }
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', topoDraw);
+
+  topoUpdate();
+</script>
+</body>
+</html>

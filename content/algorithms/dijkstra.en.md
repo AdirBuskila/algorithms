@@ -49,10 +49,12 @@ Source = **A**. Distances after each node is finalized:
 
 ## On the exam
 
-Dijkstra is almost never a bare "run Dijkstra" question — it's used as a **black box** *after* you reshape the graph so that a shortest path encodes some extra constraint.
+Dijkstra is almost never a bare "run Dijkstra" question — it's used as a **black box** *after* you reshape the graph (sub-topic **6a**) so that a shortest path encodes some extra constraint. Every 6a question:
 
-- **Layered / vertex-copy gadgets.** *(2022 Sem-B Sample, Q2a)* — shortest `s→t` path passing through **at most 2 "traffic-light" vertices**: build a **3-copy layered graph** (one layer per traffic light used) and run Dijkstra. *(2022 Sem-B Mo'ed A, Q4a)* — a path where every two **consecutive edges differ in colour** (red/blue): **double each vertex** by incoming-edge colour, then run Dijkstra.
-- **Property prove/disprove.** *(2025 Summer Mo'ed B, Q1b)* — after Dijkstra from `s`, does adding a positive-weight edge `(u,v)` necessarily change some `d[]`? *(2025 Sem-B Mo'ed B, Q3b — MC)* — a "longest-path" Dijkstra variant (`d = −∞`, max-heap, reversed relax): what can you infer? *(Answer: none of the options — greedy fails for longest paths.)*
+- **Layered / vertex-copy gadgets.** *(2022 Sem-B Sample, Q2a)* — shortest `s→t` path passing through **at most 2 "traffic-light" vertices**: build a **3-copy layered graph** (one layer per traffic light used) and run Dijkstra; *Hint:* one copy of the graph per number of lights already used, edges between copies at each light. *(Q2b — is the returned output a **simple** path? Q2c — demonstrate the run on the given graph.)*
+- **Vertex doubling for an edge-pairing constraint.** *(2022 Sem-B Mo'ed A, Q4a)* — fill-in-the-blanks: decide whether an `s→t` path exists where every two **consecutive edges differ in colour** (red/blue), by **doubling each vertex** by incoming-edge colour, then running Dijkstra. *(Q4b — complexity.)*
+- **Property prove/disprove.** *(2025 Summer Mo'ed B, Q1b)* — prove/disprove: after Dijkstra from `s`, adding a **positive-weight** edge `(u,v)` necessarily breaks (changes) at least one `d[]`.
+- **Dijkstra-variant MC.** *(2025 Sem-B Mo'ed B, Q3b)* — a "longest-path" Dijkstra variant (`d[v] = −∞`, max-heap, reversed relax): what can you infer? *Hint:* the answer is **none of the options** — greedy fails for longest paths.
 
 > [!tip] The single most common shortest-path question
 > When weights are **bounded integers** `w : E → {1..k}` with **constant `k`**, don't reach for Dijkstra — **split each edge into `k` unit edges and run BFS** for `Θ(|V| + |E|)`, beating Dijkstra's `O(|E| + |V|\log|V|)`. *(2023 Summer Mo'ed A, Q2a; 2024 Summer Mo'ed A, Q3e.)*

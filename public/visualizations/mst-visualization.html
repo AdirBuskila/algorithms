@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kruskal's MST Algorithm — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --tree-fill: #9FE1CB;
+    --tree-stroke: #0F6E56;
+    --tree-text: #04342C;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --skip-fill: #FCEBEB;
+    --skip-stroke: #A32D2D;
+    --skip-text: #791F1F;
+    --row-tree-bg: #E1F5EE;
+    --row-tree-text: #04342C;
+    --row-current-bg: #FAEEDA;
+    --row-current-text: #854F0B;
+    --row-skip-bg: #FCEBEB;
+    --row-skip-text: #791F1F;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --tree-fill: #085041;
+      --tree-stroke: #5DCAA5;
+      --tree-text: #9FE1CB;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --skip-fill: #501313;
+      --skip-stroke: #F09595;
+      --skip-text: #F7C1C1;
+      --row-tree-bg: #085041;
+      --row-tree-text: #9FE1CB;
+      --row-current-bg: #633806;
+      --row-current-text: #FAC775;
+      --row-skip-bg: #501313;
+      --row-skip-text: #F7C1C1;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 92px;
+  }
+  .meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 16px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  tr.t td { background: var(--row-tree-bg); color: var(--row-tree-text); }
+  tr.c td { background: var(--row-current-bg); color: var(--row-current-text); font-weight: 500; }
+  tr.s td { background: var(--row-skip-bg); color: var(--row-skip-text); text-decoration: line-through; }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="meta" id="mst-meta"></div>
+    <div class="title" id="mst-title">Initialize</div>
+    <div class="narr" id="mst-narr">Sort all edges by increasing weight, then scan them. Each vertex starts in its own component; the MST is empty (weight 0). We stop after |V| − 1 = 3 edges are added.</div>
+  </div>
+
+  <svg id="mst-svg" viewBox="0 0 600 360">
+    <g id="mst-edges"></g>
+    <g id="mst-nodes"></g>
+  </svg>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 70px;">edge</th>
+        <th style="width: 70px;">weight</th>
+        <th>decision</th>
+      </tr>
+    </thead>
+    <tbody id="mst-tbody"></tbody>
+  </table>
+
+  <div class="ctrl">
+    <button id="mst-prev">← Previous</button>
+    <button id="mst-next">Next →</button>
+    <button id="mst-reset">Reset</button>
+    <span class="ctr" id="mst-counter">Step 1 / 6</span>
+  </div>
+</div>
+
+<script>
+  const mstNodes = {
+    A: { x: 130, y: 80  },
+    B: { x: 130, y: 280 },
+    C: { x: 340, y: 180 },
+    D: { x: 530, y: 180 }
+  };
+
+  // Undirected weighted graph. Edge list shown sorted by increasing weight.
+  const mstEdges = [
+    { a: 'A', b: 'B', w: 1 },
+    { a: 'B', b: 'C', w: 2 },
+    { a: 'A', b: 'C', w: 3 },
+    { a: 'C', b: 'D', w: 4 }
+  ];
+
+  const VERT = ['A', 'B', 'C', 'D'];
+  const TARGET = VERT.length - 1; // |V| - 1 = 3 edges
+
+  // Per step: idx = edge under consideration (null at start/end),
+  // tree = keys of accepted edges, skip = keys of rejected (cycle) edges,
+  // comp = component label per vertex (for the meta line), weight = running MST weight.
+  const ek = (a, b) => [a, b].sort().join('-');
+
+  const mstSteps = [
+    {
+      title: "Initialize — sort edges, all vertices separate",
+      narr: "Sort all edges by increasing weight, then scan them. Each vertex starts in its own component; the MST is empty (weight 0). We stop after |V| − 1 = 3 edges are added.",
+      idx: null, tree: [], skip: [],
+      comp: { A: 'A', B: 'B', C: 'C', D: 'D' }, weight: 0
+    },
+    {
+      title: "Consider (A, B), weight 1 — ADD",
+      narr: "The lightest edge. A and B are in different components, so adding it forms no cycle. Add it to the tree: it merges {A} and {B}. MST weight = 1, edges added = 1.",
+      idx: 0, tree: ['A-B'], skip: [],
+      comp: { A: 'AB', B: 'AB', C: 'C', D: 'D' }, weight: 1
+    },
+    {
+      title: "Consider (B, C), weight 2 — ADD",
+      narr: "Next lightest. B is in {A,B}, C is on its own — different components, so no cycle. Add it: C joins {A,B}. MST weight = 1 + 2 = 3, edges added = 2.",
+      idx: 1, tree: ['A-B', 'B-C'], skip: [],
+      comp: { A: 'ABC', B: 'ABC', C: 'ABC', D: 'D' }, weight: 3
+    },
+    {
+      title: "Consider (A, C), weight 3 — SKIP (cycle)",
+      narr: "A and C are already in the same component {A,B,C}. Adding (A,C) would close the cycle A–B–C–A, so we reject it. The tree is unchanged: weight stays 3, edges added still 2.",
+      idx: 2, tree: ['A-B', 'B-C'], skip: ['A-C'],
+      comp: { A: 'ABC', B: 'ABC', C: 'ABC', D: 'D' }, weight: 3
+    },
+    {
+      title: "Consider (C, D), weight 4 — ADD",
+      narr: "C is in {A,B,C}, D is on its own — different components, no cycle. Add it: D joins the tree. MST weight = 3 + 4 = 7, edges added = 3 = |V| − 1.",
+      idx: 3, tree: ['A-B', 'B-C', 'C-D'], skip: ['A-C'],
+      comp: { A: 'ABCD', B: 'ABCD', C: 'ABCD', D: 'ABCD' }, weight: 7
+    },
+    {
+      title: "Done — minimum spanning tree found",
+      narr: "We have |V| − 1 = 3 edges, so the spanning tree is complete. MST = {(A,B), (B,C), (C,D)} with total weight 1 + 2 + 4 = 7. The skipped edge (A,C) would only have added a cycle.",
+      idx: null, tree: ['A-B', 'B-C', 'C-D'], skip: ['A-C'],
+      comp: { A: 'ABCD', B: 'ABCD', C: 'ABCD', D: 'ABCD' }, weight: 7
+    }
+  ];
+
+  let mstStep = 0;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function buildMeta(s) {
+    return `MST weight: <strong>${s.weight}</strong> &nbsp;·&nbsp; edges added: <strong>${s.tree.length}</strong> / ${TARGET} (|V| − 1)`;
+  }
+
+  function mstDraw() {
+    const s = mstSteps[mstStep];
+    const treeSet = new Set(s.tree);
+    const skipSet = new Set(s.skip);
+    const curKey = s.idx === null ? null : ek(mstEdges[s.idx].a, mstEdges[s.idx].b);
+
+    const eg = document.getElementById('mst-edges');
+    const ng = document.getElementById('mst-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+    const treeStroke = cssVar('--tree-stroke');
+    const treeText = cssVar('--tree-text');
+    const skipStroke = cssVar('--skip-stroke');
+    const skipText = cssVar('--skip-text');
+
+    mstEdges.forEach(e => {
+      const n1 = mstNodes[e.a], n2 = mstNodes[e.b];
+      const key = ek(e.a, e.b);
+      const isTree = treeSet.has(key);
+      const isSkip = skipSet.has(key);
+      const isCur = key === curKey;
+
+      let stroke = edgeColor, sw = 1.5, dash = '';
+      if (isCur) { stroke = activeColor; sw = 3; }
+      else if (isTree) { stroke = treeStroke; sw = 3; }
+      else if (isSkip) { stroke = skipStroke; sw = 1.5; dash = ' stroke-dasharray="5 4"'; }
+
+      eg.innerHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${stroke}" stroke-width="${sw}"${dash}/>`;
+
+      const mx = (n1.x + n2.x) / 2, my = (n1.y + n2.y) / 2;
+      let wFill = bgPrimary, wStroke = stroke, wColor = textPrimary;
+      if (isTree && !isCur) { wColor = treeText; }
+      else if (isSkip && !isCur) { wColor = skipText; }
+      eg.innerHTML += `<circle cx="${mx}" cy="${my}" r="13" fill="${wFill}" stroke="${wStroke}" stroke-width="1"/>`;
+      eg.innerHTML += `<text x="${mx}" y="${my}" text-anchor="middle" dy="4" font-size="12" font-weight="500" fill="${wColor}">${e.w}</text>`;
+    });
+
+    // a vertex is "in the tree" once any accepted edge touches it
+    const inTree = new Set();
+    s.tree.forEach(k => k.split('-').forEach(v => inTree.add(v)));
+
+    VERT.forEach(name => {
+      const n = mstNodes[name];
+      const isIn = inTree.has(name);
+      let fill, stroke, tc;
+      if (isIn) {
+        fill = cssVar('--tree-fill');
+        stroke = cssVar('--tree-stroke');
+        tc = cssVar('--tree-text');
+      } else {
+        fill = bgPrimary;
+        stroke = nodeStroke;
+        tc = textPrimary;
+      }
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="16" font-weight="500" fill="${tc}">${name}</text>
+      </g>`;
+    });
+  }
+
+  function mstUpdate() {
+    const s = mstSteps[mstStep];
+    document.getElementById('mst-meta').innerHTML = buildMeta(s);
+    document.getElementById('mst-title').textContent = s.title;
+    document.getElementById('mst-narr').textContent = s.narr;
+    document.getElementById('mst-counter').textContent = `Step ${mstStep + 1} / ${mstSteps.length}`;
+
+    const treeSet = new Set(s.tree);
+    const skipSet = new Set(s.skip);
+    const curKey = s.idx === null ? null : ek(mstEdges[s.idx].a, mstEdges[s.idx].b);
+
+    const tbody = document.getElementById('mst-tbody');
+    tbody.innerHTML = '';
+    mstEdges.forEach(e => {
+      const key = ek(e.a, e.b);
+      let cls = '', decision = '—';
+      if (key === curKey) {
+        cls = 'c';
+        decision = treeSet.has(key) ? 'add ✓' : (skipSet.has(key) ? 'skip — cycle' : 'considering…');
+      } else if (treeSet.has(key)) {
+        cls = 't'; decision = 'in tree ✓';
+      } else if (skipSet.has(key)) {
+        cls = 's'; decision = 'cycle ✗';
+      }
+      tbody.innerHTML += `<tr class="${cls}"><td>(${e.a}, ${e.b})</td><td>${e.w}</td><td>${decision}</td></tr>`;
+    });
+
+    document.getElementById('mst-prev').disabled = mstStep === 0;
+    document.getElementById('mst-next').disabled = mstStep === mstSteps.length - 1;
+    mstDraw();
+  }
+
+  document.getElementById('mst-next').addEventListener('click', () => {
+    if (mstStep < mstSteps.length - 1) { mstStep++; mstUpdate(); }
+  });
+  document.getElementById('mst-prev').addEventListener('click', () => {
+    if (mstStep > 0) { mstStep--; mstUpdate(); }
+  });
+  document.getElementById('mst-reset').addEventListener('click', () => {
+    mstStep = 0; mstUpdate();
+  });
+
+  // keyboard arrows
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && mstStep < mstSteps.length - 1) { mstStep++; mstUpdate(); }
+    else if (ev.key === 'ArrowLeft' && mstStep > 0) { mstStep--; mstUpdate(); }
+  });
+
+  // redraw on color scheme change
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', mstDraw);
+
+  mstUpdate();
+</script>
+</body>
+</html>

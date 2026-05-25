@@ -6,6 +6,8 @@ title: "עץ פורש מינימלי (Kruskal / Prim)"
 summary: "עץ במשקל מינימלי המחבר את כל הקודקודים, נבנה בחמדנות לפי תכונת החתך — Kruskal או Prim."
 frequency: "0/19"
 difficulty: medium
+visualization: mst-visualization.html
+vizHeight: 820
 complexity:
   time: 'O(|E| \log |V|)'
   timeNote: "Kruskal (מיון + Union-Find); Prim הוא O(|E| + |V| log |V|) עם ערימה"

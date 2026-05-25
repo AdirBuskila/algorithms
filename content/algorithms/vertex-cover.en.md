@@ -6,6 +6,8 @@ title: "Vertex Cover (2-Approximation)"
 summary: "A linear-time 2-approximation for minimum vertex cover: repeatedly pick an uncovered edge and add both its endpoints."
 frequency: "11/19"
 difficulty: medium
+visualization: vertex-cover-visualization.html
+vizHeight: 760
 complexity:
   time: 'O(|V| + |E|)'
   timeNote: "VC_improved / VC_greedy run linearly; the result is an approximation, ratio = 2"
@@ -59,11 +61,13 @@ Take a path $a - b - c - d$ (3 edges).
 
 ## On the exam
 
-Vertex Cover appears **from 2024 onward** — as a 5-point bonus, and from 2025 as a full 30-point question. From **Topic 9**:
+Vertex Cover appears **from 2024 onward** — as a 5-point bonus, and from 2025 as a full 30-point question. Every **Topic 9** appearance across the 19 exams:
 
-- **"Can it return OPT?" (parity).** *(2024 Sem-B Mo'ed A, Bonus)* — can a `VC_improved` run return a minimum cover with $\lvert\text{OPT}\rvert=13$? *(No — it always returns an even count.)* *(2025 Sem-B Mo'ed B, Q1b)* — yes for a general graph (even OPT), no for an odd cycle $C_n$.
-- **The $\lvert M\rvert$ vs $\lvert\text{OPT}\rvert$ relation.** *(2025 Sem-B Mo'ed A, Q3c — MC)* — which of $\lvert M\rvert\leq\lvert\text{OPT}\rvert\leq 2\lvert M\rvert$ necessarily holds for a maximal matching $M$ and a minimum cover. *(2025 Sem-B Mo'ed B, Q1c)* — prove the approximation ratio is **2** ($\lvert\text{SOL}\rvert=2\lvert M\rvert\leq 2\lvert\text{OPT}\rvert$); part 1a asks $\text{OPT}$ of a cycle $C_n$ ($n/2$ even, $(n+1)/2$ odd).
-- **Pick-order multiple choice.** *(2025 Summer Mo'ed A, Q3d; 2024 Sem-B Sample, Bonus)* — mark every possible order in which `VC_improved` / `VC_greedy` selects vertices. *(2025 Summer Mo'ed B, Q3e)* — the `VC_greedy` variant, which is **not** a 2-approximation.
+- **"Can it return OPT?" (parity).** *(2024 Sem-B Mo'ed A, Bonus)* — can a `VC_improved` run return a minimum cover with $\lvert\text{OPT}\rvert=13$? *Hint:* no — each iteration adds a **pair**, so the output is always even and can never equal an odd OPT.
+- **Full 30-point question.** *(2025 Sem-B Mo'ed B, Q1a)* — compute $\text{OPT}$ of a cycle $C_n$; *Hint:* $n/2$ for even $n$, $(n+1)/2$ for odd $n$. *(2025 Sem-B Mo'ed B, Q1b)* — can `VC_improved` ever return $\text{OPT}$? *Hint:* yes for a general graph with an even OPT, no for an odd cycle $C_n$ (parity). *(2025 Sem-B Mo'ed B, Q1c)* — prove the approximation ratio is **2**; *Hint:* the picked edges form a matching $M$, so $\lvert\text{SOL}\rvert=2\lvert M\rvert$ and $\lvert\text{OPT}\rvert\geq\lvert M\rvert$, hence $\lvert\text{SOL}\rvert\leq 2\lvert\text{OPT}\rvert$.
+- **The $\lvert M\rvert$ vs $\lvert\text{OPT}\rvert$ relation.** *(2025 Sem-B Mo'ed A, Q3c — MC)* — which of $\lvert M\rvert\leq\lvert\text{OPT}\rvert\leq 2\lvert M\rvert$ necessarily holds for a maximal matching $M$ and a minimum cover; *Hint:* both bounds hold — every cover hits each matching edge ($\lvert\text{OPT}\rvert\geq\lvert M\rvert$), and the endpoints of $M$ form a cover ($\lvert\text{OPT}\rvert\leq 2\lvert M\rvert$).
+- **Pick-order multiple choice.** *(2025 Summer Mo'ed A, Q3d)* — mark every possible order in which `VC_improved` selects vertices; *Hint:* the picked edge is arbitrary, so any maximal-matching order is valid, but each pick must be an **uncovered** edge. *(2024 Sem-B Sample, Bonus)* and *(2025 Summer Mo'ed B, Q3e)* — the same for `VC_greedy` (always grab the highest-degree vertex), which is **not** a 2-approximation; *Hint:* track degrees as vertices are removed, and recall `VC_greedy` can be a $\Theta(\log n)$ factor off.
+- **Does it return a minimum cover? (bonus MC).** *(2024 Sem-B Mo'ed B, Bonus)*, *(2024 Sem-B Special Mo'ed, Bonus)*, *(2024 Summer Mo'ed A, Bonus)*, *(2024 Summer Mo'ed B, Bonus)*, *(2024 Summer Mo'ed C, Bonus)* — does `VC_improved` / `VC_greedy` return a minimum cover, or mark the possible pick order; *Hint:* `VC_improved` returns a valid 2-approximation but rarely the exact minimum (parity + the tight $2\lvert M\rvert$ bound).
 
 > [!tip] The golden rule for the approximation bonus
 > `VC_improved` is a 2-approximation because the picked edges form a matching $M$: $\lvert\text{SOL}\rvert=2\lvert M\rvert$, and since any cover must cover each edge of $M$ separately, $\lvert\text{OPT}\rvert\geq\lvert M\rvert$, hence $\lvert\text{SOL}\rvert\leq 2\lvert\text{OPT}\rvert$. The lower bound $\lvert M\rvert\leq\lvert\text{OPT}\rvert$ is exactly the [[Bipartite Matching & Hall's Theorem|matching]] connection — and watch the **parity** trap: an even-sized output can never equal an odd OPT.

@@ -6,6 +6,8 @@ title: "Minimum Spanning Tree (Kruskal / Prim)"
 summary: "A minimum-weight tree connecting all vertices, built greedily via the cut property — Kruskal or Prim."
 frequency: "0/19"
 difficulty: medium
+visualization: mst-visualization.html
+vizHeight: 820
 complexity:
   time: 'O(|E| \log |V|)'
   timeNote: "Kruskal (sort + Union-Find); Prim is O(|E| + |V| log |V|) with a heap"

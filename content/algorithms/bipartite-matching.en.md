@@ -6,6 +6,8 @@ title: "Bipartite Matching & Hall's Theorem"
 summary: "Maximum matching in a bipartite graph via reduction to max-flow, with Hall's marriage condition and König's theorem."
 frequency: "13/19"
 difficulty: medium
+visualization: bipartite-matching-visualization.html
+vizHeight: 820
 complexity:
   time: 'O(|V| \cdot |E|)'
   timeNote: "max-matching via max-flow / augmenting paths; Hopcroft–Karp is O(√|V| · |E|)"
@@ -48,11 +50,13 @@ Max-flow $=3$ (e.g. $a_1\to b_2,\ a_2\to b_1,\ a_3\to b_3$) → a **perfect matc
 
 ## On the exam
 
-Matching is the home of **Question 1c** — a prove-or-disprove part that almost always hinges on Hall, König, or an augmenting-path argument. From **Topic 8**:
+Matching is the home of **Question 1c** — a prove-or-disprove part that almost always hinges on Hall, König, or an augmenting-path argument. Every **Topic 8** appearance across the 19 exams:
 
-- **Hall / marriage condition.** *(2024 Sem-B Mo'ed A, Q1c — true)* — with $\deg(a_i)\geq i$ and $\deg(b_i)\geq i$, a perfect matching exists (any $X$ of size $k$ contains some $a_i$ with $i\geq k$, so $\lvert N(X)\rvert\geq k$). *(2023 Summer Mo'ed A, Q4a)* — by Hall, does a matching saturating $L$ exist? saturating $R$? *(2025 Sem-B Mo'ed A, Q1c)* — a Hall *variant*: does "$\lvert N(X)\rvert\geq\lvert X\rvert$ for every $X$ of size exactly $k$" force a matching of size $k$?
-- **Regular & structural.** *(2024 Summer Mo'ed B/C, Q1b)* — an $r$-regular **bipartite** graph has a perfect matching (true); the **non**-bipartite version is false (odd cycle). *(2024 Sem-B Mo'ed B, Q1c — false)* — "non-bipartite ⟹ no perfect matching" is wrong. *(2024 Summer Mo'ed A, Q1c — true)* — every matching $M$ extends to a maximum matching covering all of $M$'s vertices.
-- **Maximality check (algorithm design).** *(2023 Sem-B Mo'ed B, Q3c; 2025 Summer Mo'ed B, Q1c)* — a **linear** algorithm deciding whether $M$ is maximum: build the flow network and run **one** augmenting-path search in $O(\lvert V\rvert+\lvert E\rvert)$.
+- **Hall / marriage condition.** *(2024 Sem-B Mo'ed A, Q1c — true)* — with $\deg(a_i)\geq i$ and $\deg(b_i)\geq i$, a perfect matching exists; *Hint:* any $X$ of size $k$ contains some $a_i$ with $i\geq k$, so $\lvert N(X)\rvert\geq k$ and Hall holds. *(2023 Summer Mo'ed A, Q4a)* — by Hall, does a matching saturating $L$ exist? saturating $R$? justify each side separately; *Hint:* exhibit a violating $X\subseteq L$ (resp. $X\subseteq R$) or argue Hall holds. *(2025 Sem-B Mo'ed A, Q1c)* — a Hall *variant*: does "$\lvert X\rvert\leq\lvert N(X)\rvert$ for every $X\subseteq A$ of size exactly $k$" force a matching of size $k$? *Hint:* Hall needs **all** subset sizes $\le k$, not only size $k$.
+- **Regular & structural existence.** *(2024 Summer Mo'ed B, Q1b)* and *(2024 Summer Mo'ed C, Q1b)* — an $r$-regular **bipartite** graph ($r>0$) has a perfect matching (true); *Hint:* count edges — $r\lvert X\rvert$ leave $X$, so $\lvert N(X)\rvert\geq\lvert X\rvert$; the **non**-bipartite version is false (take an odd-vertex example). *(2024 Sem-B Mo'ed B, Q1c — false)* — "non-bipartite ⟹ no perfect matching" is wrong; *Hint:* an even cycle is non-bipartite-free but $C_4$ already has one — give any non-bipartite graph with a perfect matching. *(2024 Sem-B Special Mo'ed, Q1b-c)* — two parts: does $\operatorname{diam}(G)=2$ in a bipartite graph force it to be **complete bipartite**? and does "all cycles even" force a **perfect matching**? *Hint:* both false — find small counterexamples (the second: a path has only even... actually a tree, which is bipartite, need not be perfectly matchable).
+- **Effect of edits & sub-structure.** *(2022 Sem-B Mo'ed A, Q1a)* — prove/disprove: adding **one** edge cannot increase the maximum matching by more than 1; *Hint:* a single new edge contributes at most one to any matching. *(2022 Sem-B Sample, Q1b)* — prove/disprove: a perfect matching $M$ **plus** a cycle in the graph yields another perfect matching $M'\neq M$; *Hint:* an even alternating cycle can be flipped, but the cycle's edges need not alternate w.r.t. $M$. *(2024 Summer Mo'ed A, Q1c — true)* — every matching $M$ extends to a maximum matching $M'$ covering all of $M$'s vertices; *Hint:* augmenting-path flips never un-cover an already-matched vertex.
+- **Uniqueness.** *(2025 Summer Mo'ed A, Q1b)* — prove/disprove: $\lvert N(X)\rvert=\lvert X\rvert$ for **every** $X\subseteq A$ ⟹ the maximum matching is **unique**; *Hint:* equality everywhere forbids alternating cycles / two distinct saturating matchings.
+- **Maximality check (algorithm design).** *(2023 Sem-B Mo'ed B, Q3c)* and *(2025 Summer Mo'ed B, Q1c)* — a **linear** algorithm deciding whether a given $M$ is maximum: build the flow network and run **one** augmenting-path search (one Ford–Fulkerson iteration) in $O(\lvert V\rvert+\lvert E\rvert)$; $M$ is maximum ⇔ no augmenting path is found.
 
 > [!tip] The golden rule for matching
 > A matching saturating $A$ exists **⇔** $\lvert N(X)\rvert\geq\lvert X\rvert$ for **every** $X\subseteq A$ (Hall). To check whether a given $M$ is maximum, search for a single **augmenting path** in $O(\lvert V\rvert+\lvert E\rvert)$ — and remember König's $\mu=\eta$ holds **only** in bipartite graphs.

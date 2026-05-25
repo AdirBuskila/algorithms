@@ -91,11 +91,11 @@ Sweep `k = 1 → 4`; each pass reads row `k` and column `k` and improves any cel
 
 ## On the exam
 
-Floyd–Warshall is the **multiple-choice regular** — almost every 2024–2025 exam has a part **3d** that reads or reconstructs a Floyd–Warshall matrix.
+Floyd–Warshall is the **multiple-choice regular** — almost every 2024–2025 exam has a part **3d** that reads or reconstructs a Floyd–Warshall matrix (sub-topic **6c**). Every 6c question:
 
-- **Meaning of `D⁽ᵏ⁾[i][j]`.** *(2024 Summer Mo'ed A, Q3d)* — "what is `D⁽²⁾[1][4]`?" → the lightest `1→4` path using **only `1, 2`** as intermediate vertices. Knowing the superscript `k` = "intermediates allowed from `{1..k}`" answers these instantly.
-- **Path reconstruction from the predecessor matrix `P`.** *(2024 Sem-B Sample, Q3d; 2024 Mo'ed B / Special / Summer B / C, Q3d; 2025 Summer Mo'ed B, Q3d)* — follow `P[i][j]` back from `j` to `i` to print the actual shortest path.
-- **Did `k` land on a shortest path?** *(2025 Summer Mo'ed A, Q1c)* — prove/disprove: if iteration `k` performed `D[i][j] = D[i][k] + D[k][j]`, then `k` lies on a shortest `i→j` path.
+- **Meaning of `D⁽ᵏ⁾[i][j]`.** *(2024 Summer Mo'ed A, Q3d)* — what is `D⁽²⁾[1][4]`? *Hint:* the lightest `1→4` path using **only `1, 2`** as intermediate vertices. The superscript `k` = "intermediates allowed from `{1..k}`" answers these instantly.
+- **Path reconstruction from the predecessor matrix `P`.** *(2024 Sem-B Sample, Q3d)* — reconstruct a shortest path from `P`; *Hint:* follow `P[i][j]` back from `j` to `i`. *(2024 Sem-B Mo'ed B / Special Mo'ed, Q3d; 2024 Summer Mo'ed B / C, Q3d)* — reconstruct/interpret the matrix (shortest path between two vertices). *(2025 Summer Mo'ed B, Q3d)* — reconstruct path `1→6` from a 7-vertex predecessor matrix.
+- **Did `k` land on a shortest path?** *(2025 Summer Mo'ed A, Q1c)* — prove/disprove: if iteration `k` performed `D[i][j] = D[i][k] + D[k][j]`, then `k` lies on a shortest `i→j` path in `G`.
 
 > [!tip] It also computes transitive closure
 > Replace `min / +` with boolean `OR / AND` and Floyd–Warshall becomes **reachability** in `O(|V|^3)` — the boolean [[Transitive Closure|transitive closure]] `G*`, a recurring Topic-5 design question.

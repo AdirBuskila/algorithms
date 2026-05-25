@@ -12,6 +12,8 @@ complexity:
   space: 'O(|V|)'
   spaceNote: "the order array + in-degree counts / queue"
 examFrequency: "Topic 4 · Topological Sort — ~8/19 exams"
+visualization: topological-sort-visualization.html
+vizHeight: 820
 ---
 
 **Goal:** order the vertices of a directed graph in a line so that **every edge `(u → v)` points forward** (`u` appears before `v`).
@@ -73,11 +75,11 @@ Valid order: `A, B, C, D`. (`A, C, B, D` is also valid — the sort is **not uni
 
 ## On the exam
 
-Topological sort shows up both as a **prove/disprove** claim (Question 1) and as an **MC** part — usually about existence, uniqueness, or comparing the lexicographic ascending vs descending sorts.
+Topological sort shows up both as a **prove/disprove** claim (Question 1) and as an **MC** part (Question 3) — usually about existence, uniqueness, or comparing the lexicographic ascending vs descending sorts. Every topological-sort exam question to date:
 
-- **Existence & method.** *(2023 Sem-B Mo'ed B, Q2)* — given Kahn's pseudocode: run it, give a graph that returns FALSE (= has a cycle), and identify that it computes a topological sort. *(2024 Sem-B Special Mo'ed, Q1a)* — a root in a directed graph ⟹ a topological sort exists.
-- **Reachability & uniqueness.** *(2022 Sem-B Mo'ed B, Q1a / 2024 Sem-B Sample, Q1a — true)* — every valid topological order is obtainable from `TOPOLOGICAL_SORT`. *(2025 Summer Mo'ed A, Q3c — MC)* — "two vertices with no path between them ⟺ two distinct sorts" and "a path through all vertices ⟹ a unique sort". *(2025 Summer Mo'ed B, Q1a)* — if `u` precedes `v` in some order, does a path `u → v` necessarily exist? *(no — order ≠ direct edge.)*
-- **Lexicographic variants & condensation.** *(2025 Sem-B Mo'ed A, Q3d — MC)* — ascending vs descending lexicographic sorts of a task DAG: which positions are shared. *(2024 Sem-B Mo'ed A, Q1b — false)* — `|E(G)| = |E(Gˢᶜᶜ)|` does **not** imply the condensation has a unique topological sort.
+- **Existence & method.** *(2023 Sem-B Mo'ed B, Q2)* — given pseudocode (= **Kahn**, with in-degrees and a queue): *(Q2a)* run it and record the print order + TRUE/FALSE; *(Q2b)* give a graph that returns FALSE (= has a cycle); *(Q2c)* identify what it computes (= a topological sort). *(2024 Sem-B Special Mo'ed, Q1a)* — a **root** in a directed graph ⟹ a topological sort exists. *Hint:* a root forces a vertex reaching all others, hence an acyclic order. **(Q3e — MC claims about a topological sort existing for every directed graph — false: only DAGs.)**
+- **Reachability & uniqueness.** *(2022 Sem-B Mo'ed B, Q1a)* — prove/disprove: in a DAG **every** valid topological order is obtainable from `TOPOLOGICAL_SORT(G)`. *(2024 Sem-B Sample, Q1a — true)* — same claim: every topological order is obtainable from `TOPOLOGICAL_SORT`. *(2025 Summer Mo'ed A, Q3c — MC)* — on a DAG: existence of a sort, "two vertices with no path between them ⟺ two distinct sorts", and "a path through all vertices ⟹ a unique sort". *(2025 Summer Mo'ed B, Q1a)* — prove/disprove: if `u` precedes `v` in some topological order, does a path `u → v` necessarily exist? *Hint:* no — order is not a direct edge; find a counterexample.
+- **Lexicographic variants & condensation.** *(2025 Sem-B Mo'ed A, Q3d — MC)* — two sorts (ascending vs descending lexicographic) of a task DAG: which task positions are shared. *(2024 Sem-B Mo'ed A, Q1b — false)* — `|E(G)| = |E(Gˢᶜᶜ)|` does **not** imply the condensation has a unique topological sort. *Hint:* equal edge counts say nothing about a Hamiltonian chain in `Gˢᶜᶜ`.
 
 > [!tip] The uniqueness rule worth memorizing
 > A DAG has a **unique** topological order **⟺ a directed path passes through all `|V|` vertices in sort order** (a Hamiltonian chain). To run the sort, build the [[Depth-First Search (DFS)|DFS]] finish times and reverse them; for cycle questions, remember that the order is defined **only** on a DAG — the condensation produced by [[Strongly Connected Components (SCC)]] is the canonical place a topological sort applies.

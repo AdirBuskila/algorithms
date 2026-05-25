@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Depth-First Search (DFS) — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --gray-fill: #FAC775;
+    --gray-stroke: #854F0B;
+    --gray-text: #412402;
+    --black-fill: #9FE1CB;
+    --black-stroke: #0F6E56;
+    --black-text: #04342C;
+    --tree-color: #0F6E56;
+    --back-color: #A32D2D;
+    --forward-color: #6A4BC4;
+    --cross-color: #BA7517;
+    --row-black-bg: #E1F5EE;
+    --row-black-text: #04342C;
+    --row-gray-bg: #FAEEDA;
+    --row-gray-text: #854F0B;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --gray-fill: #633806;
+      --gray-stroke: #EF9F27;
+      --gray-text: #FAC775;
+      --black-fill: #085041;
+      --black-stroke: #5DCAA5;
+      --black-text: #9FE1CB;
+      --tree-color: #5DCAA5;
+      --back-color: #F09595;
+      --forward-color: #B6A4F0;
+      --cross-color: #EF9F27;
+      --row-black-bg: #085041;
+      --row-black-text: #9FE1CB;
+      --row-gray-bg: #633806;
+      --row-gray-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 88px;
+  }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 18px; height: 0; border-top-width: 3px; border-top-style: solid; display: inline-block; }
+
+  .panel { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+  .panel > div { flex: 1; min-width: 240px; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.b { background: var(--row-black-bg); color: var(--row-black-text); }
+  td.g { background: var(--row-gray-bg); color: var(--row-gray-text); font-weight: 500; }
+
+  .stack-title { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  .stack {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 4px;
+    min-height: 120px;
+  }
+  .frame {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    border: 0.5px solid var(--border);
+    background: var(--bg-secondary);
+  }
+  .frame.top {
+    background: var(--row-gray-bg);
+    color: var(--row-gray-text);
+    border-color: var(--gray-stroke);
+    font-weight: 500;
+  }
+  .stack-empty { font-size: 13px; color: var(--text-secondary); font-style: italic; }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="title" id="dfs-title">Initialize</div>
+    <div class="narr" id="dfs-narr">All vertices white, d/f undefined, time = 0. The main loop starts DFS-Visit at A.</div>
+  </div>
+
+  <svg id="dfs-svg" viewBox="0 0 600 360">
+    <defs>
+      <marker id="dfs-arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge-color)"/>
+      </marker>
+      <marker id="dfs-arr-tree" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--tree-color)"/>
+      </marker>
+      <marker id="dfs-arr-back" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--back-color)"/>
+      </marker>
+      <marker id="dfs-arr-forward" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--forward-color)"/>
+      </marker>
+      <marker id="dfs-arr-cross" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--cross-color)"/>
+      </marker>
+    </defs>
+    <g id="dfs-edges"></g>
+    <g id="dfs-nodes"></g>
+  </svg>
+
+  <div class="legend">
+    <span><i class="swatch" style="border-top-color: var(--tree-color);"></i>tree</span>
+    <span><i class="swatch" style="border-top-color: var(--back-color);"></i>back (cycle!)</span>
+    <span><i class="swatch" style="border-top-color: var(--forward-color);"></i>forward</span>
+    <span><i class="swatch" style="border-top-color: var(--cross-color);"></i>cross</span>
+  </div>
+
+  <div class="panel">
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 44px;"></th>
+            <th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="dfs-row-d"></tr>
+          <tr id="dfs-row-f"></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="stack-title">Recursion stack (gray vertices) — top = current</div>
+      <div class="stack" id="dfs-stack"></div>
+    </div>
+  </div>
+
+  <div class="ctrl">
+    <button id="dfs-prev">← Previous</button>
+    <button id="dfs-next">Next →</button>
+    <button id="dfs-reset">Reset</button>
+    <span class="ctr" id="dfs-counter">Step 1 / 16</span>
+  </div>
+</div>
+
+<script>
+  // Directed graph. Adjacency order (alphabetical) determines visit order.
+  // A:[B,C]  B:[C,D]  C:[E]  D:[E,F]  E:[B]  F:[A]
+  const dfsNodes = {
+    A: { x: 90,  y: 70  },
+    B: { x: 300, y: 60  },
+    C: { x: 500, y: 90  },
+    D: { x: 300, y: 200 },
+    E: { x: 500, y: 250 },
+    F: { x: 120, y: 270 }
+  };
+
+  // type is the FINAL classification; revealed only once the algorithm classifies it.
+  const dfsEdges = [
+    { f: 'A', t: 'B', type: 'tree',    curve: 0   },
+    { f: 'A', t: 'C', type: 'forward', curve: -40 },
+    { f: 'B', t: 'C', type: 'tree',    curve: 0   },
+    { f: 'B', t: 'D', type: 'tree',    curve: 0   },
+    { f: 'C', t: 'E', type: 'tree',    curve: 0   },
+    { f: 'D', t: 'E', type: 'cross',   curve: 0   },
+    { f: 'D', t: 'F', type: 'tree',    curve: 0   },
+    { f: 'E', t: 'B', type: 'back',    curve: 45  },
+    { f: 'F', t: 'A', type: 'back',    curve: 0   }
+  ];
+
+  const NODES = ['A', 'B', 'C', 'D', 'E', 'F'];
+  const U = '—'; // undefined timestamp
+
+  // Each step carries the full state at that moment.
+  //   color: per-node 'W' | 'G' | 'B'
+  //   d, f : timestamps (or null)
+  //   stack: current recursion stack (gray frames), bottom→top
+  //   cur  : current vertex being processed
+  //   classified: set of "F-T" edge keys whose type is now known (colored on the graph)
+  //   ae   : the single edge highlighted (active) this step, as "F-T"
+  const dfsSteps = [
+    {
+      title: "Initialize",
+      narr: "All vertices white, every d/f undefined, time = 0. The main loop scans vertices in order A, B, … and starts DFS-Visit on the first white one: A.",
+      color: { A:'W', B:'W', C:'W', D:'W', E:'W', F:'W' },
+      d: { A:null, B:null, C:null, D:null, E:null, F:null },
+      f: { A:null, B:null, C:null, D:null, E:null, F:null },
+      stack: [], cur: null, classified: [], ae: null
+    },
+    {
+      title: "Discover A — d[A] = 1",
+      narr: "DFS-Visit(A): color A gray, time = 1, d[A] = 1. A is pushed onto the recursion stack. We scan A's neighbors in order: first B.",
+      color: { A:'G', B:'W', C:'W', D:'W', E:'W', F:'W' },
+      d: { A:1, B:null, C:null, D:null, E:null, F:null },
+      f: { A:null, B:null, C:null, D:null, E:null, F:null },
+      stack: ['A'], cur: 'A', classified: [], ae: null
+    },
+    {
+      title: "A → B is a TREE edge — discover B, d[B] = 2",
+      narr: "B is white, so A→B is a tree edge: set π[B] = A, recurse. Color B gray, time = 2, d[B] = 2. Push B. Scan B's neighbors: first C.",
+      color: { A:'G', B:'G', C:'W', D:'W', E:'W', F:'W' },
+      d: { A:1, B:2, C:null, D:null, E:null, F:null },
+      f: { A:null, B:null, C:null, D:null, E:null, F:null },
+      stack: ['A','B'], cur: 'B', classified: ['A-B'], ae: 'A-B'
+    },
+    {
+      title: "B → C is a TREE edge — discover C, d[C] = 3",
+      narr: "C is white, so B→C is a tree edge: π[C] = B, recurse. Color C gray, time = 3, d[C] = 3. Push C. Scan C's only neighbor: E.",
+      color: { A:'G', B:'G', C:'G', D:'W', E:'W', F:'W' },
+      d: { A:1, B:2, C:3, D:null, E:null, F:null },
+      f: { A:null, B:null, C:null, D:null, E:null, F:null },
+      stack: ['A','B','C'], cur: 'C', classified: ['A-B','B-C'], ae: 'B-C'
+    },
+    {
+      title: "C → E is a TREE edge — discover E, d[E] = 4",
+      narr: "E is white, so C→E is a tree edge: π[E] = C, recurse. Color E gray, time = 4, d[E] = 4. Push E. Scan E's only neighbor: B.",
+      color: { A:'G', B:'G', C:'G', D:'W', E:'G', F:'W' },
+      d: { A:1, B:2, C:3, D:null, E:4, F:null },
+      f: { A:null, B:null, C:null, D:null, E:null, F:null },
+      stack: ['A','B','C','E'], cur: 'E', classified: ['A-B','B-C','C-E'], ae: 'C-E'
+    },
+    {
+      title: "E → B is a BACK edge — a cycle exists!",
+      narr: "B is gray (still on the stack, an ancestor of E), so E→B is a back edge. A back edge means the directed graph has a cycle: B → C → E → B. E has no more neighbors.",
+      color: { A:'G', B:'G', C:'G', D:'W', E:'G', F:'W' },
+      d: { A:1, B:2, C:3, D:null, E:4, F:null },
+      f: { A:null, B:null, C:null, D:null, E:null, F:null },
+      stack: ['A','B','C','E'], cur: 'E', classified: ['A-B','B-C','C-E','E-B'], ae: 'E-B'
+    },
+    {
+      title: "Finish E — f[E] = 5",
+      narr: "All of E's neighbors are done. Color E black, time = 5, f[E] = 5. Pop E off the stack; we return to its parent C.",
+      color: { A:'G', B:'G', C:'G', D:'W', E:'B', F:'W' },
+      d: { A:1, B:2, C:3, D:null, E:4, F:null },
+      f: { A:null, B:null, C:null, D:null, E:5, F:null },
+      stack: ['A','B','C'], cur: 'C', classified: ['A-B','B-C','C-E','E-B'], ae: null
+    },
+    {
+      title: "Finish C — f[C] = 6",
+      narr: "C has no more neighbors. Color C black, time = 6, f[C] = 6. Pop C; return to its parent B. B still has the neighbor D to scan.",
+      color: { A:'G', B:'G', C:'B', D:'W', E:'B', F:'W' },
+      d: { A:1, B:2, C:3, D:null, E:4, F:null },
+      f: { A:null, B:null, C:6, D:null, E:5, F:null },
+      stack: ['A','B'], cur: 'B', classified: ['A-B','B-C','C-E','E-B'], ae: null
+    },
+    {
+      title: "B → D is a TREE edge — discover D, d[D] = 7",
+      narr: "D is white, so B→D is a tree edge: π[D] = B, recurse. Color D gray, time = 7, d[D] = 7. Push D. Scan D's neighbors in order: first E.",
+      color: { A:'G', B:'G', C:'B', D:'G', E:'B', F:'W' },
+      d: { A:1, B:2, C:3, D:7, E:4, F:null },
+      f: { A:null, B:null, C:6, D:null, E:5, F:null },
+      stack: ['A','B','D'], cur: 'D', classified: ['A-B','B-C','C-E','E-B','B-D'], ae: 'B-D'
+    },
+    {
+      title: "D → E is a CROSS edge",
+      narr: "E is black and already finished (f[E] = 5 < d[D] = 7), and E is not a descendant of D. So D→E is a cross edge — it links two separate sub-trees. Next neighbor: F.",
+      color: { A:'G', B:'G', C:'B', D:'G', E:'B', F:'W' },
+      d: { A:1, B:2, C:3, D:7, E:4, F:null },
+      f: { A:null, B:null, C:6, D:null, E:5, F:null },
+      stack: ['A','B','D'], cur: 'D', classified: ['A-B','B-C','C-E','E-B','B-D','D-E'], ae: 'D-E'
+    },
+    {
+      title: "D → F is a TREE edge — discover F, d[F] = 8",
+      narr: "F is white, so D→F is a tree edge: π[F] = D, recurse. Color F gray, time = 8, d[F] = 8. Push F. Scan F's only neighbor: A.",
+      color: { A:'G', B:'G', C:'B', D:'G', E:'B', F:'G' },
+      d: { A:1, B:2, C:3, D:7, E:4, F:8 },
+      f: { A:null, B:null, C:6, D:null, E:5, F:null },
+      stack: ['A','B','D','F'], cur: 'F', classified: ['A-B','B-C','C-E','E-B','B-D','D-E','D-F'], ae: 'D-F'
+    },
+    {
+      title: "F → A is a BACK edge — another cycle",
+      narr: "A is gray (an ancestor of F still on the stack), so F→A is a back edge: the cycle A → B → D → F → A. F has no more neighbors.",
+      color: { A:'G', B:'G', C:'B', D:'G', E:'B', F:'G' },
+      d: { A:1, B:2, C:3, D:7, E:4, F:8 },
+      f: { A:null, B:null, C:6, D:null, E:5, F:null },
+      stack: ['A','B','D','F'], cur: 'F', classified: ['A-B','B-C','C-E','E-B','B-D','D-E','D-F','F-A'], ae: 'F-A'
+    },
+    {
+      title: "Finish F — f[F] = 9",
+      narr: "F is done. Color F black, time = 9, f[F] = 9. Pop F; return to its parent D.",
+      color: { A:'G', B:'G', C:'B', D:'G', E:'B', F:'B' },
+      d: { A:1, B:2, C:3, D:7, E:4, F:8 },
+      f: { A:null, B:null, C:6, D:null, E:5, F:9 },
+      stack: ['A','B','D'], cur: 'D', classified: ['A-B','B-C','C-E','E-B','B-D','D-E','D-F','F-A'], ae: null
+    },
+    {
+      title: "Finish D — f[D] = 10",
+      narr: "D has no more neighbors. Color D black, time = 10, f[D] = 10. Pop D; return to its parent B, which is also out of neighbors.",
+      color: { A:'G', B:'G', C:'B', D:'B', E:'B', F:'B' },
+      d: { A:1, B:2, C:3, D:7, E:4, F:8 },
+      f: { A:null, B:null, C:6, D:10, E:5, F:9 },
+      stack: ['A','B'], cur: 'B', classified: ['A-B','B-C','C-E','E-B','B-D','D-E','D-F','F-A'], ae: null
+    },
+    {
+      title: "Finish B, then revisit A → C (FORWARD edge)",
+      narr: "B is done: color B black, time = 11, f[B] = 11; pop B, return to A. A's next neighbor is C, which is black with d[A]=1 < d[C]=3 and C is a descendant of A — so A→C is a forward edge (a shortcut down the tree).",
+      color: { A:'G', B:'B', C:'B', D:'B', E:'B', F:'B' },
+      d: { A:1, B:2, C:3, D:7, E:4, F:8 },
+      f: { A:null, B:11, C:6, D:10, E:5, F:9 },
+      stack: ['A'], cur: 'A', classified: ['A-B','B-C','C-E','E-B','B-D','D-E','D-F','F-A','A-C'], ae: 'A-C'
+    },
+    {
+      title: "Finish A — f[A] = 12. Done!",
+      narr: "A's neighbors are exhausted. Color A black, time = 12, f[A] = 12. The stack is empty and every vertex is black. Edge tally: 5 tree, 2 back (so the graph has cycles), 1 forward, 1 cross.",
+      color: { A:'B', B:'B', C:'B', D:'B', E:'B', F:'B' },
+      d: { A:1, B:2, C:3, D:7, E:4, F:8 },
+      f: { A:12, B:11, C:6, D:10, E:5, F:9 },
+      stack: [], cur: null, classified: ['A-B','B-C','C-E','E-B','B-D','D-E','D-F','F-A','A-C'], ae: null
+    }
+  ];
+
+  let dfsStep = 0;
+  const ekey = (f, t) => f + '-' + t;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function typeColor(type) {
+    if (type === 'tree')    return cssVar('--tree-color');
+    if (type === 'back')    return cssVar('--back-color');
+    if (type === 'forward') return cssVar('--forward-color');
+    return cssVar('--cross-color'); // cross
+  }
+  function typeMarker(type) {
+    if (type === 'tree')    return 'url(#dfs-arr-tree)';
+    if (type === 'back')    return 'url(#dfs-arr-back)';
+    if (type === 'forward') return 'url(#dfs-arr-forward)';
+    return 'url(#dfs-arr-cross)';
+  }
+
+  function dfsDraw() {
+    const s = dfsSteps[dfsStep];
+    const eg = document.getElementById('dfs-edges');
+    const ng = document.getElementById('dfs-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+    const r = 22;
+
+    dfsEdges.forEach(e => {
+      const n1 = dfsNodes[e.f], n2 = dfsNodes[e.t];
+      const key = ekey(e.f, e.t);
+      const isClassified = s.classified.includes(key);
+      const isActive = s.ae === key;
+
+      let stroke = isClassified ? typeColor(e.type) : edgeColor;
+      if (isActive) stroke = activeColor;
+      const sw = isActive ? 3 : (isClassified ? 2.2 : 1.5);
+
+      let marker = 'url(#dfs-arr)';
+      if (isActive) marker = 'url(#dfs-arr)'; // active arrow recolored below via stroke; keep neutral head
+      else if (isClassified) marker = typeMarker(e.type);
+
+      const dx = n2.x - n1.x, dy = n2.y - n1.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len, uy = dy / len;
+
+      if (e.curve && e.curve !== 0) {
+        // quadratic curve: control point offset perpendicular to the chord
+        const mx = (n1.x + n2.x) / 2, my = (n1.y + n2.y) / 2;
+        const px = -uy, py = ux; // perpendicular unit
+        const cx = mx + px * e.curve, cy = my + py * e.curve;
+        // trim endpoints toward the control point so arrows sit on the rim
+        const d1x = cx - n1.x, d1y = cy - n1.y, l1 = Math.hypot(d1x, d1y);
+        const d2x = cx - n2.x, d2y = cy - n2.y, l2 = Math.hypot(d2x, d2y);
+        const x1 = n1.x + (d1x / l1) * r, y1 = n1.y + (d1y / l1) * r;
+        const x2 = n2.x + (d2x / l2) * (r + 4), y2 = n2.y + (d2y / l2) * (r + 4);
+        eg.innerHTML += `<path d="M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}" fill="none" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
+      } else {
+        const x1 = n1.x + ux * r, y1 = n1.y + uy * r;
+        const x2 = n2.x - ux * (r + 4), y2 = n2.y - uy * (r + 4);
+        eg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
+      }
+    });
+
+    NODES.forEach(name => {
+      const n = dfsNodes[name];
+      const col = s.color[name];
+      const isCur = s.cur === name;
+      let fill, stroke, tc;
+      if (col === 'G') {
+        fill = cssVar('--gray-fill');
+        stroke = cssVar('--gray-stroke');
+        tc = cssVar('--gray-text');
+      } else if (col === 'B') {
+        fill = cssVar('--black-fill');
+        stroke = cssVar('--black-stroke');
+        tc = cssVar('--black-text');
+      } else {
+        fill = bgPrimary;
+        stroke = nodeStroke;
+        tc = textPrimary;
+      }
+      const dl = s.d[name] == null ? U : s.d[name];
+      const fl = s.f[name] == null ? U : s.f[name];
+      const ring = isCur ? `<circle cx="${n.x}" cy="${n.y}" r="27" fill="none" stroke="${activeColor}" stroke-width="2"/>` : '';
+      ng.innerHTML += `<g>
+        ${ring}
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="16" font-weight="500" fill="${tc}">${name}</text>
+        <text x="${n.x}" y="${n.y - 31}" text-anchor="middle" font-size="12" font-weight="500" fill="${textSecondary}">${dl}/${fl}</text>
+      </g>`;
+    });
+  }
+
+  function dfsUpdate() {
+    const s = dfsSteps[dfsStep];
+    document.getElementById('dfs-title').textContent = s.title;
+    document.getElementById('dfs-narr').textContent = s.narr;
+    document.getElementById('dfs-counter').textContent = `Step ${dfsStep + 1} / ${dfsSteps.length}`;
+
+    const cls = (n) => {
+      if (s.color[n] === 'G') return 'g';
+      if (s.color[n] === 'B') return 'b';
+      return '';
+    };
+    const rowD = document.getElementById('dfs-row-d');
+    const rowF = document.getElementById('dfs-row-f');
+    rowD.innerHTML = '<td style="color: var(--text-secondary);">d</td>';
+    rowF.innerHTML = '<td style="color: var(--text-secondary);">f</td>';
+    NODES.forEach(n => {
+      rowD.innerHTML += `<td class="${cls(n)}">${s.d[n] == null ? U : s.d[n]}</td>`;
+      rowF.innerHTML += `<td class="${cls(n)}">${s.f[n] == null ? U : s.f[n]}</td>`;
+    });
+
+    const st = document.getElementById('dfs-stack');
+    if (s.stack.length === 0) {
+      st.innerHTML = '<div class="stack-empty">(empty — DFS-Visit has returned)</div>';
+    } else {
+      st.innerHTML = s.stack.map((v, i) => {
+        const top = i === s.stack.length - 1;
+        const d = s.d[v];
+        return `<div class="frame${top ? ' top' : ''}">${v}&nbsp;&nbsp;<span style="opacity:.7;font-size:12px;">d=${d}</span></div>`;
+      }).join('');
+    }
+
+    document.getElementById('dfs-prev').disabled = dfsStep === 0;
+    document.getElementById('dfs-next').disabled = dfsStep === dfsSteps.length - 1;
+    dfsDraw();
+  }
+
+  document.getElementById('dfs-next').addEventListener('click', () => {
+    if (dfsStep < dfsSteps.length - 1) { dfsStep++; dfsUpdate(); }
+  });
+  document.getElementById('dfs-prev').addEventListener('click', () => {
+    if (dfsStep > 0) { dfsStep--; dfsUpdate(); }
+  });
+  document.getElementById('dfs-reset').addEventListener('click', () => {
+    dfsStep = 0; dfsUpdate();
+  });
+
+  // keyboard arrows
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && dfsStep < dfsSteps.length - 1) { dfsStep++; dfsUpdate(); }
+    else if (ev.key === 'ArrowLeft' && dfsStep > 0) { dfsStep--; dfsUpdate(); }
+  });
+
+  // redraw on color scheme change
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', dfsDraw);
+
+  dfsUpdate();
+</script>
+</body>
+</html>

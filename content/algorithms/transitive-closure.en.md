@@ -12,6 +12,8 @@ complexity:
   space: 'O(|V|^2)'
   spaceNote: "the V × V reachability matrix"
 examFrequency: "Topic 5 · Transitive Closure — ~8/19 exams (often MC part 3e)"
+visualization: transitive-closure-visualization.html
+vizHeight: 780
 ---
 
 **Goal:** build the **transitive closure** `G* = (V, E*)`, where `(u, v) ∈ E*` **iff** there is a directed path `u → v` in `G` (i.e. `v` is **reachable** from `u`).
@@ -60,11 +62,23 @@ So `E = {(1,2), (2,3)}` but `E* = {(1,2), (2,3), (1,3)}` — the extra edge `(1,
 
 ## On the exam
 
-Transitive closure almost always appears as **MC part 3e** (from 2024 onward), or as an `O(|V|³)` design question. The recurring properties are the heart of it.
+Transitive closure appears in **~8 of 19** exams. From 2024 on it is almost always the **MC part Q3e** (a fixed "safe deposit" slot), and once it surfaced as an `O(|V|³)` design question. Below is **every** Topic-5 question across 2022–2025.
 
-- **Properties of `G*` (MC).** *(2025 Sem-B Mo'ed A, Q3e)* — the relation between `G` and `G*`: every `G` edge is in `G*`, the closure of a DAG stays acyclic, etc. *(2024 Sem-B Special / Summer Mo'ed B / Summer Mo'ed C, Q3e)* — claims such as "`|E*| ≥ |E|`" and "a closure exists for every directed graph".
-- **Comparing reachability / adding edges.** *(2022 Sem-B Mo'ed A, Q1b — false)* — equal transitive closures do **not** imply `G₁ = G₂`. *(2024 Sem-B Mo'ed A, Q3e — MC)* — which single edge to add to `G₂` so that `G₂* = G₁*`. *(2025 Summer Mo'ed A, Q1a)* — a directed cycle on more than 3 vertices ⟹ `G*` contains an **additional** cycle not in `G`.
-- **Design question.** *(2024 Sem-B Mo'ed B, Q2b)* — `O(|V|³)` test of whether a directed graph is "one-sided" (for all `u, v` there is a path `u → v` or `v → u`): compute the closure with boolean Floyd-Warshall, then check one direction holds per pair.
+**Prove / disprove.**
 
-> [!info] The reusable fact
-> **Boolean Floyd-Warshall computes the transitive closure in `O(|V|³)`** — it is literally the [[Floyd–Warshall Algorithm]] with `min → OR` and `+ → AND`. Remember two invariants the MC parts lean on: **every edge of `G` survives in `G*`** (`E ⊆ E*`), and **the closure of a DAG stays acyclic**. On sparse graphs, `|V|` runs of BFS/DFS beat the cubic bound.
+- *(2022 Sem-B Mo'ed A, Q1b — false)* — if the transitive closure of `G₁` equals that of `G₂`, then `G₁ = G₂`. *Hint:* **false** — closures lose multiplicity/redundancy, so two different graphs with the same reachability are an easy counterexample (e.g. `1→2→3` versus `1→2→3` plus the redundant edge `1→3`).
+- *(2025 Summer Mo'ed A, Q1a)* — a directed cycle on **more than 3 vertices** ⟹ `G*` contains an **additional** cycle that was not in `G`. *Hint:* on a `k`-cycle (`k > 3`), reachability makes every pair mutually reachable, so shortcut edges like `(1,3)` create shorter cycles absent from the original.
+
+**Design question (`O(|V|³)`).**
+
+- *(2024 Sem-B Mo'ed B, Q2b)* — test whether a directed graph is **"one-sided"**: for every pair `u, v` there is a path `u → v` **or** `v → u`. *Hint:* compute the closure with boolean Floyd-Warshall (`O(|V|³)`), then scan all pairs and verify `t[u][v] OR t[v][u]` holds for each. *(Q2a — add edges to a given graph; Q2c — correctness + complexity.)*
+
+**Multiple choice (Q3e) — the recurring property bank.**
+
+- *(2024 Sem-B Mo'ed A, Q3e)* — which **single edge** to add to `G₂` so that its transitive closure equals `G₁`'s. *Hint:* find the one reachable pair present in `G₁*` but missing from `G₂*`.
+- *(2024 Sem-B Special Mo'ed, Q3e)* — claims about the closure, e.g. "`|E*| ≥ |E|`" and "a closure exists for every directed graph". *Hint:* both true — `E ⊆ E*` always, and the closure is well-defined for any digraph.
+- *(2024 Summer Mo'ed B, Q3e)* / *(2024 Summer Mo'ed C, Q3e)* — the same transitive-closure claim bank as the Special Mo'ed.
+- *(2025 Sem-B Mo'ed A, Q3e)* — the relation between `G` and `G*`: every `G` edge is in `G*`, the closure of a DAG stays acyclic, etc. *Hint:* lean on the two invariants below.
+
+> [!info] The golden rule
+> **Boolean Floyd-Warshall computes the transitive closure in `O(|V|³)`** — it is literally the [[Floyd–Warshall Algorithm]] with `min → OR` and `+ → AND`. Memorize the two invariants every Q3e leans on: **every edge of `G` survives in `G*`** (`E ⊆ E*`, so `|E*| ≥ |E|`), and **the closure of a DAG stays acyclic**. On sparse graphs, `|V|` runs of BFS/DFS beat the cubic bound.

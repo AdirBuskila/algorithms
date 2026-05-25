@@ -4,9 +4,12 @@ Bilingual (English + עברית), exam-focused course notes for **Algorithms 2 (
 covering every topic that appears in the past exams. Each algorithm gets a page with:
 
 1. **Explanation** — plain-language walkthrough, pseudocode, worked example.
-2. **Visualization** — a live, step-through widget *(shortest-path algorithms only, for now)*.
+2. **Visualization** — a live, step-through widget (every algorithm has one).
 3. **Complexity** — running time and space.
-4. **On the exam** — where and how it shows up, drawn from the past-exam question bank.
+4. **On the exam** — every past-exam appearance of the algorithm, from the question bank.
+
+It also has a grouped sidebar, a ⌘K command-palette search, prev/next paging, and a
+reading-progress bar.
 
 Built with Next.js (static export), so it deploys anywhere and there's nothing to run for
 people you share it with.

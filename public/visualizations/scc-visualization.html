@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strongly Connected Components (Kosaraju) — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #888780;
+    --active-color: #BA7517;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --scc1-fill: #9FE1CB;
+    --scc1-stroke: #0F6E56;
+    --scc1-text: #04342C;
+    --scc2-fill: #C9D8F5;
+    --scc2-stroke: #2C4FA3;
+    --scc2-text: #1A2E66;
+    --scc3-fill: #F5D2C9;
+    --scc3-stroke: #A3492C;
+    --scc3-text: #66261A;
+    --row-visited-bg: #E1F5EE;
+    --row-visited-text: #04342C;
+    --row-current-bg: #FAEEDA;
+    --row-current-text: #854F0B;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #B4B2A9;
+      --active-color: #EF9F27;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --scc1-fill: #085041;
+      --scc1-stroke: #5DCAA5;
+      --scc1-text: #9FE1CB;
+      --scc2-fill: #1A2E66;
+      --scc2-stroke: #7E9EE0;
+      --scc2-text: #C9D8F5;
+      --scc3-fill: #66261A;
+      --scc3-stroke: #E08E72;
+      --scc3-text: #F5D2C9;
+      --row-visited-bg: #085041;
+      --row-visited-text: #9FE1CB;
+      --row-current-bg: #633806;
+      --row-current-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 92px;
+  }
+  .meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 16px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.v { background: var(--row-visited-bg); color: var(--row-visited-text); }
+  td.c { background: var(--row-current-bg); color: var(--row-current-text); font-weight: 500; }
+
+  .scc-list {
+    margin-top: 16px;
+    font-size: 13px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .scc-label { color: var(--text-secondary); }
+  .scc-chip {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+    border: 1.5px solid;
+  }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="meta" id="scc-meta"></div>
+    <div class="title" id="scc-title">Phase 1 — DFS on G</div>
+    <div class="narr" id="scc-narr">First pass: run DFS on the original graph G and record each vertex's finish time f[v].</div>
+  </div>
+
+  <svg id="scc-svg" viewBox="0 0 600 380">
+    <defs>
+      <marker id="scc-arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge-color)"/>
+      </marker>
+      <marker id="scc-arr-a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--active-color)"/>
+      </marker>
+    </defs>
+    <g id="scc-edges"></g>
+    <g id="scc-nodes"></g>
+  </svg>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 64px;">finish f[]</th>
+        <th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="scc-row"></tr>
+    </tbody>
+  </table>
+
+  <div class="scc-list" id="scc-found"></div>
+
+  <div class="ctrl">
+    <button id="scc-prev">← Previous</button>
+    <button id="scc-next">Next →</button>
+    <button id="scc-reset">Reset</button>
+    <span class="ctr" id="scc-counter">Step 1 / 8</span>
+  </div>
+</div>
+
+<script>
+  // Original graph G. {A,B,C} is a cycle, {D,E} is a cycle, {F} alone,
+  // joined by C→D and E→F. Condensation is the chain {A,B,C} → {D,E} → {F}.
+  const sccNodes = {
+    A: { x: 90,  y: 90  },
+    B: { x: 90,  y: 290 },
+    C: { x: 240, y: 190 },
+    D: { x: 390, y: 90  },
+    E: { x: 390, y: 290 },
+    F: { x: 540, y: 190 }
+  };
+
+  // Edges of G. `g` = whether the edge belongs to G (vs the transpose view).
+  const sccEdgesG = [
+    { f: 'A', t: 'B' },
+    { f: 'B', t: 'C' },
+    { f: 'C', t: 'A' },
+    { f: 'C', t: 'D' },
+    { f: 'D', t: 'E' },
+    { f: 'E', t: 'D' },
+    { f: 'E', t: 'F' }
+  ];
+  // Transpose Gᵀ — every edge reversed.
+  const sccEdgesT = sccEdgesG.map(e => ({ f: e.t, t: e.f }));
+
+  const ORDER = ['A', 'B', 'C', 'D', 'E', 'F']; // decreasing finish time
+
+  // Colour key per SCC index.
+  const SCC_KEYS = [
+    { fill: '--scc1-fill', stroke: '--scc1-stroke', text: '--scc1-text' },
+    { fill: '--scc2-fill', stroke: '--scc2-stroke', text: '--scc2-text' },
+    { fill: '--scc3-fill', stroke: '--scc3-stroke', text: '--scc3-text' }
+  ];
+
+  const sccSteps = [
+    {
+      title: "Phase 1 — DFS on G",
+      narr: "First pass: run DFS on the original graph G. As each vertex finishes (turns black), record its finish time f[v]. Higher finish time = explored earlier in the recursion's unwinding.",
+      graph: 'G', f: {}, cur: null, comp: {}, ae: [], condensation: false
+    },
+    {
+      title: "Phase 1 done — finish times recorded",
+      narr: "DFS from A explored A→B→C→D→E→F. Finishing in reverse: f[F]=7, f[E]=8, f[D]=9, f[C]=10, f[B]=11, f[A]=12. Decreasing finish order is A, B, C, D, E, F — this drives phase 2.",
+      graph: 'G', f: { A: 12, B: 11, C: 10, D: 9, E: 8, F: 7 }, cur: null, comp: {}, ae: [], condensation: false
+    },
+    {
+      title: "Phase 2 — transpose the graph",
+      narr: "Build Gᵀ by reversing every edge. Now process vertices in DECREASING finish-time order (A, B, C, D, E, F), starting a fresh DFS from each not-yet-assigned vertex.",
+      graph: 'T', f: { A: 12, B: 11, C: 10, D: 9, E: 8, F: 7 }, cur: null, comp: {}, ae: [], condensation: false
+    },
+    {
+      title: "Phase 2 — DFS from A on Gᵀ → SCC 1",
+      narr: "A has the highest f[]. DFS on Gᵀ from A reaches A → C → B (then B→A is already visited). These three are mutually reachable: SCC 1 = {A, B, C}. Colour them.",
+      graph: 'T', f: { A: 12, B: 11, C: 10, D: 9, E: 8, F: 7 }, cur: 'A',
+      comp: { A: 0, B: 0, C: 0 }, ae: ['A-C', 'C-B', 'B-A'], condensation: false
+    },
+    {
+      title: "Phase 2 — DFS from D on Gᵀ → SCC 2",
+      narr: "Next unassigned in finish order is D. DFS on Gᵀ from D reaches D → E (then E→D is visited). It cannot escape to C — that edge points the wrong way now. SCC 2 = {D, E}.",
+      graph: 'T', f: { A: 12, B: 11, C: 10, D: 9, E: 8, F: 7 }, cur: 'D',
+      comp: { A: 0, B: 0, C: 0, D: 1, E: 1 }, ae: ['D-E', 'E-D'], condensation: false
+    },
+    {
+      title: "Phase 2 — DFS from F on Gᵀ → SCC 3",
+      narr: "Last unassigned vertex is F. DFS on Gᵀ from F can only reach F (its single edge F→E leads to an already-assigned vertex). SCC 3 = {F}, a singleton.",
+      graph: 'T', f: { A: 12, B: 11, C: 10, D: 9, E: 8, F: 7 }, cur: 'F',
+      comp: { A: 0, B: 0, C: 0, D: 1, E: 1, F: 2 }, ae: ['F-E'], condensation: false
+    },
+    {
+      title: "Done — 3 strongly connected components",
+      narr: "Each phase-2 DFS tree is exactly one SCC. Result: {A,B,C}, {D,E}, {F}. Every pair inside a component is mutually reachable; no larger set is.",
+      graph: 'G', f: { A: 12, B: 11, C: 10, D: 9, E: 8, F: 7 }, cur: null,
+      comp: { A: 0, B: 0, C: 0, D: 1, E: 1, F: 2 }, ae: [], condensation: false
+    },
+    {
+      title: "The condensation Gˢᶜᶜ — always a DAG",
+      narr: "Collapse each SCC to one super-node. The G-edges C→D and E→F become super-edges, giving the chain {A,B,C} → {D,E} → {F}. {A,B,C} is the SOURCE (in-deg 0), {F} is the SINK (out-deg 0). The condensation is always acyclic.",
+      graph: 'G', f: { A: 12, B: 11, C: 10, D: 9, E: 8, F: 7 }, cur: null,
+      comp: { A: 0, B: 0, C: 0, D: 1, E: 1, F: 2 }, ae: [], condensation: true
+    }
+  ];
+
+  let sccStep = 0;
+  const sccKey = (f, t) => f + '-' + t;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function buildMeta(s) {
+    const parts = ORDER.map(n => {
+      const fv = s.f[n];
+      const label = fv === undefined ? n : `${n}(${fv})`;
+      if (n === s.cur) return `<strong>${label}</strong>`;
+      if (s.comp[n] !== undefined) return `<span style="opacity: 0.5;">${label}</span>`;
+      return label;
+    });
+    const which = s.graph === 'T' ? 'Gᵀ (transpose)' : 'G';
+    const lead = (s.f && Object.keys(s.f).length)
+      ? 'Decreasing f[]: ' : 'Working on: ';
+    return `${which} — ${lead}${parts.join('  ')}`;
+  }
+
+  function compColor(idx) {
+    const k = SCC_KEYS[idx];
+    return { fill: cssVar(k.fill), stroke: cssVar(k.stroke), text: cssVar(k.text) };
+  }
+
+  function sccDraw() {
+    const s = sccSteps[sccStep];
+    const eg = document.getElementById('scc-edges');
+    const ng = document.getElementById('scc-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+    const curFill = cssVar('--current-fill');
+    const curStroke = cssVar('--current-stroke');
+    const curText = cssVar('--current-text');
+
+    if (s.condensation) {
+      // Draw the condensation: three super-nodes in a chain.
+      const supers = [
+        { id: 0, label: '{A,B,C}', sub: 'source', x: 130, y: 190 },
+        { id: 1, label: '{D,E}',   sub: '',       x: 300, y: 190 },
+        { id: 2, label: '{F}',     sub: 'sink',   x: 470, y: 190 }
+      ];
+      const superEdges = [ { a: 0, b: 1 }, { a: 1, b: 2 } ];
+      const R = 50;
+      superEdges.forEach(se => {
+        const n1 = supers[se.a], n2 = supers[se.b];
+        const dx = n2.x - n1.x, dy = n2.y - n1.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const ux = dx / len, uy = dy / len;
+        const x1 = n1.x + ux * R, y1 = n1.y + uy * R;
+        const x2 = n2.x - ux * (R + 4), y2 = n2.y - uy * (R + 4);
+        eg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${edgeColor}" stroke-width="2" marker-end="url(#scc-arr)"/>`;
+      });
+      supers.forEach(sn => {
+        const c = compColor(sn.id);
+        ng.innerHTML += `<g>
+          <circle cx="${sn.x}" cy="${sn.y}" r="${R}" fill="${c.fill}" stroke="${c.stroke}" stroke-width="2.5"/>
+          <text x="${sn.x}" y="${sn.y}" text-anchor="middle" dy="5" font-size="16" font-weight="600" fill="${c.text}">${sn.label}</text>
+          ${sn.sub ? `<text x="${sn.x}" y="${sn.y + 70}" text-anchor="middle" font-size="12" font-weight="500" fill="${textSecondary}">${sn.sub}</text>` : ''}
+        </g>`;
+      });
+      return;
+    }
+
+    const edges = s.graph === 'T' ? sccEdgesT : sccEdgesG;
+    edges.forEach(e => {
+      const n1 = sccNodes[e.f], n2 = sccNodes[e.t];
+      const isActive = s.ae.includes(sccKey(e.f, e.t));
+      const stroke = isActive ? activeColor : edgeColor;
+      const sw = isActive ? 2.5 : 1.5;
+      const marker = isActive ? 'url(#scc-arr-a)' : 'url(#scc-arr)';
+
+      const dx = n2.x - n1.x, dy = n2.y - n1.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len, uy = dy / len;
+      const r = 22;
+      // offset perpendicular so opposite-direction pairs (D↔E etc.) don't overlap
+      const px = -uy, py = ux;
+      const off = 7;
+      const x1 = n1.x + ux * r + px * off, y1 = n1.y + uy * r + py * off;
+      const x2 = n2.x - ux * (r + 4) + px * off, y2 = n2.y - uy * (r + 4) + py * off;
+      eg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
+    });
+
+    Object.keys(sccNodes).forEach(name => {
+      const n = sccNodes[name];
+      const isCur = s.cur === name;
+      const compIdx = s.comp[name];
+      let fill, stroke, tc;
+      if (isCur) {
+        fill = curFill; stroke = curStroke; tc = curText;
+      } else if (compIdx !== undefined) {
+        const c = compColor(compIdx);
+        fill = c.fill; stroke = c.stroke; tc = c.text;
+      } else {
+        fill = bgPrimary; stroke = nodeStroke; tc = textPrimary;
+      }
+      const fv = s.f[name];
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="16" font-weight="500" fill="${tc}">${name}</text>
+        ${fv !== undefined ? `<text x="${n.x}" y="${n.y - 32}" text-anchor="middle" font-size="13" font-weight="500" fill="${textSecondary}">f=${fv}</text>` : ''}
+      </g>`;
+    });
+  }
+
+  function sccUpdate() {
+    const s = sccSteps[sccStep];
+    document.getElementById('scc-meta').innerHTML = buildMeta(s);
+    document.getElementById('scc-title').textContent = s.title;
+    document.getElementById('scc-narr').textContent = s.narr;
+    document.getElementById('scc-counter').textContent = `Step ${sccStep + 1} / ${sccSteps.length}`;
+
+    const row = document.getElementById('scc-row');
+    row.innerHTML = '<td style="color: var(--text-secondary);">f[v]</td>';
+    ['A', 'B', 'C', 'D', 'E', 'F'].forEach(n => {
+      const fv = s.f[n];
+      let cls = '';
+      if (s.cur === n) cls = 'c';
+      else if (s.comp[n] !== undefined) cls = 'v';
+      row.innerHTML += `<td class="${cls}">${fv === undefined ? '–' : fv}</td>`;
+    });
+
+    // Found-SCC chips
+    const found = document.getElementById('scc-found');
+    const groups = {};
+    Object.keys(s.comp).forEach(v => {
+      const i = s.comp[v];
+      (groups[i] = groups[i] || []).push(v);
+    });
+    const idxs = Object.keys(groups).map(Number).sort((a, b) => a - b);
+    if (idxs.length === 0) {
+      found.innerHTML = '<span class="scc-label">SCCs found: none yet</span>';
+    } else {
+      let html = '<span class="scc-label">SCCs found:</span>';
+      idxs.forEach(i => {
+        const k = SCC_KEYS[i];
+        html += `<span class="scc-chip" style="background: var(${k.fill}); border-color: var(${k.stroke}); color: var(${k.text});">{${groups[i].sort().join(', ')}}</span>`;
+      });
+      found.innerHTML = html;
+    }
+
+    document.getElementById('scc-prev').disabled = sccStep === 0;
+    document.getElementById('scc-next').disabled = sccStep === sccSteps.length - 1;
+    sccDraw();
+  }
+
+  document.getElementById('scc-next').addEventListener('click', () => {
+    if (sccStep < sccSteps.length - 1) { sccStep++; sccUpdate(); }
+  });
+  document.getElementById('scc-prev').addEventListener('click', () => {
+    if (sccStep > 0) { sccStep--; sccUpdate(); }
+  });
+  document.getElementById('scc-reset').addEventListener('click', () => {
+    sccStep = 0; sccUpdate();
+  });
+
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && sccStep < sccSteps.length - 1) { sccStep++; sccUpdate(); }
+    else if (ev.key === 'ArrowLeft' && sccStep > 0) { sccStep--; sccUpdate(); }
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', sccDraw);
+
+  sccUpdate();
+</script>
+</body>
+</html>

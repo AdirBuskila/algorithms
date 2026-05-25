@@ -51,11 +51,11 @@ Shortest distances from **S**: S = 0, A = 3, B = 8, C = 6, D = 7.
 
 ## On the exam
 
-Bellman-Ford shows up wherever **negative weights** or **negative-cycle detection** are in play, and in head-to-head comparisons against Dijkstra.
+Bellman-Ford shows up wherever **negative weights** or **negative-cycle detection** are in play, and in head-to-head comparisons against Dijkstra (sub-topic **6b**). Every 6b question:
 
-- **Negative-cycle traps.** *(2024 Summer Mo'ed C, Q1a — false)* — "a negative cycle ⟹ Bellman-Ford from **any** source detects it." The catch: the cycle may be **unreachable** from `s`, so its edges never relax. Detection only covers cycles reachable from the source.
-- **Complexity comparisons.** *(2022 Sem-B Sample, Q1a)* — in a **strongly connected** graph with **positive** weights, is Bellman-Ford's complexity equal to Dijkstra's? *(2025 Summer Mo'ed A, Q3e — MC)* — when are Dijkstra and Bellman-Ford equivalent, and when is Dijkstra strictly faster?
-- **Pick-the-right-tool MC.** *(2024 Sem-B Mo'ed B, Q3b)* — shortest paths in a **DAG with negative weights**: which of `|V|×Bellman-Ford` / Floyd-Warshall / `Gᵀ` + DAG-shortest-path / `Gᵀ` + Dijkstra is **correct**, and which is **efficient**? (DAG-shortest-path wins; Dijkstra is out because of the negative weights.)
+- **Negative-cycle trap.** *(2024 Summer Mo'ed C, Q1a)* — prove/disprove (**false**): "a negative cycle ⟹ Bellman-Ford from **any** source detects it." *Hint:* the cycle may be **unreachable** from `s`, so its edges never relax — detection only covers cycles reachable from the source.
+- **Complexity comparison.** *(2022 Sem-B Sample, Q1a)* — prove/disprove: in a **strongly connected** directed graph with **positive** weights, Bellman-Ford's complexity equals Dijkstra's.
+- **Pick-the-right-tool MC.** *(2024 Sem-B Mo'ed B, Q3b)* — shortest paths to `v` in a **DAG with negative weights**: which of `|V|×Bellman-Ford` / Floyd-Warshall / `Gᵀ` + DAG-shortest-path / `Gᵀ` + Dijkstra is **correct**, and which is **efficient**? *Hint:* DAG-shortest-path on `Gᵀ` wins; Dijkstra is disqualified by the negative weights.
 
 > [!info] The detection trick
 > Run one **extra** relaxation pass after the `|V| − 1` passes. If any edge still relaxes, a negative cycle is **reachable from the source**. This `O(|V| \cdot |E|)` check is the part exams test most.

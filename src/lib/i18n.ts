@@ -28,6 +28,13 @@ interface Dict {
   tableAlgorithm: string;
   tableAppears: string;
   tableDifficulty: string;
+  search: string;
+  searchPlaceholder: string;
+  searchHint: string;
+  noResults: string;
+  navAlgorithms: string;
+  prev: string;
+  next: string;
   difficulty: Record<"easy" | "medium" | "hard", string>;
   groups: Record<Group, string>;
 }
@@ -55,6 +62,13 @@ export const STRINGS: Record<Locale, Dict> = {
     tableAlgorithm: "Algorithm",
     tableAppears: "Appears in",
     tableDifficulty: "Difficulty",
+    search: "Search",
+    searchPlaceholder: "Search algorithms…",
+    searchHint: "Search",
+    noResults: "No matching algorithms",
+    navAlgorithms: "Algorithms",
+    prev: "Previous",
+    next: "Next",
     difficulty: { easy: "Easy", medium: "Medium", hard: "Hard" },
     groups: {
       traversal: "Traversal",
@@ -87,6 +101,13 @@ export const STRINGS: Record<Locale, Dict> = {
     tableAlgorithm: "אלגוריתם",
     tableAppears: "מופיע ב-",
     tableDifficulty: "רמת קושי",
+    search: "חיפוש",
+    searchPlaceholder: "חיפוש אלגוריתמים…",
+    searchHint: "חיפוש",
+    noResults: "אין אלגוריתמים תואמים",
+    navAlgorithms: "אלגוריתמים",
+    prev: "הקודם",
+    next: "הבא",
     difficulty: { easy: "קל", medium: "בינוני", hard: "מאתגר" },
     groups: {
       traversal: "סריקה",

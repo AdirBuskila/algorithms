@@ -12,6 +12,8 @@ complexity:
   space: 'O(|V| \cdot k)'
   spaceNote: "the DP table — O(|V|) with rolling rows"
 examFrequency: "Topic 10 · DP on graphs — 1/19 exams (rare)"
+visualization: dp-on-graphs-visualization.html
+vizHeight: 820
 ---
 
 **Goal:** state an **explicit DP recurrence** for a path/walk problem with an **edge-count constraint**, then prove it correct and analyze its table.
@@ -62,11 +64,11 @@ With exactly 2 edges the cheapest `s→t` walk is $s\to a\to t = 2+3 = 5$, beati
 
 ## On the exam
 
-This is a **rare but distinctive** topic — it appeared in only **1 of 19** exams, yet it stands out because it asks for an **explicit DP**, not a black box. From **Topic 10**:
+This is a **rare but distinctive** topic — it appeared in only **1 of 19** exams, yet it stands out because it asks for an **explicit DP**, not a black box. There is essentially **one** cited question (with two parts), but it is worth knowing cold because its character is unlike anything else on the exam. From **Topic 10**:
 
-- **State a recurrence.** *(2023 Sem-B Mo'ed A, Q4a)* — write the recurrence for the lightest **walk** (repeats allowed) `s→t` with **exactly `k` edges**: $d(v,j) = \min_{u}\{\,d(u,j-1) + w(u,v)\,\}$, i.e. a layered Bellman-Ford.
-- **Prove it correct.** Use **cut-and-paste**: any optimal `j`-edge walk's `(j-1)`-edge prefix must itself be optimal, otherwise swapping in a lighter prefix would yield a lighter `j`-edge walk — contradiction.
-- **Analyze the table.** *(2023 Sem-B Mo'ed A, Q4b)* — there are `k` layers, each layer scans all $|E|$ edges once → $O(k\cdot|E|)$ time; the table is $O(|V|\cdot k)$, reducible to $O(|V|)$ by keeping only the previous row.
+- *(2023 Sem-B Mo'ed A, Q4a)* — write the recurrence for the lightest **walk** (repeats allowed) `s→t` with **exactly `k` edges**. *Hint:* index by (vertex, #edges) and relax layer by layer — $d(v,j) = \min_{u}\{\,d(u,j-1) + w(u,v)\,\}$ with base $d(s,0)=0$, $d(v,0)=\infty$; this is a layered [[Bellman-Ford Algorithm|Bellman-Ford]].
+- *(2023 Sem-B Mo'ed A, Q4a — correctness)* — prove the recurrence. *Hint:* **cut-and-paste** — any optimal `j`-edge walk's `(j-1)`-edge prefix must itself be optimal, otherwise swapping in a lighter prefix yields a lighter `j`-edge walk, a contradiction.
+- *(2023 Sem-B Mo'ed A, Q4b)* — analyze the table. *Hint:* there are `k` layers, each scanning all $|E|$ edges once → $O(k\cdot|E|)$ time; the table is $O(|V|\cdot k)$, reducible to $O(|V|)$ by keeping only the previous row.
 
-> [!tip] Recognize the trigger
-> The phrase **"exactly `k` edges"** (or "at most `k` edges") on a weighted-path problem is the tell: don't reach for [[Dijkstra's Algorithm|Dijkstra]] or plain [[Bellman-Ford Algorithm|Bellman-Ford]] — index the DP by **number of edges used** and relax layer by layer. The recurrence *is* Bellman-Ford's DP formulation made explicit.
+> [!tip] The golden rule
+> The phrase **"exactly `k` edges"** (or "at most `k` edges") on a weighted-path problem is the tell: don't reach for [[Dijkstra's Algorithm|Dijkstra]] or plain [[Bellman-Ford Algorithm|Bellman-Ford]] — index the DP by **number of edges used** and relax layer by layer. The recurrence *is* Bellman-Ford's DP formulation made explicit. **Rare topic** (1/19) — learn the recurrence, its cut-and-paste proof, and the $O(k\cdot|E|)$ analysis, and you have covered everything ever asked.

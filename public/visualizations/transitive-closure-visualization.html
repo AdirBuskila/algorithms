@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transitive Closure — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --via-bg: #E1F5EE;
+    --via-text: #04342C;
+    --via-stroke: #0F6E56;
+    --imp-bg: #FAC775;
+    --imp-text: #412402;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --active-color: #EF9F27;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --via-bg: #085041;
+      --via-text: #9FE1CB;
+      --via-stroke: #5DCAA5;
+      --imp-bg: #633806;
+      --imp-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 640px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 76px;
+  }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .narr code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: var(--bg-primary);
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  svg { width: 100%; height: auto; display: block; max-width: 420px; margin: 0 auto; }
+
+  .mx-wrap { margin-top: 18px; }
+  .axis {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  table.mx {
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+  table.mx th, table.mx td {
+    width: 46px;
+    height: 42px;
+    text-align: center;
+    border: 0.5px solid var(--border);
+  }
+  table.mx th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 13px;
+    border: none;
+  }
+  table.mx th.corner { background: transparent; }
+  table.mx th.kh {
+    background: var(--current-fill);
+    color: var(--current-text);
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  table.mx td.diag { color: var(--text-secondary); }
+  table.mx td.via { background: var(--via-bg); color: var(--via-text); }
+  table.mx td.imp {
+    background: var(--imp-bg);
+    color: var(--imp-text);
+    font-weight: 700;
+  }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr { margin-left: auto; font-size: 13px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="title" id="tc-title"></div>
+    <div class="narr" id="tc-narr"></div>
+  </div>
+
+  <svg id="tc-svg" viewBox="0 0 460 320">
+    <g id="tc-edges"></g>
+    <g id="tc-nodes"></g>
+  </svg>
+
+  <div class="mx-wrap">
+    <div class="axis">cell (i, j) = <b>can i reach j?</b>&nbsp;&nbsp;·&nbsp;&nbsp;rows = <b>from</b>&nbsp;&nbsp;·&nbsp;&nbsp;columns = <b>to</b></div>
+    <table class="mx"><tbody id="tc-matrix"></tbody></table>
+  </div>
+
+  <div class="ctrl">
+    <button id="tc-prev">← Previous</button>
+    <button id="tc-next">Next →</button>
+    <button id="tc-reset">Reset</button>
+    <span class="ctr" id="tc-counter"></span>
+  </div>
+</div>
+
+<script>
+  // Directed graph: 1→2, 2→3, 3→1 (a 3-cycle), 3→4.
+  // So {1,2,3} are mutually reachable; 4 is reachable from everyone but reaches only itself.
+  const tcNodes = {
+    1: { x: 230, y: 50  },
+    2: { x: 110, y: 175 },
+    3: { x: 230, y: 175 },
+    4: { x: 350, y: 270 }
+  };
+  const tcEdges = [
+    { a: 1, b: 2 },
+    { a: 2, b: 3 },
+    { a: 3, b: 1 },
+    { a: 3, b: 4 }
+  ];
+
+  const T = true, F = false;
+  const M = (a) => a.map(r => r.slice()); // clone matrix
+
+  // Reflexive + direct edges
+  const R0 = [
+    [T, T, F, F],
+    [F, T, T, F],
+    [T, F, T, T],
+    [F, F, F, T]
+  ];
+  // k = 1 (via 1): 3→1→2 gives (3,2)
+  const R1 = [
+    [T, T, F, F],
+    [F, T, T, F],
+    [T, T, T, T],
+    [F, F, F, T]
+  ];
+  // k = 2 (via 2): 1→2→3 gives (1,3)
+  const R2 = [
+    [T, T, T, F],
+    [F, T, T, F],
+    [T, T, T, T],
+    [F, F, F, T]
+  ];
+  // k = 3 (via 3): 1→3→4 = (1,4); 2→3→1 = (2,1); 2→3→4 = (2,4)
+  const R3 = [
+    [T, T, T, T],
+    [T, T, T, T],
+    [T, T, T, T],
+    [F, F, F, T]
+  ];
+  // k = 4 (via 4): 4 reaches only itself — nothing new
+  const R4 = M(R3);
+
+  const tcSteps = [
+    {
+      title: "Initialize — direct edges + the diagonal",
+      narr: "Set <code>t[i][j] = true</code> whenever <code>i = j</code> (a vertex reaches itself) or <code>(i,j)</code> is an edge of G. The four edges 1→2, 2→3, 3→1, 3→4 are filled; every other pair is false for now.",
+      k: null, matrix: M(R0), imp: []
+    },
+    {
+      title: "k = 1 — allow paths that pass through vertex 1",
+      narr: "For every pair: <code>t[i][j] = t[i][j] OR (t[i][1] AND t[1][j])</code>. Only 3 reaches 1 and 1 reaches 2, so 3→1→2 turns <b>(3,2)</b> true.",
+      k: 1, matrix: M(R1), imp: [[3,2]]
+    },
+    {
+      title: "k = 2 — also allow passing through vertex 2",
+      narr: "Now via 2. 1 reaches 2 and 2 reaches 3, so 1→2→3 turns <b>(1,3)</b> true. (3→2→3 adds nothing new.)",
+      k: 2, matrix: M(R2), imp: [[1,3]]
+    },
+    {
+      title: "k = 3 — also allow passing through vertex 3",
+      narr: "Now via 3. 1→3→4 = <b>(1,4)</b>; 2→3→1 = <b>(2,1)</b>; 2→3→4 = <b>(2,4)</b>. The cycle 1↔2↔3 is now fully closed and everyone reaches 4.",
+      k: 3, matrix: M(R3), imp: [[1,4],[2,1],[2,4]]
+    },
+    {
+      title: "k = 4 — all vertices allowed. Done — this is G*!",
+      narr: "Final pass via 4. But 4 reaches only itself, so no new pair appears. The matrix is now the transitive closure: {1,2,3} are mutually reachable, and all reach 4, while 4 reaches nobody else.",
+      k: 4, matrix: M(R4), imp: []
+    }
+  ];
+
+  let tcStep = 0;
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const fmt = (v) => v ? "✓" : "·";
+
+  function arrow(x1, y1, x2, y2, color, sw, r) {
+    const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const sx = x1 + ux * r, sy = y1 + uy * r;
+    const ex = x2 - ux * r, ey = y2 - uy * r;
+    const ah = 10, aw = 4.5;
+    const bx = ex - ux * ah, by = ey - uy * ah;
+    const px = -uy, py = ux;
+    const line = `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="${sw}"/>`;
+    const head = `<polygon points="${ex},${ey} ${bx + px * aw},${by + py * aw} ${bx - px * aw},${by - py * aw}" fill="${color}"/>`;
+    return { svg: line + head, mx: (sx + ex) / 2, my: (sy + ey) / 2 };
+  }
+
+  function tcDraw() {
+    const s = tcSteps[tcStep];
+    const eg = document.getElementById('tc-edges');
+    const ng = document.getElementById('tc-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const nodeStroke = cssVar('--node-stroke');
+
+    tcEdges.forEach(e => {
+      const n1 = tcNodes[e.a], n2 = tcNodes[e.b];
+      const a = arrow(n1.x, n1.y, n2.x, n2.y, edgeColor, 1.6, 26);
+      eg.innerHTML += a.svg;
+    });
+
+    Object.keys(tcNodes).forEach(name => {
+      const n = tcNodes[name];
+      const isK = String(s.k) === String(name);
+      const fill   = isK ? cssVar('--current-fill')   : bgPrimary;
+      const stroke = isK ? cssVar('--current-stroke') : nodeStroke;
+      const tc     = isK ? cssVar('--current-text')   : textPrimary;
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="24" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="6" font-size="17" font-weight="600" fill="${tc}">${name}</text>
+      </g>`;
+    });
+  }
+
+  function tcDrawMatrix() {
+    const s = tcSteps[tcStep];
+    const k = s.k;
+    const impSet = new Set(s.imp.map(p => p[0] + ',' + p[1]));
+    const tb = document.getElementById('tc-matrix');
+
+    let html = '<tr><th class="corner"></th>';
+    for (let j = 1; j <= 4; j++) html += `<th class="${k === j ? 'kh' : ''}">${j}</th>`;
+    html += '</tr>';
+
+    for (let i = 1; i <= 4; i++) {
+      html += `<tr><th class="${k === i ? 'kh' : ''}">${i}</th>`;
+      for (let j = 1; j <= 4; j++) {
+        const v = s.matrix[i - 1][j - 1];
+        let cls = [];
+        if (impSet.has(i + ',' + j)) cls.push('imp');
+        else if (k !== null && (i === k || j === k)) cls.push('via');
+        if (i === j) cls.push('diag');
+        html += `<td class="${cls.join(' ')}">${fmt(v)}</td>`;
+      }
+      html += '</tr>';
+    }
+    tb.innerHTML = html;
+  }
+
+  function tcUpdate() {
+    const s = tcSteps[tcStep];
+    document.getElementById('tc-title').textContent = s.title;
+    document.getElementById('tc-narr').innerHTML = s.narr;
+    document.getElementById('tc-counter').textContent = `Step ${tcStep + 1} / ${tcSteps.length}`;
+    document.getElementById('tc-prev').disabled = tcStep === 0;
+    document.getElementById('tc-next').disabled = tcStep === tcSteps.length - 1;
+    tcDraw();
+    tcDrawMatrix();
+  }
+
+  document.getElementById('tc-next').addEventListener('click', () => {
+    if (tcStep < tcSteps.length - 1) { tcStep++; tcUpdate(); }
+  });
+  document.getElementById('tc-prev').addEventListener('click', () => {
+    if (tcStep > 0) { tcStep--; tcUpdate(); }
+  });
+  document.getElementById('tc-reset').addEventListener('click', () => {
+    tcStep = 0; tcUpdate();
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && tcStep < tcSteps.length - 1) { tcStep++; tcUpdate(); }
+    else if (ev.key === 'ArrowLeft' && tcStep > 0) { tcStep--; tcUpdate(); }
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', tcDraw);
+
+  tcUpdate();
+</script>
+</body>
+</html>

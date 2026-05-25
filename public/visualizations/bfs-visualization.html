@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breadth-First Search (BFS) — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --tree-color: #0F6E56;
+    --gray-fill: #FAC775;
+    --gray-stroke: #854F0B;
+    --gray-text: #412402;
+    --black-fill: #9FE1CB;
+    --black-stroke: #0F6E56;
+    --black-text: #04342C;
+    --row-black-bg: #E1F5EE;
+    --row-black-text: #04342C;
+    --row-gray-bg: #FAEEDA;
+    --row-gray-text: #854F0B;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --tree-color: #5DCAA5;
+      --gray-fill: #633806;
+      --gray-stroke: #EF9F27;
+      --gray-text: #FAC775;
+      --black-fill: #085041;
+      --black-stroke: #5DCAA5;
+      --black-text: #9FE1CB;
+      --row-black-bg: #085041;
+      --row-black-text: #9FE1CB;
+      --row-gray-bg: #633806;
+      --row-gray-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 88px;
+  }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 18px; height: 0; border-top-width: 3px; border-top-style: solid; display: inline-block; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1.5px solid; }
+
+  .queue-wrap { margin-top: 16px; }
+  .queue-title { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  .queue {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    min-height: 40px;
+    flex-wrap: wrap;
+  }
+  .qitem {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--row-gray-bg);
+    color: var(--row-gray-text);
+    border: 0.5px solid var(--gray-stroke);
+  }
+  .qitem.head { box-shadow: 0 0 0 2px var(--active-color); }
+  .qarrow { color: var(--text-secondary); font-size: 12px; }
+  .queue-empty { font-size: 13px; color: var(--text-secondary); font-style: italic; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 16px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.b { background: var(--row-black-bg); color: var(--row-black-text); }
+  td.g { background: var(--row-gray-bg); color: var(--row-gray-text); font-weight: 500; }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="title" id="bfs-title">Initialize</div>
+    <div class="narr" id="bfs-narr">Source = A. All dist = ∞ except dist[A] = 0. Color A gray and enqueue it.</div>
+  </div>
+
+  <svg id="bfs-svg" viewBox="0 0 600 320">
+    <g id="bfs-edges"></g>
+    <g id="bfs-nodes"></g>
+  </svg>
+
+  <div class="legend">
+    <span><i class="dot" style="background: var(--gray-fill); border-color: var(--gray-stroke);"></i>in queue / frontier</span>
+    <span><i class="dot" style="background: var(--black-fill); border-color: var(--black-stroke);"></i>processed</span>
+    <span><i class="swatch" style="border-top-color: var(--tree-color);"></i>BFS-tree edge</span>
+  </div>
+
+  <div class="queue-wrap">
+    <div class="queue-title">Queue (front on the left — dequeue from here)</div>
+    <div class="queue" id="bfs-queue"></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 50px;"></th>
+        <th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="bfs-row-dist"></tr>
+      <tr id="bfs-row-pi"></tr>
+    </tbody>
+  </table>
+
+  <div class="ctrl">
+    <button id="bfs-prev">← Previous</button>
+    <button id="bfs-next">Next →</button>
+    <button id="bfs-reset">Reset</button>
+    <span class="ctr" id="bfs-counter">Step 1 / 8</span>
+  </div>
+</div>
+
+<script>
+  // Undirected graph. Layout roughly by BFS layer (left → right).
+  const bfsNodes = {
+    A: { x: 70,  y: 160 },
+    B: { x: 230, y: 80  },
+    C: { x: 230, y: 240 },
+    D: { x: 400, y: 150 },
+    E: { x: 400, y: 280 },
+    F: { x: 540, y: 150 }
+  };
+
+  // Undirected edges (drawn as plain lines).
+  const bfsEdges = [
+    { a: 'A', b: 'B' },
+    { a: 'A', b: 'C' },
+    { a: 'B', b: 'D' },
+    { a: 'C', b: 'D' },
+    { a: 'C', b: 'E' },
+    { a: 'D', b: 'F' }
+  ];
+
+  const NODES = ['A', 'B', 'C', 'D', 'E', 'F'];
+  const INF = Infinity;
+
+  // State per step:
+  //   color: 'W' | 'G' (discovered / in queue) | 'B' (dequeued & fully processed)
+  //   dist, pi
+  //   queue: array, front first
+  //   cur  : vertex just dequeued (being processed), or null
+  //   tree : list of confirmed BFS-tree edge keys "a-b" (sorted endpoints)
+  //   ae   : edges examined this step, keys "a-b"
+  const ek = (a, b) => [a, b].sort().join('-');
+
+  const bfsSteps = [
+    {
+      title: "Initialize — enqueue the source A",
+      narr: "Source = A. Set every dist = ∞ and π = NIL, then dist[A] = 0. Color A gray and enqueue it. Queue = [A]. (Layer 0 contains just A.)",
+      color: { A:'G', B:'W', C:'W', D:'W', E:'W', F:'W' },
+      dist: { A:0, B:INF, C:INF, D:INF, E:INF, F:INF },
+      pi:   { A:null, B:null, C:null, D:null, E:null, F:null },
+      queue: ['A'], cur: null, tree: [], ae: []
+    },
+    {
+      title: "Dequeue A → discover layer 1: B and C",
+      narr: "Dequeue A. Its white neighbors B and C are discovered: dist = 0 + 1 = 1, π = A, color gray, enqueue both. These BFS-tree edges A–B and A–C are kept. Color A black. Queue = [B, C].",
+      color: { A:'B', B:'G', C:'G', D:'W', E:'W', F:'W' },
+      dist: { A:0, B:1, C:1, D:INF, E:INF, F:INF },
+      pi:   { A:null, B:'A', C:'A', D:null, E:null, F:null },
+      queue: ['B','C'], cur: 'A', tree: ['A-B','A-C'], ae: ['A-B','A-C']
+    },
+    {
+      title: "Dequeue B → discover D",
+      narr: "Dequeue B (front of the queue). Neighbor A is already black (skip). Neighbor D is white: dist[D] = dist[B] + 1 = 2, π[D] = B, enqueue. Edge B–D joins the BFS tree. Color B black. Queue = [C, D].",
+      color: { A:'B', B:'B', C:'G', D:'G', E:'W', F:'W' },
+      dist: { A:0, B:1, C:1, D:2, E:INF, F:INF },
+      pi:   { A:null, B:'A', C:'A', D:'B', E:null, F:null },
+      queue: ['C','D'], cur: 'B', tree: ['A-B','A-C','B-D'], ae: ['A-B','B-D']
+    },
+    {
+      title: "Dequeue C → C–D is a same-layer link, discover E",
+      narr: "Dequeue C. Neighbor D is already gray with dist[D] = 2 = dist[C] + 1, so C–D is NOT a tree edge — but it is a second shortest route to D (two shortest A→D paths: A-B-D and A-C-D). Neighbor E is white: dist[E] = 2, π[E] = C, enqueue. Color C black. Queue = [D, E].",
+      color: { A:'B', B:'B', C:'B', D:'G', E:'G', F:'W' },
+      dist: { A:0, B:1, C:1, D:2, E:2, F:INF },
+      pi:   { A:null, B:'A', C:'A', D:'B', E:'C', F:null },
+      queue: ['D','E'], cur: 'C', tree: ['A-B','A-C','B-D','C-E'], ae: ['A-C','C-D','C-E']
+    },
+    {
+      title: "Dequeue D → discover layer 3: F",
+      narr: "Dequeue D. Neighbors B and C are black (skip). Neighbor F is white: dist[F] = dist[D] + 1 = 3, π[F] = D, enqueue. Edge D–F joins the BFS tree. Color D black. Queue = [E, F].",
+      color: { A:'B', B:'B', C:'B', D:'B', E:'G', F:'G' },
+      dist: { A:0, B:1, C:1, D:2, E:2, F:3 },
+      pi:   { A:null, B:'A', C:'A', D:'B', E:'C', F:'D' },
+      queue: ['E','F'], cur: 'D', tree: ['A-B','A-C','B-D','C-E','D-F'], ae: ['B-D','C-D','D-F']
+    },
+    {
+      title: "Dequeue E → no new vertices",
+      narr: "Dequeue E. Its only neighbor C is already black, so nothing new is discovered. Color E black. Queue = [F].",
+      color: { A:'B', B:'B', C:'B', D:'B', E:'B', F:'G' },
+      dist: { A:0, B:1, C:1, D:2, E:2, F:3 },
+      pi:   { A:null, B:'A', C:'A', D:'B', E:'C', F:'D' },
+      queue: ['F'], cur: 'E', tree: ['A-B','A-C','B-D','C-E','D-F'], ae: ['C-E']
+    },
+    {
+      title: "Dequeue F → no new vertices",
+      narr: "Dequeue F. Its only neighbor D is already black, so nothing new. Color F black. The queue is now empty.",
+      color: { A:'B', B:'B', C:'B', D:'B', E:'B', F:'B' },
+      dist: { A:0, B:1, C:1, D:2, E:2, F:3 },
+      pi:   { A:null, B:'A', C:'A', D:'B', E:'C', F:'D' },
+      queue: [], cur: 'F', tree: ['A-B','A-C','B-D','C-E','D-F'], ae: ['D-F']
+    },
+    {
+      title: "Done — all distances are final",
+      narr: "The queue is empty; every vertex is processed. Layers by distance: {A} · {B, C} · {D, E} · {F}. Each dist[v] = δ(A, v) is the fewest edges from A. The 5 highlighted edges form the BFS tree; the leftover edge C–D is the only non-tree edge.",
+      color: { A:'B', B:'B', C:'B', D:'B', E:'B', F:'B' },
+      dist: { A:0, B:1, C:1, D:2, E:2, F:3 },
+      pi:   { A:null, B:'A', C:'A', D:'B', E:'C', F:'D' },
+      queue: [], cur: null, tree: ['A-B','A-C','B-D','C-E','D-F'], ae: []
+    }
+  ];
+
+  let bfsStep = 0;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function bfsDraw() {
+    const s = bfsSteps[bfsStep];
+    const eg = document.getElementById('bfs-edges');
+    const ng = document.getElementById('bfs-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const treeColor = cssVar('--tree-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+    const activeSet = new Set(s.ae);
+    const treeSet = new Set(s.tree);
+
+    bfsEdges.forEach(e => {
+      const n1 = bfsNodes[e.a], n2 = bfsNodes[e.b];
+      const key = ek(e.a, e.b);
+      const isActive = activeSet.has(key);
+      const isTree = treeSet.has(key);
+      let stroke = edgeColor;
+      let sw = 1.5;
+      if (isTree) { stroke = treeColor; sw = 2.5; }
+      if (isActive) { stroke = activeColor; sw = 3; }
+      eg.innerHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${stroke}" stroke-width="${sw}"/>`;
+    });
+
+    NODES.forEach(name => {
+      const n = bfsNodes[name];
+      const col = s.color[name];
+      const isCur = s.cur === name;
+      let fill, stroke, tc;
+      if (col === 'G') {
+        fill = cssVar('--gray-fill');
+        stroke = cssVar('--gray-stroke');
+        tc = cssVar('--gray-text');
+      } else if (col === 'B') {
+        fill = cssVar('--black-fill');
+        stroke = cssVar('--black-stroke');
+        tc = cssVar('--black-text');
+      } else {
+        fill = bgPrimary;
+        stroke = nodeStroke;
+        tc = textPrimary;
+      }
+      const dv = s.dist[name];
+      const dl = dv === INF ? '∞' : String(dv);
+      const ring = isCur ? `<circle cx="${n.x}" cy="${n.y}" r="27" fill="none" stroke="${activeColor}" stroke-width="2"/>` : '';
+      ng.innerHTML += `<g>
+        ${ring}
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="16" font-weight="500" fill="${tc}">${name}</text>
+        <text x="${n.x}" y="${n.y - 31}" text-anchor="middle" font-size="13" font-weight="500" fill="${textSecondary}">d=${dl}</text>
+      </g>`;
+    });
+  }
+
+  function bfsUpdate() {
+    const s = bfsSteps[bfsStep];
+    document.getElementById('bfs-title').textContent = s.title;
+    document.getElementById('bfs-narr').textContent = s.narr;
+    document.getElementById('bfs-counter').textContent = `Step ${bfsStep + 1} / ${bfsSteps.length}`;
+
+    const cls = (n) => {
+      if (s.cur === n) return 'g';
+      if (s.color[n] === 'G') return 'g';
+      if (s.color[n] === 'B') return 'b';
+      return '';
+    };
+    const rowD = document.getElementById('bfs-row-dist');
+    const rowP = document.getElementById('bfs-row-pi');
+    rowD.innerHTML = '<td style="color: var(--text-secondary);">dist</td>';
+    rowP.innerHTML = '<td style="color: var(--text-secondary);">π</td>';
+    NODES.forEach(n => {
+      const dv = s.dist[n];
+      rowD.innerHTML += `<td class="${cls(n)}">${dv === INF ? '∞' : dv}</td>`;
+      rowP.innerHTML += `<td class="${cls(n)}">${s.pi[n] == null ? '–' : s.pi[n]}</td>`;
+    });
+
+    const q = document.getElementById('bfs-queue');
+    if (s.queue.length === 0) {
+      q.innerHTML = '<span class="queue-empty">(empty)</span>';
+    } else {
+      const parts = [];
+      s.queue.forEach((v, i) => {
+        if (i > 0) parts.push('<span class="qarrow">→</span>');
+        parts.push(`<span class="qitem${i === 0 ? ' head' : ''}">${v} <span style="opacity:.7;font-size:12px;">d=${s.dist[v]}</span></span>`);
+      });
+      q.innerHTML = parts.join('');
+    }
+
+    document.getElementById('bfs-prev').disabled = bfsStep === 0;
+    document.getElementById('bfs-next').disabled = bfsStep === bfsSteps.length - 1;
+    bfsDraw();
+  }
+
+  document.getElementById('bfs-next').addEventListener('click', () => {
+    if (bfsStep < bfsSteps.length - 1) { bfsStep++; bfsUpdate(); }
+  });
+  document.getElementById('bfs-prev').addEventListener('click', () => {
+    if (bfsStep > 0) { bfsStep--; bfsUpdate(); }
+  });
+  document.getElementById('bfs-reset').addEventListener('click', () => {
+    bfsStep = 0; bfsUpdate();
+  });
+
+  // keyboard arrows
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && bfsStep < bfsSteps.length - 1) { bfsStep++; bfsUpdate(); }
+    else if (ev.key === 'ArrowLeft' && bfsStep > 0) { bfsStep--; bfsUpdate(); }
+  });
+
+  // redraw on color scheme change
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', bfsDraw);
+
+  bfsUpdate();
+</script>
+</body>
+</html>

@@ -6,6 +6,8 @@ title: "Depth-First Search (DFS)"
 summary: "Explore a graph as deeply as possible before backtracking — the engine behind times, edge classification, and orientation."
 frequency: "9/19"
 difficulty: medium
+visualization: dfs-visualization.html
+vizHeight: 860
 complexity:
   time: 'O(|V| + |E|)'
   timeNote: "one discovery + one finish per vertex, one scan per edge"
@@ -73,12 +75,28 @@ DFS-Visit(u):
 
 ## On the exam
 
-DFS is the prove-or-disprove engine of **Question 1a** — claims about the DFS tree, timestamps, edge classification, and articulation points, plus a complexity-by-structure multiple-choice part.
+DFS is the prove-or-disprove engine of **Question 1a** and the workhorse of the linear-algorithm **Question 2** — claims about the DFS tree/forest, timestamps, edge classification, articulation points, and orientation, plus a complexity-by-structure multiple-choice part. Across the 2022–2025 exams (~9/19), every DFS appearance is one of the following.
 
-- **Prove/disprove on the DFS tree & times.** *(2025 Sem-B Mo'ed A, Q1a)* — if a path `x→y` exists in a **directed** graph, must `f(x)>f(y)` in *every* DFS run? *(False — a cycle gives a path `y→x` too, so starting at `y` yields `f(y)>f(x)`.)* *(2022 Sem-B Mo'ed C, Q1a)* — in an undirected graph with a clique, do all clique vertices lie consecutively on one DFS-tree path? *(2023 Sem-B Special, Q1)* — relate `Gᵀ` discovery order to the topological order.
-- **Articulation points.** *(2023 Summer Mo'ed A, Q1a-b)* — removing all vertices on the tree path `s…a` disconnects an undirected connected graph; does removing only `a` disconnect it? *(2024 Summer Mo'ed A, Q1a — false)* — a vertex `a≠s` with more than one child need **not** be a cut vertex; *Hint:* a child can reconnect via a back edge.
-- **Orientation to a DAG.** *(2022 Sem-B Mo'ed C, Q1b; 2023 Summer Mo'ed A, Q4b)* — orient each edge from earlier- to later-discovered vertex and prove the result is acyclic. *Hint:* undirected DFS yields only tree/back edges, so the orientation never closes a cycle.
-- **Complexity by structure (MC).** *(2024 Sem-B Mo'ed A, Q3d)* — DFS/BFS cost as a function of out-degree: degree $\Theta(n)$ (e.g. $\lceil n/4\rceil$) gives $|E|=\Theta(n^2)$ so $\Theta(n^2)$; **constant** degree gives $\Theta(n)$; "**at most** $\lceil n/4\rceil$" → cannot be determined.
+- **Prove/disprove on the DFS tree, forest & times.**
+  - *(2025 Sem-B Mo'ed A, Q1a)* — if a path `x→y` exists in a **directed** graph, must `f(x)>f(y)` in *every* DFS run? *Hint:* **false** — a back edge / cycle gives a path `y→x` too, so starting at `y` yields `f(y)>f(x)`.
+  - *(2022 Sem-B Mo'ed C, Q1a)* — in an undirected graph with a clique, do all clique vertices appear **consecutively** on one path of the DFS tree? *Hint:* white-path theorem.
+  - *(2023 Sem-B Mo'ed A, Q1)* — for every undirected graph with `n>5`, is there a DFS run where #back-edges = #simple-cycles? *Hint:* compare how many independent cycles back edges can certify.
+  - *(2023 Sem-B Mo'ed A, Q2a)* — does DFS on a "directed tree" (single root, all others in-degree 1) produce only **tree** edges? *Hint:* no back/forward/cross can form.
+  - *(2023 Sem-B Special Mo'ed, Q1)* — in a DAG with `Gᵀ`, if DFS on `Gᵀ` discovers `x` before `y`, is there no edge `x→y` in `G`? *Hint:* relate `Gᵀ` discovery order to the topological order.
+- **Articulation points (cut vertices).**
+  - *(2023 Summer Mo'ed A, Q1a)* — prove that removing **all** vertices on the tree path `s…a` (with their edges) disconnects an undirected connected graph. *(Q1b)* — does removing only `a` disconnect it? prove/disprove (articulation point).
+  - *(2024 Summer Mo'ed A, Q1a)* — **false:** a vertex `a≠s` with more than one child need **not** be a cut vertex; *Hint:* a child can reconnect upward via a back edge.
+- **Orientation of an undirected graph to a DAG.**
+  - *(2022 Sem-B Mo'ed C, Q1b; 2023 Summer Mo'ed A, Q4b)* — orient each edge from the earlier- to the later-discovered vertex and prove the result is acyclic, with correctness and complexity. *Hint:* undirected DFS yields only tree/back edges, so the "forward in discovery order" orientation never closes a cycle.
+- **Design a linear `O(|V|+|E|)` algorithm (DFS-based).**
+  - *(2022 Sem-B Sample, Q4a)* — does a DFS run exist whose DFS forest has `≥k` trees (YES/NO), with correctness and complexity? *Hint:* the minimum tree count relates to the number of source components in the condensation. *(Q4b)* — demonstrate the run for `k=3`.
+  - *(2022 Sem-B Mo'ed C, Q2a)* — produce a vertex-deletion order for an undirected connected graph so it stays connected after each deletion. *Hint:* delete in reverse order of DFS finish (leaves first). *(Q2b)* — correctness + complexity.
+  - *(2023 Sem-B Mo'ed A, Q2b)* — decide whether a directed graph is a directed tree (single root + acyclic + in-degrees), with idea and correctness.
+  - *(2024 Sem-B Mo'ed A, Q2)* — minimum #edges to add to connect all vertices of a set `S`: count components containing an `S`-vertex, return `count−1`. *(Q2c)* — correctness + complexity.
+- **Reading a DFS run (MC).**
+  - *(2024 Sem-B Sample, Q3e)* — given a parent array `π` from DFS on a 10-vertex undirected graph, identify the 3 connected components.
+- **Complexity by structure (MC).**
+  - *(2024 Sem-B Mo'ed A, Q3d)* — DFS/BFS cost as a function of out-degree: degree $\Theta(n)$ (e.g. $\lceil n/4\rceil$) gives $|E|=\Theta(n^2)$ so $\Theta(n^2)$; **constant** degree gives $\Theta(n)$; "**at most** $\lceil n/4\rceil$" → cannot be determined.
 
 > [!tip] The golden rule for DFS proofs
 > In an **undirected** graph, DFS yields only **tree and back** edges (never forward/cross). The **parenthesis theorem** on the intervals $[d[v], f[v]]$ and the **white-path theorem** are your two proof tools — reach for them before trying a counter-example.

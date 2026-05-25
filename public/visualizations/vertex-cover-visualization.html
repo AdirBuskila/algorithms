@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vertex Cover (2-Approximation) — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --visited-fill: #9FE1CB;
+    --visited-stroke: #0F6E56;
+    --visited-text: #04342C;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --row-visited-bg: #E1F5EE;
+    --row-visited-text: #04342C;
+    --row-current-bg: #FAEEDA;
+    --row-current-text: #854F0B;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --visited-fill: #085041;
+      --visited-stroke: #5DCAA5;
+      --visited-text: #9FE1CB;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --row-visited-bg: #085041;
+      --row-visited-text: #9FE1CB;
+      --row-current-bg: #633806;
+      --row-current-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 84px;
+  }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  .stats {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .stats .box {
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+  }
+  .stats strong { color: var(--text-primary); font-size: 15px; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 12px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.in { background: var(--row-visited-bg); color: var(--row-visited-text); font-weight: 500; }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="title" id="vc-title">Step 1 — The graph</div>
+    <div class="narr" id="vc-narr">A path a — b — c — d with 3 edges. The cover C starts empty; every edge is uncovered. We repeatedly pick an uncovered edge and add both its endpoints.</div>
+  </div>
+
+  <svg id="vc-svg" viewBox="0 0 480 200">
+    <g id="vc-edges"></g>
+    <g id="vc-nodes"></g>
+  </svg>
+
+  <div class="stats">
+    <div class="box">cover <strong id="vc-c">&empty;</strong></div>
+    <div class="box">|C| = 2|M| = <strong id="vc-size">0</strong></div>
+    <div class="box">OPT = <strong>2</strong></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 80px;">edge</th>
+        <th>(a,b)</th><th>(b,c)</th><th>(c,d)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="vc-row"></tr>
+    </tbody>
+  </table>
+
+  <div class="ctrl">
+    <button id="vc-prev">← Previous</button>
+    <button id="vc-next">Next →</button>
+    <button id="vc-reset">Reset</button>
+    <span class="ctr" id="vc-counter">Step 1 / 6</span>
+  </div>
+</div>
+
+<script>
+  // Example from vertex-cover.en.md: path a - b - c - d (3 edges).
+  // VC_improved returns {a,b,c,d} (size 4); OPT = {b,c} (size 2); ratio = 2.
+  const vcNodes = {
+    a: { x: 70,  y: 100 },
+    b: { x: 200, y: 100 },
+    c: { x: 320, y: 100 },
+    d: { x: 440, y: 100 }
+  };
+
+  const vcEdges = [
+    { a: 'a', b: 'b' },
+    { a: 'b', b: 'c' },
+    { a: 'c', b: 'd' }
+  ];
+
+  const EDGE_ORDER = ['a-b', 'b-c', 'c-d'];
+  const ek = (a, b) => [a, b].sort().join('-');
+
+  const vcSteps = [
+    {
+      title: "Step 1 — The graph",
+      narr: "A path a — b — c — d with 3 edges. The cover C starts empty; every edge is uncovered. We repeatedly pick an uncovered edge and add both its endpoints.",
+      C: [], M: [], picked: null, covered: [], size: 0
+    },
+    {
+      title: "Step 2 — Pick uncovered edge (a,b)",
+      narr: "All three edges are uncovered. Pick edge (a,b) arbitrarily (highlighted). It joins the matching M, since its endpoints are still free.",
+      C: [], M: ['a-b'], picked: 'a-b', covered: [], size: 0
+    },
+    {
+      title: "Step 3 — Add a and b to the cover",
+      narr: "Add BOTH endpoints a and b to C. Every edge touching a or b — that's (a,b) and (b,c) — is now covered (greyed). |C| = 2, and so far |M| = 1, confirming |C| = 2|M|.",
+      C: ['a', 'b'], M: ['a-b'], picked: null, covered: ['a-b', 'b-c'], size: 2
+    },
+    {
+      title: "Step 4 — Pick uncovered edge (c,d)",
+      narr: "Only (c,d) is still uncovered. Pick it (highlighted). Its endpoints c, d are free, so it also joins the matching M.",
+      C: ['a', 'b'], M: ['a-b', 'c-d'], picked: 'c-d', covered: ['a-b', 'b-c'], size: 2
+    },
+    {
+      title: "Step 5 — Add c and d to the cover",
+      narr: "Add BOTH endpoints c and d to C. Now every edge is covered, so the loop ends. |C| = 4 and |M| = 2 — exactly |C| = 2|M|.",
+      C: ['a', 'b', 'c', 'd'], M: ['a-b', 'c-d'], picked: null, covered: ['a-b', 'b-c', 'c-d'], size: 4
+    },
+    {
+      title: "Step 6 — Done: |C| = 4 vs OPT = 2",
+      narr: "VC_improved returns {a,b,c,d}, size 4. The minimum cover is {b,c}, size 2. Ratio = 4/2 = 2 — the tight worst case. Since any cover must hit each of the 2 disjoint matching edges, OPT ≥ |M| = 2, hence |C| = 2|M| ≤ 2·OPT.",
+      C: ['a', 'b', 'c', 'd'], M: ['a-b', 'c-d'], picked: null, covered: ['a-b', 'b-c', 'c-d'], size: 4, done: true
+    }
+  ];
+
+  let vcStep = 0;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function vcDraw() {
+    const s = vcSteps[vcStep];
+    const covered = new Set(s.covered.map(e => { const p = e.split('-'); return ek(p[0], p[1]); }));
+    const matched = new Set(s.M.map(e => { const p = e.split('-'); return ek(p[0], p[1]); }));
+    const pickedKey = s.picked ? (() => { const p = s.picked.split('-'); return ek(p[0], p[1]); })() : null;
+    const eg = document.getElementById('vc-edges');
+    const ng = document.getElementById('vc-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+    const coveredStroke = cssVar('--visited-stroke');
+    const border = cssVar('--border');
+
+    vcEdges.forEach(e => {
+      const n1 = vcNodes[e.a], n2 = vcNodes[e.b];
+      const key = ek(e.a, e.b);
+      const isPicked = pickedKey === key;
+      const isCovered = covered.has(key);
+      const isMatchEdge = matched.has(key);
+      let stroke, sw, opacity = 1;
+      if (isPicked) { stroke = activeColor; sw = 4; }
+      else if (isMatchEdge && isCovered) { stroke = coveredStroke; sw = 3.5; }
+      else if (isCovered) { stroke = edgeColor; sw = 1.5; opacity = 0.35; }
+      else { stroke = textSecondary; sw = 2; }
+      eg.innerHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${stroke}" stroke-width="${sw}" opacity="${opacity}"/>`;
+    });
+
+    Object.keys(vcNodes).forEach(name => {
+      const n = vcNodes[name];
+      const inCover = s.C.includes(name);
+      let fill, stroke, tc;
+      if (inCover) {
+        fill = cssVar('--visited-fill');
+        stroke = cssVar('--visited-stroke');
+        tc = cssVar('--visited-text');
+      } else {
+        fill = bgPrimary;
+        stroke = nodeStroke;
+        tc = textPrimary;
+      }
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="16" font-weight="500" fill="${tc}">${name}</text>
+      </g>`;
+    });
+  }
+
+  function vcUpdate() {
+    const s = vcSteps[vcStep];
+    document.getElementById('vc-title').textContent = s.title;
+    document.getElementById('vc-narr').textContent = s.narr;
+    document.getElementById('vc-counter').textContent = `Step ${vcStep + 1} / ${vcSteps.length}`;
+    document.getElementById('vc-size').textContent = String(s.size);
+    document.getElementById('vc-c').innerHTML = s.C.length ? '{' + s.C.join(', ') + '}' : '&empty;';
+
+    const covered = new Set(s.covered.map(e => { const p = e.split('-'); return ek(p[0], p[1]); }));
+    const pickedKey = s.picked ? (() => { const p = s.picked.split('-'); return ek(p[0], p[1]); })() : null;
+    const row = document.getElementById('vc-row');
+    row.innerHTML = '<td style="color: var(--text-secondary);">covered?</td>';
+    EDGE_ORDER.forEach(e => {
+      const p = e.split('-');
+      const key = ek(p[0], p[1]);
+      let cls = '', txt = 'no';
+      if (covered.has(key)) { cls = 'in'; txt = '✓'; }
+      if (pickedKey === key) { txt = 'pick'; }
+      row.innerHTML += `<td class="${cls}">${txt}</td>`;
+    });
+
+    document.getElementById('vc-prev').disabled = vcStep === 0;
+    document.getElementById('vc-next').disabled = vcStep === vcSteps.length - 1;
+    vcDraw();
+  }
+
+  document.getElementById('vc-next').addEventListener('click', () => {
+    if (vcStep < vcSteps.length - 1) { vcStep++; vcUpdate(); }
+  });
+  document.getElementById('vc-prev').addEventListener('click', () => {
+    if (vcStep > 0) { vcStep--; vcUpdate(); }
+  });
+  document.getElementById('vc-reset').addEventListener('click', () => {
+    vcStep = 0; vcUpdate();
+  });
+
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && vcStep < vcSteps.length - 1) { vcStep++; vcUpdate(); }
+    else if (ev.key === 'ArrowLeft' && vcStep > 0) { vcStep--; vcUpdate(); }
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', vcDraw);
+
+  vcUpdate();
+</script>
+</body>
+</html>

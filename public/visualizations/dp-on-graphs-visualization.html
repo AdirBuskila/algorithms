@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DP on Graphs — Lightest k-Edge Walk — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --via-bg: #E1F5EE;
+    --via-text: #04342C;
+    --via-stroke: #0F6E56;
+    --imp-bg: #FAC775;
+    --imp-text: #412402;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --active-color: #EF9F27;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --via-bg: #085041;
+      --via-text: #9FE1CB;
+      --via-stroke: #5DCAA5;
+      --imp-bg: #633806;
+      --imp-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 640px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 92px;
+  }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+  .narr code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    background: var(--bg-primary);
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  svg { width: 100%; height: auto; display: block; max-width: 420px; margin: 0 auto; }
+
+  .mx-wrap { margin-top: 18px; }
+  .axis {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  table.mx {
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+  table.mx th, table.mx td {
+    width: 54px;
+    height: 42px;
+    text-align: center;
+    border: 0.5px solid var(--border);
+  }
+  table.mx th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 13px;
+    border: none;
+  }
+  table.mx th.corner { background: transparent; font-size: 11px; }
+  table.mx th.kh {
+    background: var(--current-fill);
+    color: var(--current-text);
+    border-radius: 6px;
+    font-weight: 700;
+  }
+  table.mx td.empty { color: var(--text-secondary); opacity: 0.35; }
+  table.mx td.via { background: var(--via-bg); color: var(--via-text); }
+  table.mx td.imp {
+    background: var(--imp-bg);
+    color: var(--imp-text);
+    font-weight: 700;
+  }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr { margin-left: auto; font-size: 13px; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="title" id="dp-title"></div>
+    <div class="narr" id="dp-narr"></div>
+  </div>
+
+  <svg id="dp-svg" viewBox="0 0 420 240">
+    <g id="dp-edges"></g>
+    <g id="dp-nodes"></g>
+  </svg>
+
+  <div class="mx-wrap">
+    <div class="axis">cell <b>d(v, j)</b> = lightest walk s→v using <b>exactly j edges</b>&nbsp;&nbsp;·&nbsp;&nbsp;rows = vertex&nbsp;&nbsp;·&nbsp;&nbsp;columns = j</div>
+    <table class="mx"><tbody id="dp-matrix"></tbody></table>
+  </div>
+
+  <div class="ctrl">
+    <button id="dp-prev">← Previous</button>
+    <button id="dp-next">Next →</button>
+    <button id="dp-reset">Reset</button>
+    <span class="ctr" id="dp-counter"></span>
+  </div>
+</div>
+
+<script>
+  const INF = Infinity;
+
+  // Graph from dp-on-graphs.en.md: s→a(2), a→t(3), s→t(10). Source = s, target = t.
+  const dpNodes = {
+    s: { x: 60,  y: 120 },
+    a: { x: 210, y: 55  },
+    t: { x: 360, y: 120 }
+  };
+  const dpEdges = [
+    { a: 's', b: 'a', w: 2  },
+    { a: 'a', b: 't', w: 3  },
+    { a: 's', b: 't', w: 10 }
+  ];
+  const verts = ['s', 'a', 't'];
+  const K = 3; // columns j = 0..3
+
+  // Hand-computed table d(v, j). Rows indexed by vertex, cols by j.
+  // j=0: base case (only s reachable with 0 edges).
+  // j=1: a = 0+2 = 2 ; t = min(d(a,0)+3, d(s,0)+10) = 10.
+  // j=2: a = d(s,1)+2 = INF ; t = min(d(a,1)+3, d(s,1)+10) = 5.
+  // j=3: a = d(s,2)+2 = INF ; t = min(d(a,2)+3, d(s,2)+10) = INF.
+  const D = {
+    s: [0,   INF, INF, INF],
+    a: [INF, 2,   INF, INF],
+    t: [INF, 10,  5,   INF]
+  };
+
+  // Build the ordered fill sequence.
+  // Step 0 = initialize column j=0 (base case).
+  // Then for j=1..K, fill s, a, t in order; each step reveals one more cell.
+  const dpSteps = [];
+  dpSteps.push({
+    title: "Base case — column j = 0",
+    narr: "With <b>0 edges</b> you can only sit at the source. So <code>d(s,0) = 0</code> and <code>d(v,0) = ∞</code> for every other vertex. This column seeds the recurrence.",
+    j: 0, cell: null,
+    edge: null,
+    reveal: { 0: ['s', 'a', 't'] } // all of column 0 visible
+  });
+
+  // detail for each (v, j) cell: the recurrence text and which predecessor edge wins
+  function cellNarr(v, j) {
+    const preds = dpEdges.filter(e => e.b === v);
+    if (preds.length === 0) {
+      return {
+        edge: null,
+        text: `No edge enters <b>${v}</b>, so <code>d(${v},${j}) = ∞</code> — there is no way to arrive at ${v} on the last step.`
+      };
+    }
+    // describe min over predecessors
+    const parts = preds.map(e => {
+      const prev = D[e.a][j - 1];
+      const prevStr = prev === INF ? "∞" : prev;
+      const sum = (prev === INF) ? "∞" : (prev + e.w);
+      return `d(${e.a},${j - 1})+w(${e.a},${v}) = ${prevStr}+${e.w} = ${sum}`;
+    });
+    const result = D[v][j];
+    const resStr = result === INF ? "∞" : result;
+    let winner = null, best = INF;
+    preds.forEach(e => {
+      const prev = D[e.a][j - 1];
+      const val = (prev === INF) ? INF : prev + e.w;
+      if (val < best) { best = val; winner = e; }
+    });
+    return {
+      edge: (winner && best !== INF) ? winner : null,
+      text: `<code>d(${v},${j}) = min{ ${parts.join(", ")} } = ${resStr}</code>.`
+    };
+  }
+
+  // running reveal map { j: [verts revealed so far this column] }
+  function buildSteps() {
+    const revealed = { 0: ['s', 'a', 't'] };
+    for (let j = 1; j <= K; j++) {
+      revealed[j] = [];
+      for (const v of verts) {
+        revealed[j] = revealed[j].concat([v]);
+        const cn = cellNarr(v, j);
+        // snapshot of reveal so far
+        const snap = {};
+        for (const key of Object.keys(revealed)) snap[key] = revealed[key].slice();
+        const result = D[v][j];
+        const isImprove = result !== INF;
+        dpSteps.push({
+          title: `Fill d(${v}, ${j}) — column j = ${j}`,
+          narr: `A <code>${j}</code>-edge walk to <b>${v}</b> is a <code>${j - 1}</code>-edge walk to a predecessor <code>u</code> plus the edge <code>(u,${v})</code>. ${cn.text}`,
+          j: j, cell: [v, j],
+          edge: cn.edge,
+          reveal: snap
+        });
+      }
+    }
+    // final summary step
+    const snapAll = {};
+    for (let j = 0; j <= K; j++) snapAll[j] = ['s', 'a', 't'];
+    dpSteps.push({
+      title: "Done — read the answer off the table",
+      narr: "The lightest <b>s→t</b> walk with <b>exactly 2 edges</b> is <code>d(t,2) = 5</code> (the route s→a→t = 2+3), beating the 1-edge direct walk <code>d(t,1) = 10</code>. With exactly 3 edges no s→t walk exists, so <code>d(t,3) = ∞</code>.",
+      j: null, cell: [['t', 1], ['t', 2], ['t', 3]], edge: null, reveal: snapAll, highlightAnswers: true
+    });
+  }
+  buildSteps();
+
+  let dpStep = 0;
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const fmt = (v) => v === INF ? "∞" : String(v);
+
+  function arrow(x1, y1, x2, y2, color, sw, r) {
+    const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const sx = x1 + ux * r, sy = y1 + uy * r;
+    const ex = x2 - ux * r, ey = y2 - uy * r;
+    const ah = 10, aw = 4.5;
+    const bx = ex - ux * ah, by = ey - uy * ah;
+    const px = -uy, py = ux;
+    const line = `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="${sw}"/>`;
+    const head = `<polygon points="${ex},${ey} ${bx + px * aw},${by + py * aw} ${bx - px * aw},${by - py * aw}" fill="${color}"/>`;
+    return { svg: line + head, mx: (sx + ex) / 2, my: (sy + ey) / 2 };
+  }
+
+  function ek(e) { return e.a + '-' + e.b; }
+
+  function dpDraw() {
+    const s = dpSteps[dpStep];
+    const eg = document.getElementById('dp-edges');
+    const ng = document.getElementById('dp-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const nodeStroke = cssVar('--node-stroke');
+
+    const activeEdge = s.edge ? ek(s.edge) : null;
+    // the vertex whose cell is being filled (single-cell steps)
+    const curV = (s.cell && !Array.isArray(s.cell[0])) ? s.cell[0] : null;
+
+    dpEdges.forEach(e => {
+      const n1 = dpNodes[e.a], n2 = dpNodes[e.b];
+      const isActive = activeEdge === ek(e);
+      const stroke = isActive ? activeColor : edgeColor;
+      const sw = isActive ? 2.6 : 1.6;
+      const a = arrow(n1.x, n1.y, n2.x, n2.y, stroke, sw, 24);
+      eg.innerHTML += a.svg;
+      const dx = n2.x - n1.x, dy = n2.y - n1.y, len = Math.hypot(dx, dy);
+      const ox = -dy / len * 13, oy = dx / len * 13;
+      eg.innerHTML += `<circle cx="${a.mx + ox}" cy="${a.my + oy}" r="12" fill="${bgPrimary}" stroke="${stroke}" stroke-width="1"/>`;
+      eg.innerHTML += `<text x="${a.mx + ox}" y="${a.my + oy}" text-anchor="middle" dy="4" font-size="12" font-weight="500" fill="${textPrimary}">${e.w}</text>`;
+    });
+
+    Object.keys(dpNodes).forEach(name => {
+      const n = dpNodes[name];
+      const isCur = curV === name;
+      const fill   = isCur ? cssVar('--current-fill')   : bgPrimary;
+      const stroke = isCur ? cssVar('--current-stroke') : nodeStroke;
+      const tc     = isCur ? cssVar('--current-text')   : textPrimary;
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="6" font-size="16" font-weight="600" fill="${tc}">${name}</text>
+      </g>`;
+    });
+  }
+
+  function dpDrawMatrix() {
+    const s = dpSteps[dpStep];
+    const tb = document.getElementById('dp-matrix');
+
+    // which cell is being filled this step (imp), and which columns/rows are visible
+    let impSet = new Set();
+    if (s.cell) {
+      if (Array.isArray(s.cell[0])) s.cell.forEach(c => impSet.add(c[0] + ',' + c[1]));
+      else impSet.add(s.cell[0] + ',' + s.cell[1]);
+    }
+
+    // header row: j values
+    let html = '<tr><th class="corner">d(v, j)</th>';
+    for (let j = 0; j <= K; j++) html += `<th class="${s.j === j ? 'kh' : ''}">j=${j}</th>`;
+    html += '</tr>';
+
+    for (const v of verts) {
+      html += `<tr><th>${v}</th>`;
+      for (let j = 0; j <= K; j++) {
+        const revealedCol = s.reveal[j] || [];
+        const visible = revealedCol.includes(v);
+        const val = D[v][j];
+        let cls = [];
+        let txt = '';
+        if (!visible) {
+          cls.push('empty');
+          txt = '';
+        } else {
+          txt = fmt(val);
+          if (impSet.has(v + ',' + j)) cls.push('imp');
+          else if (s.j === j && !s.highlightAnswers) cls.push('via');
+          if (val === INF) cls.push('empty');
+        }
+        html += `<td class="${cls.join(' ')}">${txt}</td>`;
+      }
+      html += '</tr>';
+    }
+    tb.innerHTML = html;
+  }
+
+  function dpUpdate() {
+    const s = dpSteps[dpStep];
+    document.getElementById('dp-title').textContent = s.title;
+    document.getElementById('dp-narr').innerHTML = s.narr;
+    document.getElementById('dp-counter').textContent = `Step ${dpStep + 1} / ${dpSteps.length}`;
+    document.getElementById('dp-prev').disabled = dpStep === 0;
+    document.getElementById('dp-next').disabled = dpStep === dpSteps.length - 1;
+    dpDraw();
+    dpDrawMatrix();
+  }
+
+  document.getElementById('dp-next').addEventListener('click', () => {
+    if (dpStep < dpSteps.length - 1) { dpStep++; dpUpdate(); }
+  });
+  document.getElementById('dp-prev').addEventListener('click', () => {
+    if (dpStep > 0) { dpStep--; dpUpdate(); }
+  });
+  document.getElementById('dp-reset').addEventListener('click', () => {
+    dpStep = 0; dpUpdate();
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && dpStep < dpSteps.length - 1) { dpStep++; dpUpdate(); }
+    else if (ev.key === 'ArrowLeft' && dpStep > 0) { dpStep--; dpUpdate(); }
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', dpDraw);
+
+  dpUpdate();
+</script>
+</body>
+</html>

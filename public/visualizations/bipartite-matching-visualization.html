@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bipartite Matching — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --visited-fill: #9FE1CB;
+    --visited-stroke: #0F6E56;
+    --visited-text: #04342C;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --row-visited-bg: #E1F5EE;
+    --row-visited-text: #04342C;
+    --row-current-bg: #FAEEDA;
+    --row-current-text: #854F0B;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --visited-fill: #085041;
+      --visited-stroke: #5DCAA5;
+      --visited-text: #9FE1CB;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --row-visited-bg: #085041;
+      --row-visited-text: #9FE1CB;
+      --row-current-bg: #633806;
+      --row-current-text: #FAC775;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 84px;
+  }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  .size {
+    margin-top: 16px;
+    font-size: 13px;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+  .size strong { color: var(--text-primary); font-size: 15px; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 12px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.m { background: var(--row-visited-bg); color: var(--row-visited-text); font-weight: 500; }
+  td.a { background: var(--row-current-bg); color: var(--row-current-text); font-weight: 500; }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="title" id="bm-title">Step 1 — The bipartite graph</div>
+    <div class="narr" id="bm-narr">Left side L = {a₁, a₂, a₃}, right side R = {b₁, b₂, b₃}. No edges are matched yet, so the matching is empty.</div>
+  </div>
+
+  <svg id="bm-svg" viewBox="0 0 480 320">
+    <g id="bm-edges"></g>
+    <g id="bm-nodes"></g>
+  </svg>
+
+  <div class="size" id="bm-size">Matching size |M| = 0</div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 90px;">edge</th>
+        <th>a₁–b₁</th><th>a₁–b₂</th><th>a₂–b₁</th><th>a₃–b₃</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="bm-row"></tr>
+    </tbody>
+  </table>
+
+  <div class="ctrl">
+    <button id="bm-prev">← Previous</button>
+    <button id="bm-next">Next →</button>
+    <button id="bm-reset">Reset</button>
+    <span class="ctr" id="bm-counter">Step 1 / 7</span>
+  </div>
+</div>
+
+<script>
+  // Example from bipartite-matching.en.md:
+  // L = {a1,a2,a3}, R = {b1,b2,b3}; edges a1-b1, a1-b2, a2-b1, a3-b3.
+  const bmNodes = {
+    a1: { x: 130, y: 70,  side: 'L' },
+    a2: { x: 130, y: 160, side: 'L' },
+    a3: { x: 130, y: 250, side: 'L' },
+    b1: { x: 350, y: 70,  side: 'R' },
+    b2: { x: 350, y: 160, side: 'R' },
+    b3: { x: 350, y: 250, side: 'R' }
+  };
+
+  const bmEdges = [
+    { a: 'a1', b: 'b1' },
+    { a: 'a1', b: 'b2' },
+    { a: 'a2', b: 'b1' },
+    { a: 'a3', b: 'b3' }
+  ];
+
+  const EDGE_ORDER = ['a1-b1', 'a1-b2', 'a2-b1', 'a3-b3'];
+  const ek = (a, b) => [a, b].sort().join('-');
+
+  const bmSteps = [
+    {
+      title: "Step 1 — The bipartite graph",
+      narr: "Left side L = {a₁, a₂, a₃}, right side R = {b₁, b₂, b₃}. No edges are matched yet, so the matching is empty.",
+      M: [], path: [], free: ['a1', 'a2', 'a3', 'b1', 'b2', 'b3'], size: 0
+    },
+    {
+      title: "Step 2 — Augmenting path a₁→b₁",
+      narr: "a₁ and b₁ are both unmatched, so the single edge a₁–b₁ is a trivial augmenting path. Flip it into the matching.",
+      M: [], path: ['a1-b1'], free: ['a1', 'a2', 'a3', 'b1', 'b2', 'b3'], size: 0, augment: true
+    },
+    {
+      title: "Step 3 — Matching grows to size 1",
+      narr: "a₁–b₁ is now matched (bold). Matched vertices a₁, b₁ are coloured; a₂, a₃, b₂, b₃ are still free.",
+      M: ['a1-b1'], path: [], free: ['a2', 'a3', 'b2', 'b3'], size: 1
+    },
+    {
+      title: "Step 4 — Search from free vertex a₂",
+      narr: "a₂ is unmatched. Its only neighbour b₁ is already matched (to a₁). Alternate: take a₂–b₁ (unmatched), then the matched edge b₁–a₁, then a₁'s free neighbour b₂. This is an augmenting path a₂–b₁=a₁–b₂.",
+      M: ['a1-b1'], path: ['a2-b1', 'a1-b1', 'a1-b2'], free: ['a2', 'a3', 'b2', 'b3'], size: 1, augment: true
+    },
+    {
+      title: "Step 5 — Flip the path → size 2",
+      narr: "Swap matched/unmatched along the path: a₁–b₁ leaves the matching, a₂–b₁ and a₁–b₂ enter it. The matching grows from 1 to 2 — both endpoints a₂ and b₂ were free, so |M| increases by one.",
+      M: ['a2-b1', 'a1-b2'], path: [], free: ['a3', 'b3'], size: 2
+    },
+    {
+      title: "Step 6 — Augmenting path a₃→b₃",
+      narr: "a₃ and b₃ are both still free, and a₃–b₃ is an edge — a trivial augmenting path. Flip it in.",
+      M: ['a2-b1', 'a1-b2'], path: ['a3-b3'], free: ['a3', 'b3'], size: 2, augment: true
+    },
+    {
+      title: "Step 7 — Perfect matching, |M| = 3",
+      narr: "Final matching {a₁–b₂, a₂–b₁, a₃–b₃} covers every vertex — a perfect matching of size 3. No free vertices remain, so no augmenting path exists and M is maximum.",
+      M: ['a2-b1', 'a1-b2', 'a3-b3'], path: [], free: [], size: 3
+    }
+  ];
+
+  let bmStep = 0;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function bmDraw() {
+    const s = bmSteps[bmStep];
+    const matched = new Set(s.M.map(e => { const p = e.split('-'); return ek(p[0], p[1]); }));
+    const onPath = new Set(s.path.map(e => { const p = e.split('-'); return ek(p[0], p[1]); }));
+    const eg = document.getElementById('bm-edges');
+    const ng = document.getElementById('bm-nodes');
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const nodeStroke = cssVar('--node-stroke');
+    const matchedColor = cssVar('--visited-stroke');
+
+    bmEdges.forEach(e => {
+      const n1 = bmNodes[e.a], n2 = bmNodes[e.b];
+      const key = ek(e.a, e.b);
+      const isPath = onPath.has(key);
+      const isMatched = matched.has(key);
+      let stroke, sw, dash = '';
+      if (isPath) { stroke = activeColor; sw = 3.5; }
+      else if (isMatched) { stroke = matchedColor; sw = 3.5; }
+      else { stroke = edgeColor; sw = 1.5; }
+      // matched edges within a highlighted path are drawn dashed to show "remove"
+      if (isPath && isMatched) dash = 'stroke-dasharray="6 4"';
+      eg.innerHTML += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${stroke}" stroke-width="${sw}" ${dash}/>`;
+    });
+
+    Object.keys(bmNodes).forEach(name => {
+      const n = bmNodes[name];
+      const isMatchedVtx = s.M.some(e => e.split('-').includes(name));
+      const isFree = s.free.includes(name);
+      let fill, stroke, tc;
+      if (isMatchedVtx) {
+        fill = cssVar('--visited-fill');
+        stroke = cssVar('--visited-stroke');
+        tc = cssVar('--visited-text');
+      } else {
+        fill = bgPrimary;
+        stroke = nodeStroke;
+        tc = textPrimary;
+      }
+      const sub = name.slice(1);
+      const label = name[0];
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="5" font-size="15" font-weight="500" fill="${tc}">${label}<tspan font-size="11" dy="3">${sub}</tspan></text>
+      </g>`;
+    });
+
+    // column captions
+    ng.innerHTML += `<text x="130" y="30" text-anchor="middle" font-size="13" font-weight="500" fill="${textSecondary}">L</text>`;
+    ng.innerHTML += `<text x="350" y="30" text-anchor="middle" font-size="13" font-weight="500" fill="${textSecondary}">R</text>`;
+  }
+
+  function bmUpdate() {
+    const s = bmSteps[bmStep];
+    document.getElementById('bm-title').textContent = s.title;
+    document.getElementById('bm-narr').textContent = s.narr;
+    document.getElementById('bm-counter').textContent = `Step ${bmStep + 1} / ${bmSteps.length}`;
+    document.getElementById('bm-size').innerHTML = `Matching size |M| = <strong>${s.size}</strong>`;
+
+    const matched = new Set(s.M.map(e => { const p = e.split('-'); return ek(p[0], p[1]); }));
+    const onPath = new Set(s.path.map(e => { const p = e.split('-'); return ek(p[0], p[1]); }));
+    const row = document.getElementById('bm-row');
+    row.innerHTML = '<td style="color: var(--text-secondary);">in M?</td>';
+    EDGE_ORDER.forEach(e => {
+      const p = e.split('-');
+      const key = ek(p[0], p[1]);
+      let cls = '', txt = '—';
+      if (matched.has(key)) { cls = 'm'; txt = '✓'; }
+      if (onPath.has(key)) { cls = 'a'; txt = matched.has(key) ? '↺' : '+'; }
+      row.innerHTML += `<td class="${cls}">${txt}</td>`;
+    });
+
+    document.getElementById('bm-prev').disabled = bmStep === 0;
+    document.getElementById('bm-next').disabled = bmStep === bmSteps.length - 1;
+    bmDraw();
+  }
+
+  document.getElementById('bm-next').addEventListener('click', () => {
+    if (bmStep < bmSteps.length - 1) { bmStep++; bmUpdate(); }
+  });
+  document.getElementById('bm-prev').addEventListener('click', () => {
+    if (bmStep > 0) { bmStep--; bmUpdate(); }
+  });
+  document.getElementById('bm-reset').addEventListener('click', () => {
+    bmStep = 0; bmUpdate();
+  });
+
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && bmStep < bmSteps.length - 1) { bmStep++; bmUpdate(); }
+    else if (ev.key === 'ArrowLeft' && bmStep > 0) { bmStep--; bmUpdate(); }
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', bmDraw);
+
+  bmUpdate();
+</script>
+</body>
+</html>

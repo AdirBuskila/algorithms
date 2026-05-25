@@ -6,6 +6,8 @@ title: "Breadth-First Search (BFS)"
 summary: "Explore a graph layer by layer to get shortest-path distances by edge count in an unweighted graph."
 frequency: "6/19"
 difficulty: medium
+visualization: bfs-visualization.html
+vizHeight: 800
 complexity:
   time: 'O(|V| + |E|)'
   timeNote: "each vertex enqueued once, each edge scanned once"
@@ -70,12 +72,19 @@ If both B **and** C connect to D, then `p[D] = p[B] + p[C] = 1 + 1 = 2`: there a
 
 ## On the exam
 
-BFS shows up as a fill-in-the-blank pseudocode part, as a "design a linear algorithm" question on trees, and in prove/disprove claims about the BFS tree.
+BFS shows up as a fill-in-the-blank pseudocode part, as a "design a linear algorithm" question on trees, and in prove/disprove + multiple-choice claims about the BFS tree. Across the 2022–2025 exams (~6/19), every BFS appearance is one of the following.
 
-- **Path counting / shortest-path edges.** *(2022 Sem-B Mo'ed B, Q4a-b)* — fill in `BFS_update(G,s)` so it computes both `d[v]` and the number of shortest paths `p[v]`; *Hint:* on a next-layer neighbor, `p[v] += p[u]`. *(2023 Sem-B Mo'ed B, Q4a-b)* — draw the BFS tree and find all "redundant" edges (linear: BFS, then keep only `d[v] = d[u] + 1`).
-- **Tree diameter & center.** *(2025 Sem-B Mo'ed B, Q2)* — linear algorithm for a tree **center** (vertex minimizing the maximum distance); *Hint:* find the diameter with two BFS, return its midpoint. *(Q2b — two centers can exist when the diameter is odd.)* *(2023 Sem-B Mo'ed B, Q1 — false)* — the "remove edge `(a,b)`, BFS from each, return `da+db+1`" diameter shortcut is **wrong** for a tree; find a counter-example.
-- **Shortest cycle through `s`.** *(2023 Sem-B Special, Q2a-b)* — does a `BFS_update` returning the shortest cycle length through `s` work in a **directed** graph? And undirected? *Hint:* the difference is the edge back to the parent.
-- **BFS tree structure (prove/disprove & MC).** *(2024 Sem-B Mo'ed B, Q1a)* — if every source `s` yields the same `π` from `BFS(G,s)`, must the number of connected components equal `|V|`? *(2025 Sem-B Mo'ed B, Q3c — MC)* — adding discovery/finish times to BFS: `b(π(v)) < b(v) < f(π(v)) < f(v)` (no full nesting like [[Depth-First Search (DFS)]]).
+- **Path counting & shortest-path / redundant edges.**
+  - *(2022 Sem-B Mo'ed B, Q4a)* — fill in the blanks of `BFS_update(G,s)` so it computes both `d[v]` and the number of shortest paths `p[v]` from `s`; *Hint:* when relaxing a next-layer neighbor, `p[v] += p[u]`. *(Q4b)* — complexity.
+  - *(2023 Sem-B Mo'ed B, Q4a)* — draw the BFS tree from `s` and identify all "redundant" edges (on no shortest path). *(Q4b)* — a linear algorithm finding them all: run BFS, then keep only edges with `d[v] = d[u] + 1`.
+- **Tree diameter & center (2-BFS).**
+  - *(2025 Sem-B Mo'ed B, Q2)* — linear algorithm for a tree **center** (vertex minimizing the maximum distance); *Hint:* find the diameter with two BFS, return its midpoint. *(Q2b)* — can there be two centers? **yes**, when the diameter is odd.
+  - *(2023 Sem-B Mo'ed B, Q1)* — **false:** the "remove edge `(a,b)`, BFS from `a` and from `b`, return `da+db+1`" diameter shortcut is **wrong** for a tree; find a counter-example.
+- **Shortest cycle through `s`.**
+  - *(2023 Sem-B Special Mo'ed, Q2a)* — does a `BFS_update` returning the shortest-cycle length through `s` work in a **directed** graph? proof + complexity or counter-example. *(Q2b)* — same for an **undirected** graph; *Hint:* the difference is the edge back to the parent.
+- **BFS tree structure (prove/disprove & MC).**
+  - *(2024 Sem-B Mo'ed B, Q1a)* — if every source `s` yields the same `π` from `BFS(G,s)`, must the number of connected components equal `|V|`?
+  - *(2025 Sem-B Mo'ed B, Q3c — MC)* — adding discovery/finish times `b(v)/f(v)` to BFS: how do they relate to the parent's? *Hint:* `b(π(v)) < b(v) < f(π(v)) < f(v)` (no full nesting like in [[Depth-First Search (DFS)]]).
 
 > [!tip] Tree diameter = two BFS
 > BFS from any vertex to its farthest vertex `u`; BFS from `u` to its farthest vertex `v`. Then `dist(u,v)` is the **diameter**, and the **center** is the midpoint of the `u…v` path. This 2-BFS pattern is the answer to nearly every tree distance question.

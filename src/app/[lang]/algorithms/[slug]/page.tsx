@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   LOCALES,
   type Locale,
   getAlgorithm,
+  getAllAlgorithms,
   getAlgorithmSlugs,
   getSlugMap,
 } from "@/lib/content";
@@ -47,6 +49,11 @@ export default async function AlgorithmPage({
   const explanation = preprocessMarkdown(algo.explanation, slugMap, L);
   const onExam = preprocessMarkdown(algo.onExam, slugMap, L);
 
+  const all = getAllAlgorithms(L);
+  const idx = all.findIndex((a) => a.meta.slug === slug);
+  const prev = idx > 0 ? all[idx - 1] : null;
+  const next = idx < all.length - 1 ? all[idx + 1] : null;
+
   return (
     <main className="page">
       <header className="algo-header">
@@ -80,6 +87,25 @@ export default async function AlgorithmPage({
           <NoteContent markdown={onExam} />
         </section>
       ) : null}
+
+      <nav className="pager">
+        {prev ? (
+          <Link className="pager-link pager-prev" href={`/${L}/algorithms/${prev.meta.slug}/`}>
+            <span className="pager-dir">← {s.prev}</span>
+            <span className="pager-title">{prev.meta.title}</span>
+          </Link>
+        ) : (
+          <span />
+        )}
+        {next ? (
+          <Link className="pager-link pager-next" href={`/${L}/algorithms/${next.meta.slug}/`}>
+            <span className="pager-dir">{s.next} →</span>
+            <span className="pager-title">{next.meta.title}</span>
+          </Link>
+        ) : (
+          <span />
+        )}
+      </nav>
     </main>
   );
 }

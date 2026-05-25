@@ -53,13 +53,17 @@ Source = **A** with topological order **A → C → B → D → E**. Distances a
 
 ## On the exam
 
-The DAG one-pass method is the **efficiency answer** — reach for it whenever the graph is acyclic, *especially* with negative weights where Dijkstra is disqualified.
+The DAG one-pass method is the **efficiency answer** — reach for it whenever the graph is acyclic, *especially* with negative weights where Dijkstra is disqualified. This page also gathers all of sub-topic **6d** (special weights, DAG, uniqueness), the **single most recurring shortest-path theme**. Every 6d question:
 
-- **Negative weights on a DAG.** *(2024 Sem-B Mo'ed B, Q3b)* — shortest paths to `v` in a **DAG with negative weights**: running DAG-shortest-path (here on `Gᵀ`) is the **efficient, correct** choice; Dijkstra is wrong (negatives) and `|V|`× Bellman-Ford is wasteful.
-- **Bounded / unit weights via BFS.** *(2023 Summer Mo'ed A, Q2a; 2024 Summer Mo'ed A, Q3e)* — with `w : E → {1..k}`, constant `k`, split edges into unit edges and run BFS for `Θ(|V| + |E|)` — the same linear spirit as the DAG pass.
-- **Constrained / via-set walks.** *(2022 Sem-B Mo'ed C, Q4a)* — `O(|V|²)` lightest walk `v₁→vₙ` passing through **at least one** vertex of a set `S`: combine a `v₁→S` path with an `S→vₙ` path.
+- **Bounded integer weights `{1..k}` → split + BFS.** *(2023 Summer Mo'ed A, Q2a)* — efficient shortest paths from `s` when `w : E → {1,…,k}`, `k` constant; *Hint:* split each edge into `k` unit edges and run BFS, or Dijkstra with a plain queue, for `Θ(|V| + |E|)`. *(Q2b — what changes if `k` is not constant?)* *(2024 Summer Mo'ed A, Q3e — MC)* — the complexity of shortest paths when `w : E → {1..k}`, `k` constant; *Hint:* `Θ(|V| + |E|)`. This is the same linear spirit as the DAG pass.
+- **Shortest-path uniqueness with distinct weights.** *(2022 Sem-B Mo'ed B, Q1b)* — prove/disprove: in an undirected graph with **distinct** positive weights, the shortest path between any two vertices is **unique**. *(2024 Sem-B Sample, Q1b)* — prove/disprove (**false**): distinct positive weights ⟹ a unique shortest path between every pair. *Hint:* distinct *edge* weights do not force distinct *path* weights — two different paths can still tie.
+- **Negative weights on a DAG.** *(2024 Sem-B Mo'ed B, Q3b)* — shortest paths to `v` in a **DAG with negative weights**: DAG-shortest-path (here on `Gᵀ`) is the **efficient, correct** choice; Dijkstra is wrong (negatives) and `|V|`× Bellman-Ford is wasteful.
+- **Constrained / via-set walks.** *(2022 Sem-B Mo'ed C, Q4a)* — `O(|V|²)` lightest walk `v₁→vₙ` passing through **at least one** vertex of a set `S`; *Hint:* combine a `v₁→S` path with an `S→vₙ` path. *(Q4b — complexity.)*
+- **Dijkstra vs Bellman-Ford MC.** *(2025 Summer Mo'ed A, Q3e)* — when are Dijkstra and Bellman-Ford equivalent, and when is Dijkstra strictly faster?
+- **Read the shortest path off a given graph (MC).** *(2024 Sem-B Special Mo'ed, Q3d; 2024 Summer Mo'ed B, Q3d; 2024 Summer Mo'ed C, Q3d)* — find the shortest path `3→5` in a given graph.
 
 > [!info] Pick the lightest tool
 > - **DAG + any weights** → DAG-shortest-path, `O(|V|+|E|)`.
-> - **Non-negative weights, general graph** → [[Dijkstra's Algorithm|Dijkstra]], `O((|V|+|E|)\log|V|)`.
-> - **Negative weights or cycle detection** → [[Bellman-Ford Algorithm|Bellman-Ford]], `O(|V| \cdot |E|)`.
+> - **Bounded integer weights `{1..k}`, constant `k`** → split into unit edges + **BFS**, `Θ(|V|+|E|)` (beats Dijkstra — the recurring 6d answer).
+> - **Non-negative weights, general graph** → [[Dijkstra's Algorithm|Dijkstra]], `O((|V|+|E|)·log|V|)`.
+> - **Negative weights or cycle detection** → [[Bellman-Ford Algorithm|Bellman-Ford]], `O(|V|·|E|)`.

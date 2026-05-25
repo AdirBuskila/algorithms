@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Flow (Max-Flow / Min-Cut) — Interactive Walkthrough</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f4ef;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border: rgba(0, 0, 0, 0.15);
+    --node-stroke: #888780;
+    --edge-color: #B4B2A9;
+    --active-color: #BA7517;
+    --visited-fill: #9FE1CB;
+    --visited-stroke: #0F6E56;
+    --visited-text: #04342C;
+    --current-fill: #FAC775;
+    --current-stroke: #854F0B;
+    --current-text: #412402;
+    --row-visited-bg: #E1F5EE;
+    --row-visited-text: #04342C;
+    --row-current-bg: #FAEEDA;
+    --row-current-text: #854F0B;
+    --cut-t-fill: #FCEBEB;
+    --cut-t-stroke: #A32D2D;
+    --cut-t-text: #791F1F;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1e1e1e;
+      --bg-secondary: #2a2a2a;
+      --text-primary: #e8e8e8;
+      --text-secondary: #a8a8a8;
+      --border: rgba(255, 255, 255, 0.15);
+      --node-stroke: #B4B2A9;
+      --edge-color: #888780;
+      --visited-fill: #085041;
+      --visited-stroke: #5DCAA5;
+      --visited-text: #9FE1CB;
+      --current-fill: #633806;
+      --current-stroke: #EF9F27;
+      --current-text: #FAC775;
+      --row-visited-bg: #085041;
+      --row-visited-text: #9FE1CB;
+      --row-current-bg: #633806;
+      --row-current-text: #FAC775;
+      --cut-t-fill: #501313;
+      --cut-t-stroke: #F09595;
+      --cut-t-text: #F7C1C1;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 24px 20px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .container { max-width: 700px; margin: 0 auto; }
+
+  .info {
+    background: var(--bg-secondary);
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    min-height: 92px;
+  }
+  .meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .meta strong { color: var(--text-primary); font-weight: 600; }
+  .title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .narr { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+  svg { width: 100%; height: auto; display: block; }
+
+  table {
+    width: 100%;
+    font-size: 13px;
+    margin-top: 16px;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    padding: 8px 6px;
+    text-align: center;
+    border-bottom: 0.5px solid var(--border);
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  td.v { background: var(--row-visited-bg); color: var(--row-visited-text); }
+  td.c { background: var(--row-current-bg); color: var(--row-current-text); font-weight: 500; }
+
+  .ctrl {
+    display: flex;
+    gap: 8px;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    padding: 8px 14px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+  }
+  button:hover:not(:disabled) { background: var(--bg-secondary); }
+  button:active:not(:disabled) { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .ctr {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="info">
+    <div class="meta" id="nf-meta"></div>
+    <div class="title" id="nf-title">Initialize</div>
+    <div class="narr" id="nf-narr">All edges start with flow 0. We repeatedly find an augmenting path s → t in the residual graph and push its bottleneck capacity, until no path remains.</div>
+  </div>
+
+  <svg id="nf-svg" viewBox="0 0 600 360">
+    <defs>
+      <marker id="nf-arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge-color)"/>
+      </marker>
+      <marker id="nf-arr-a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--active-color)"/>
+      </marker>
+      <marker id="nf-arr-cut" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--cut-t-stroke)"/>
+      </marker>
+    </defs>
+    <g id="nf-cut"></g>
+    <g id="nf-edges"></g>
+    <g id="nf-nodes"></g>
+  </svg>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 70px;">flow/cap</th>
+        <th>s→a</th><th>s→b</th><th>a→b</th><th>a→t</th><th>b→t</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="nf-row"></tr>
+    </tbody>
+  </table>
+
+  <div class="ctrl">
+    <button id="nf-prev">← Previous</button>
+    <button id="nf-next">Next →</button>
+    <button id="nf-reset">Reset</button>
+    <span class="ctr" id="nf-counter">Step 1 / 6</span>
+  </div>
+</div>
+
+<script>
+  const nfNodes = {
+    s: { x: 70,  y: 180 },
+    a: { x: 250, y: 80  },
+    b: { x: 250, y: 280 },
+    t: { x: 530, y: 180 }
+  };
+
+  // Edge label offset (perpendicular nudge) so the flow/cap badge sits clear of the line.
+  const nfEdges = [
+    { f: 's', t: 'a', cap: 3 },
+    { f: 's', t: 'b', cap: 2 },
+    { f: 'a', t: 'b', cap: 2 },
+    { f: 'a', t: 't', cap: 2 },
+    { f: 'b', t: 't', cap: 3 }
+  ];
+
+  const EKEYS = ['s-a', 's-b', 'a-b', 'a-t', 'b-t'];
+  const ekey = (f, t) => f + '-' + t;
+
+  const nfSteps = [
+    {
+      title: "Initialize — all flows 0",
+      narr: "Each edge is labelled flow / cap and starts at 0 / cap. We will run Ford-Fulkerson: repeatedly find an augmenting path s → t in the residual graph and push its bottleneck.",
+      flow: { 's-a': 0, 's-b': 0, 'a-b': 0, 'a-t': 0, 'b-t': 0 },
+      value: 0, path: [], bottleneck: null, mode: 'init'
+    },
+    {
+      title: "Augment along s → a → t  (bottleneck 2)",
+      narr: "First augmenting path: s → a → t. Residual capacities are 3 and 2, so the bottleneck is min(3, 2) = 2. Push 2 units along the path. Total flow rises to 2.",
+      flow: { 's-a': 2, 's-b': 0, 'a-b': 0, 'a-t': 2, 'b-t': 0 },
+      value: 2, path: ['s-a', 'a-t'], bottleneck: 2, mode: 'augment'
+    },
+    {
+      title: "Augment along s → b → t  (bottleneck 2)",
+      narr: "Next path: s → b → t. Residual capacities are 2 and 3, so the bottleneck is min(2, 3) = 2. Push 2 more units. Total flow rises to 4.",
+      flow: { 's-a': 2, 's-b': 2, 'a-b': 0, 'a-t': 2, 'b-t': 2 },
+      value: 4, path: ['s-b', 'b-t'], bottleneck: 2, mode: 'augment'
+    },
+    {
+      title: "Augment along s → a → b → t  (bottleneck 1)",
+      narr: "s→a still has residual 1 (2 of 3 used), a→b has 2 free, and b→t has 1 left. The path s → a → b → t has bottleneck min(1, 2, 1) = 1. Push 1 unit. Total flow rises to 5.",
+      flow: { 's-a': 3, 's-b': 2, 'a-b': 1, 'a-t': 2, 'b-t': 3 },
+      value: 5, path: ['s-a', 'a-b', 'b-t'], bottleneck: 1, mode: 'augment'
+    },
+    {
+      title: "No augmenting path remains",
+      narr: "Try to find another s → t path in the residual graph. From s we reach a (via the a→b back edge) and b, but every edge into t is saturated — t is unreachable. BFS from s reaches only {s, a, b}. Ford-Fulkerson halts: flow = 5 is maximum.",
+      flow: { 's-a': 3, 's-b': 2, 'a-b': 1, 'a-t': 2, 'b-t': 3 },
+      value: 5, path: [], bottleneck: null, mode: 'stop'
+    },
+    {
+      title: "Min-cut  S = {s, a, b},  T = {t}",
+      narr: "S is exactly the set reachable from s in the final residual graph. The cut edges a→t and b→t cross from S to T and are both saturated: capacity = c(a,t) + c(b,t) = 2 + 3 = 5 = max-flow. Max-Flow Min-Cut confirmed.",
+      flow: { 's-a': 3, 's-b': 2, 'a-b': 1, 'a-t': 2, 'b-t': 3 },
+      value: 5, path: [], bottleneck: null, mode: 'cut',
+      S: ['s', 'a', 'b'], T: ['t'], cutEdges: ['a-t', 'b-t']
+    }
+  ];
+
+  let nfStep = 0;
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function buildMeta(s) {
+    let html = 'Total flow value: <strong>|f| = ' + s.value + '</strong>';
+    if (s.mode === 'augment') {
+      html += '  ·  bottleneck pushed: <strong>' + s.bottleneck + '</strong>';
+    } else if (s.mode === 'cut') {
+      html += '  ·  min-cut capacity: <strong>5</strong>';
+    } else if (s.mode === 'stop') {
+      html += '  ·  <strong>maximum</strong>';
+    }
+    return html;
+  }
+
+  function nodeColors(name, s) {
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const nodeStroke = cssVar('--node-stroke');
+    if (s.mode === 'cut') {
+      if (s.T.includes(name)) {
+        return { fill: cssVar('--cut-t-fill'), stroke: cssVar('--cut-t-stroke'), tc: cssVar('--cut-t-text') };
+      }
+      return { fill: cssVar('--visited-fill'), stroke: cssVar('--visited-stroke'), tc: cssVar('--visited-text') };
+    }
+    if (s.mode === 'stop') {
+      // S = {s,a,b} reachable; t unreachable
+      if (name === 't') return { fill: bgPrimary, stroke: nodeStroke, tc: textPrimary };
+      return { fill: cssVar('--visited-fill'), stroke: cssVar('--visited-stroke'), tc: cssVar('--visited-text') };
+    }
+    // augment / init: highlight nodes on the current path
+    const onPath = s.path.some(k => k.split('-').includes(name));
+    if (onPath) {
+      return { fill: cssVar('--current-fill'), stroke: cssVar('--current-stroke'), tc: cssVar('--current-text') };
+    }
+    return { fill: bgPrimary, stroke: nodeStroke, tc: textPrimary };
+  }
+
+  function nfDraw() {
+    const s = nfSteps[nfStep];
+    const cg = document.getElementById('nf-cut');
+    const eg = document.getElementById('nf-edges');
+    const ng = document.getElementById('nf-nodes');
+    cg.innerHTML = '';
+    eg.innerHTML = '';
+    ng.innerHTML = '';
+
+    const edgeColor = cssVar('--edge-color');
+    const activeColor = cssVar('--active-color');
+    const bgPrimary = cssVar('--bg-primary');
+    const textPrimary = cssVar('--text-primary');
+    const textSecondary = cssVar('--text-secondary');
+    const cutStroke = cssVar('--cut-t-stroke');
+    const cutText = cssVar('--cut-t-text');
+
+    // Min-cut dividing line (only in cut step): separate {s,a,b} from {t}.
+    if (s.mode === 'cut') {
+      cg.innerHTML += `<line x1="400" y1="20" x2="400" y2="340" stroke="${cutStroke}" stroke-width="2" stroke-dasharray="7 6" opacity="0.85"/>`;
+      cg.innerHTML += `<text x="380" y="36" text-anchor="end" font-size="13" font-weight="600" fill="${cutText}">cut</text>`;
+    }
+
+    nfEdges.forEach(e => {
+      const n1 = nfNodes[e.f], n2 = nfNodes[e.t];
+      const key = ekey(e.f, e.t);
+      const onPath = s.path.includes(key);
+      const isCut = s.mode === 'cut' && s.cutEdges.includes(key);
+
+      let stroke = edgeColor, sw = 1.5, marker = 'url(#nf-arr)';
+      if (isCut) { stroke = cutStroke; sw = 3; marker = 'url(#nf-arr-cut)'; }
+      else if (onPath) { stroke = activeColor; sw = 3; marker = 'url(#nf-arr-a)'; }
+
+      const dx = n2.x - n1.x, dy = n2.y - n1.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len, uy = dy / len;
+      const r = 24;
+      const x1 = n1.x + ux * r, y1 = n1.y + uy * r;
+      const x2 = n2.x - ux * (r + 4), y2 = n2.y - uy * (r + 4);
+
+      eg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
+
+      // flow / cap badge, nudged perpendicular to the edge to avoid the line.
+      const px = -uy, py = ux;
+      const mx = (n1.x + n2.x) / 2 + px * 16;
+      const my = (n1.y + n2.y) / 2 + py * 16;
+      const fl = s.flow[key];
+      const saturated = fl === e.cap && fl > 0;
+      let badgeStroke = stroke;
+      let badgeText = textPrimary;
+      if (isCut) { badgeText = cutText; }
+      else if (!onPath && saturated) { badgeStroke = activeColor; }
+      eg.innerHTML += `<rect x="${mx - 18}" y="${my - 11}" width="36" height="22" rx="6" fill="${bgPrimary}" stroke="${badgeStroke}" stroke-width="${(onPath || isCut || saturated) ? 1.5 : 1}"/>`;
+      eg.innerHTML += `<text x="${mx}" y="${my}" text-anchor="middle" dy="4" font-size="12" font-weight="${saturated ? 600 : 500}" fill="${badgeText}">${fl}/${e.cap}</text>`;
+    });
+
+    Object.keys(nfNodes).forEach(name => {
+      const n = nfNodes[name];
+      const col = nodeColors(name, s);
+      let label = name;
+      if (name === 's') label = 's';
+      if (name === 't') label = 't';
+      ng.innerHTML += `<g>
+        <circle cx="${n.x}" cy="${n.y}" r="24" fill="${col.fill}" stroke="${col.stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="6" font-size="18" font-weight="600" fill="${col.tc}">${label}</text>
+      </g>`;
+    });
+
+    // value label inside the SVG, lower-left
+    ng.innerHTML += `<text x="70" y="330" text-anchor="middle" font-size="13" font-weight="600" fill="${textSecondary}">|f| = ${s.value}</text>`;
+  }
+
+  function nfUpdate() {
+    const s = nfSteps[nfStep];
+    document.getElementById('nf-meta').innerHTML = buildMeta(s);
+    document.getElementById('nf-title').textContent = s.title;
+    document.getElementById('nf-narr').textContent = s.narr;
+    document.getElementById('nf-counter').textContent = `Step ${nfStep + 1} / ${nfSteps.length}`;
+
+    const row = document.getElementById('nf-row');
+    row.innerHTML = '<td style="color: var(--text-secondary);">f / c</td>';
+    EKEYS.forEach(k => {
+      const e = nfEdges.find(ed => ekey(ed.f, ed.t) === k);
+      const fl = s.flow[k];
+      let cls = '';
+      if (s.path.includes(k)) cls = 'c';
+      else if (s.mode === 'cut' && s.cutEdges.includes(k)) cls = 'c';
+      else if (fl === e.cap && fl > 0) cls = 'v';
+      row.innerHTML += `<td class="${cls}">${fl}/${e.cap}</td>`;
+    });
+
+    document.getElementById('nf-prev').disabled = nfStep === 0;
+    document.getElementById('nf-next').disabled = nfStep === nfSteps.length - 1;
+    nfDraw();
+  }
+
+  document.getElementById('nf-next').addEventListener('click', () => {
+    if (nfStep < nfSteps.length - 1) { nfStep++; nfUpdate(); }
+  });
+  document.getElementById('nf-prev').addEventListener('click', () => {
+    if (nfStep > 0) { nfStep--; nfUpdate(); }
+  });
+  document.getElementById('nf-reset').addEventListener('click', () => {
+    nfStep = 0; nfUpdate();
+  });
+
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight' && nfStep < nfSteps.length - 1) { nfStep++; nfUpdate(); }
+    else if (ev.key === 'ArrowLeft' && nfStep > 0) { nfStep--; nfUpdate(); }
+  });
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', nfDraw);
+
+  nfUpdate();
+</script>
+</body>
+</html>
