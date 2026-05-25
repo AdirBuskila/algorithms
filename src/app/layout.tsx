@@ -8,7 +8,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Algo 2 — Interactive Notes",
   description:
-    "Exam-focused, interactive notes for the Algorithms 2 course: graph algorithms with complexity and where they show up on the test.",
+    "סיכומים אינטראקטיביים לקורס אלגוריתמים 2: אלגוריתמי גרפים, ניתוח סיבוכיות, ומה שחשוב לדעת למבחן.",
 };
 
 export default function RootLayout({
