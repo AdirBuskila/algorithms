@@ -65,7 +65,11 @@ Building $G_f$ from a flow is mechanical once you know the two rules — make th
 
 Two instant special cases: a **saturated** edge ($f=c$) produces *only* the backward edge; a **zero-flow** edge produces *only* the forward edge (identical to the original).
 
-Take this network — `s→2` 3/3, `s→4` 0/2, `s→3` 1/√2, `2→5` 2/2, `2→4` 1/2, `4→2` 0/√2, `5→4` 1/1, `5→t` 1/2, `3→4` 1/1, `3→t` 0/√2, `4→t` 3/3 — and grind through every edge:
+Take this flow network `G` (each edge shows `f/c`; a bare number is a capacity with flow 0):
+
+![Flow network G: s→2 3/3, s→4 capacity 2, s→3 1/√2, 2→5 2/2, 2→4 1/2, 4→2 capacity √2, 5→4 1/1, 5→t 1/2, 3→4 1/1, 3→t capacity √2, 4→t 3/3](/images/network-flow-example-g.png)
+
+Now grind through every edge:
 
 | Original edge | f / c | Forward in $G_f$ ($c-f$) | Backward in $G_f$ ($f$) |
 |---|---|---|---|
