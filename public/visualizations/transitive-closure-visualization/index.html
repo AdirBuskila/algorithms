@@ -22,6 +22,8 @@
     --via-stroke: #0F6E56;
     --imp-bg: #FAC775;
     --imp-text: #412402;
+    --closure-color: #12916B;
+    --closure-strong: #0A6F50;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -42,6 +44,8 @@
       --via-stroke: #5DCAA5;
       --imp-bg: #633806;
       --imp-text: #FAC775;
+      --closure-color: #5DCAA5;
+      --closure-strong: #8FE9C8;
     }
   }
 
@@ -76,6 +80,20 @@
   }
 
   svg { width: 100%; height: auto; display: block; max-width: 420px; margin: 0 auto; }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend line { stroke-width: 2; }
+  .lg-solid { stroke: var(--edge-color); }
+  .lg-dash { stroke: var(--closure-color); stroke-dasharray: 4 3; }
 
   .mx-wrap { margin-top: 18px; }
   .axis {
@@ -154,6 +172,11 @@
     <g id="tc-nodes"></g>
   </svg>
 
+  <div class="legend">
+    <span><svg width="30" height="12" viewBox="0 0 30 12"><line class="lg-solid" x1="2" y1="6" x2="28" y2="6"/></svg>solid = edge of G</span>
+    <span><svg width="30" height="12" viewBox="0 0 30 12"><line class="lg-dash" x1="2" y1="6" x2="28" y2="6"/></svg>dashed = added in G*</span>
+  </div>
+
   <div class="mx-wrap">
     <div class="axis">cell (i, j) = <b>can i reach j?</b>&nbsp;&nbsp;·&nbsp;&nbsp;rows = <b>from</b>&nbsp;&nbsp;·&nbsp;&nbsp;columns = <b>to</b></div>
     <table class="mx"><tbody id="tc-matrix"></tbody></table>
@@ -182,6 +205,9 @@
     { a: 3, b: 1 },
     { a: 3, b: 4 }
   ];
+  // Quick lookup for "is (i,j) an original edge of G?"
+  const tcOrigSet = new Set(tcEdges.map(e => e.a + ',' + e.b));
+  const TC_OFF = 36; // perpendicular bow for curved closure edges
 
   const T = true, F = false;
   const M = (a) => a.map(r => r.slice()); // clone matrix
@@ -262,6 +288,30 @@
     return { svg: line + head, mx: (sx + ex) / 2, my: (sy + ey) / 2 };
   }
 
+  // Dashed, curved arrow (quadratic bezier) for closure edges. Bows to a
+  // consistent side of the i→j direction so reciprocal edges (and the matching
+  // straight original edge) never overlap. Endpoints are trimmed to radius r,
+  // and the arrowhead points along the curve's tangent at the target node.
+  function carrow(x1, y1, x2, y2, off, color, sw, r) {
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+    const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const px = -uy, py = ux;                 // right-hand perpendicular
+    const cx = mx + px * off, cy = my + py * off; // control point
+    let s1x = cx - x1, s1y = cy - y1, sl = Math.hypot(s1x, s1y);
+    const sx = x1 + s1x / sl * r, sy = y1 + s1y / sl * r;
+    let e1x = cx - x2, e1y = cy - y2, el = Math.hypot(e1x, e1y);
+    const ex = x2 + e1x / el * r, ey = y2 + e1y / el * r;
+    let adx = ex - cx, ady = ey - cy, al = Math.hypot(adx, ady);
+    const aux = adx / al, auy = ady / al;    // tangent at the arrowhead
+    const ah = 9, aw = 4;
+    const bx = ex - aux * ah, by = ey - auy * ah;
+    const apx = -auy, apy = aux;
+    const path = `<path d="M ${sx} ${sy} Q ${cx} ${cy} ${ex} ${ey}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-dasharray="5 4" stroke-linecap="round"/>`;
+    const head = `<polygon points="${ex},${ey} ${bx + apx * aw},${by + apy * aw} ${bx - apx * aw},${by - apy * aw}" fill="${color}"/>`;
+    return path + head;
+  }
+
   function tcDraw() {
     const s = tcSteps[tcStep];
     const eg = document.getElementById('tc-edges');
@@ -273,12 +323,33 @@
     const bgPrimary = cssVar('--bg-primary');
     const textPrimary = cssVar('--text-primary');
     const nodeStroke = cssVar('--node-stroke');
+    const closureColor = cssVar('--closure-color');
+    const closureStrong = cssVar('--closure-strong');
 
     tcEdges.forEach(e => {
       const n1 = tcNodes[e.a], n2 = tcNodes[e.b];
       const a = arrow(n1.x, n1.y, n2.x, n2.y, edgeColor, 1.6, 26);
       eg.innerHTML += a.svg;
     });
+
+    // Closure edges: derived purely from this step's matrix so they appear and
+    // disappear in lock-step with Next / Previous / Reset. A cell (i,j) draws a
+    // dashed curved edge when it is true, i ≠ j, and (i,j) is not an edge of G.
+    // Edges added on the current step (s.imp) are drawn thicker and last so
+    // they sit on top and visibly emphasise what changed.
+    const impSet = new Set(s.imp.map(p => p[0] + ',' + p[1]));
+    const closureSvg = [], closureHiSvg = [];
+    for (let i = 1; i <= 4; i++) {
+      for (let j = 1; j <= 4; j++) {
+        if (i === j || !s.matrix[i - 1][j - 1] || tcOrigSet.has(i + ',' + j)) continue;
+        const n1 = tcNodes[i], n2 = tcNodes[j];
+        const hi = impSet.has(i + ',' + j);
+        const svg = carrow(n1.x, n1.y, n2.x, n2.y, TC_OFF,
+          hi ? closureStrong : closureColor, hi ? 2.6 : 1.6, 27);
+        (hi ? closureHiSvg : closureSvg).push(svg);
+      }
+    }
+    eg.innerHTML += closureSvg.join('') + closureHiSvg.join('');
 
     Object.keys(tcNodes).forEach(name => {
       const n = tcNodes[name];
