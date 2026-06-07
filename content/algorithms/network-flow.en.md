@@ -52,6 +52,51 @@ For **integer** capacities every iteration adds at least 1 to the flow, so it ru
 > [!info] Cut lemma
 > A **cut** $(S,T)$ partitions $V$ with $s\in S,\ t\in T$. Its capacity is $c(S,T)=\sum_{u\in S,v\in T}c(u,v)$ (only the $S\to T$ edges count). For **any** flow `f` and **any** cut, $f(S,T)=\lvert f\rvert$. Therefore $\lvert f\rvert\leq c(S,T)$ — every cut upper-bounds the flow, so $\text{MaxFlow}\leq\text{MinCut}$.
 
+## Drawing the residual graph $G_f$
+
+Building $G_f$ from a flow is mechanical once you know the two rules — make them explicit, apply them edge by edge, and draw the result.
+
+**Rule 0 — read the labels.** A label `f/c` means *flow `f` out of capacity `c`*. A bare number is **capacity only, flow 0**.
+
+**The two rules.** For every original edge `u→v` with flow `f` and capacity `c`, $G_f$ gets:
+
+1. A **forward** edge `u→v` with residual capacity $c-f$ — *only if $c-f>0$* ("how much more can I still push?").
+2. A **backward** edge `v→u` with residual capacity $f$ — *only if $f>0$* ("how much flow can I cancel?").
+
+Two instant special cases: a **saturated** edge ($f=c$) produces *only* the backward edge; a **zero-flow** edge produces *only* the forward edge (identical to the original).
+
+Take this network — `s→2` 3/3, `s→4` 0/2, `s→3` 1/√2, `2→5` 2/2, `2→4` 1/2, `4→2` 0/√2, `5→4` 1/1, `5→t` 1/2, `3→4` 1/1, `3→t` 0/√2, `4→t` 3/3 — and grind through every edge:
+
+| Original edge | f / c | Forward in $G_f$ ($c-f$) | Backward in $G_f$ ($f$) |
+|---|---|---|---|
+| s→2 | 3/3 | — (saturated) | 2→s : 3 |
+| s→4 | 0/2 | s→4 : 2 | — |
+| s→3 | 1/√2 | s→3 : **√2−1** | 3→s : 1 |
+| 2→5 | 2/2 | — | 5→2 : 2 |
+| 2→4 | 1/2 | 2→4 : 1 | 4→2 : 1 |
+| 4→2 | 0/√2 | 4→2 : √2 | — |
+| 5→4 | 1/1 | — | 4→5 : 1 |
+| 5→t | 1/2 | 5→t : 1 | t→5 : 1 |
+| 3→4 | 1/1 | — | 4→3 : 1 |
+| 3→t | 0/√2 | 3→t : √2 | — |
+| 4→t | 3/3 | — | t→4 : 3 |
+
+Sanity-check the flow before drawing (worth one line on the exam): out of `s` flows $3+0+1=4$, into `t` flows $1+3+0=4$, and conservation holds at every middle vertex. The result, with **teal** forward (leftover-capacity) edges and **coral** backward ("undo") edges:
+
+![Residual graph G_f: teal forward edges carry leftover capacity c−f, coral backward edges carry the cancellable flow f](/images/residual-graph-gf.svg)
+
+> [!warning] The 2↔4 pair is the trap
+> There are **two original edges** between 2 and 4 — `2→4` (1/2) and `4→2` (cap √2, flow 0) — so in $G_f$ vertex 4 has **two arcs toward 2**: one of capacity 1 (the *reversal* of the flow on `2→4`) and one of capacity √2 (the *untouched* original `4→2`). Draw them as parallel arcs, or merge into a single arc labeled $1+\sqrt2$ — both are accepted, but state your convention.
+
+> [!note] Saturated edges flip
+> `s→2`, `2→5`, `5→4`, `3→4`, `4→t` all have $f=c$, so in $G_f$ they appear *only reversed*. That's why $G_f$ looks so different from the original network — half the arrows have flipped.
+
+> [!tip] Why the exam loves √2
+> The residual `√2−1` on `s→3` is an *irrational leftover*. With irrational capacities, Ford-Fulkerson with bad augmenting-path choices can keep producing ever-smaller irrational residuals and **never terminate** — and the `s→3` bottleneck of `√2−1` is exactly where that trouble starts. (This is why Edmonds-Karp's shortest-path rule matters.)
+
+> [!tip] Self-check
+> Is there an augmenting path `s→t` in this $G_f$? (Backward edges are legal moves.) *Answer:* yes — **`s→3→t`** with bottleneck $\min(\sqrt2-1,\sqrt2)=\sqrt2-1$. So this `f` is **not** yet maximum.
+
 ## Max-flow = min-cut
 
 **Theorem (Max-Flow Min-Cut).** For a flow `f` the following are equivalent:
