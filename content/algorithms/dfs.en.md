@@ -52,14 +52,25 @@ DFS-Visit(u):
     time <- time + 1;  f[u] <- time
 ```
 
-**Edge classification (directed graph)** — read off from the timestamps:
+## Edge classification (directed graph)
 
-| Type | Condition on $d, f$ | Meaning |
-|---|---|---|
-| **Tree** | $\pi[v]=u$ | edge of the DFS tree |
-| **Back** | $d[v]<d[u]\leq f[u]<f[v]$ | back to an ancestor; **a cycle exists ⇔ a back edge exists** |
-| **Forward** | $d[u]<d[v]<f[v]<f[u]$ | shortcut down to a descendant |
-| **Cross** | $f[v]<d[u]$ | between two disjoint subtrees |
+Every edge is classified **relative to the DFS tree** — the tree built from the edges DFS actually used to discover new vertices. Each remaining edge is named by where it "jumps" relative to that tree. The fastest way to classify an edge `u→v` *while the run is happening* is by the **color of `v`** the moment you scan the edge; the timestamps then confirm it.
+
+| Type | Color of `v` when `u→v` is scanned | Timestamps ($d$ = discovery, $f$ = finish) | Meaning |
+|---|---|---|---|
+| **Tree** | white (undiscovered) | $d[u]<d[v]<f[v]<f[u]$ | the edge DFS walked through to discover `v` |
+| **Back** | gray (still on the stack — an ancestor) | $d[v]<d[u]\leq f[u]<f[v]$ | back up to an ancestor; **a cycle exists ⇔ a back edge exists** |
+| **Forward** | black, with $d[u]<d[v]$ (inside `u`'s subtree) | $d[u]<d[v]<f[v]<f[u]$ | shortcut down to a descendant |
+| **Cross** | black, with $d[u]>d[v]$ (finished earlier) | $f[v]<d[u]$ | between two disjoint subtrees |
+
+The **gray test** is the one that comes up constantly: in a directed graph a **cycle exists ⇔ DFS finds a back edge**. Notice tree and forward edges share the *same* nesting $d[u]<d[v]<f[v]<f[u]$ — it's the color of `v` (white vs black) that separates them.
+
+![DFS edge classification: tree edges A→B→C→D and A→E→F, with D→B back, A→C forward, F→C cross](/images/dfs-edge-classification.svg)
+
+In the picture the solid gray edges are the DFS tree (DFS went A→B→C→D, backtracked, then A→E→F). **D→B** points back to an ancestor (*back*), **A→C** shortcuts down to a descendant already reached the long way (*forward*), and **F→C** jumps between two different subtrees (*cross*).
+
+> [!tip] Self-check
+> Suppose the same DFS instead explored E's subtree **before** B's. What does edge **F→C** become? *Answer:* a **tree** edge — C is still white when F scans it, so DFS discovers C through F.
 
 > [!note] The parenthesis theorem
 > For every pair $u,v$, the intervals $[d[u],f[u]]$ and $[d[v],f[v]]$ are either **disjoint** (no ancestor–descendant relation) or **nested** (one contains the other). They never partially overlap.

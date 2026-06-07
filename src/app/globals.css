@@ -326,6 +326,13 @@ a {
   border-radius: 3px;
 }
 
+.note img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 18px auto;
+}
+
 .note code {
   font-family: var(--font-geist-mono), "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.86em;
