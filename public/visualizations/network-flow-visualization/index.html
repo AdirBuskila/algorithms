@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Network Flow (Max-Flow / Min-Cut) — Interactive Walkthrough</title>
+<title>Ford-Fulkerson on a flow network — Interactive Walkthrough</title>
 <style>
   :root {
     --bg-primary: #ffffff;
@@ -14,6 +14,7 @@
     --node-stroke: #888780;
     --edge-color: #B4B2A9;
     --active-color: #BA7517;
+    --back-color: #C0573F;
     --visited-fill: #9FE1CB;
     --visited-stroke: #0F6E56;
     --visited-text: #04342C;
@@ -24,6 +25,8 @@
     --row-visited-text: #04342C;
     --row-current-bg: #FAEEDA;
     --row-current-text: #854F0B;
+    --row-back-bg: #FBE6DF;
+    --row-back-text: #7A2C18;
     --cut-t-fill: #FCEBEB;
     --cut-t-stroke: #A32D2D;
     --cut-t-text: #791F1F;
@@ -38,6 +41,8 @@
       --border: rgba(255, 255, 255, 0.15);
       --node-stroke: #B4B2A9;
       --edge-color: #888780;
+      --active-color: #EF9F27;
+      --back-color: #F09595;
       --visited-fill: #085041;
       --visited-stroke: #5DCAA5;
       --visited-text: #9FE1CB;
@@ -48,6 +53,8 @@
       --row-visited-text: #9FE1CB;
       --row-current-bg: #633806;
       --row-current-text: #FAC775;
+      --row-back-bg: #5A1F12;
+      --row-back-text: #F7C1C1;
       --cut-t-fill: #501313;
       --cut-t-stroke: #F09595;
       --cut-t-text: #F7C1C1;
@@ -65,14 +72,14 @@
     line-height: 1.5;
   }
 
-  .container { max-width: 700px; margin: 0 auto; }
+  .container { max-width: 760px; margin: 0 auto; }
 
   .info {
     background: var(--bg-secondary);
     padding: 12px 14px;
     border-radius: 8px;
     margin-bottom: 1rem;
-    min-height: 92px;
+    min-height: 104px;
   }
   .meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
   .meta strong { color: var(--text-primary); font-weight: 600; }
@@ -81,25 +88,39 @@
 
   svg { width: 100%; height: auto; display: block; }
 
+  .table-wrap { overflow-x: auto; }
   table {
     width: 100%;
-    font-size: 13px;
+    font-size: 11px;
     margin-top: 16px;
     border-collapse: collapse;
     table-layout: fixed;
+    min-width: 560px;
   }
   th, td {
-    padding: 8px 6px;
+    padding: 7px 3px;
     text-align: center;
     border-bottom: 0.5px solid var(--border);
   }
   th {
     font-weight: 500;
     color: var(--text-secondary);
-    font-size: 12px;
+    font-size: 11px;
   }
   td.v { background: var(--row-visited-bg); color: var(--row-visited-text); }
-  td.c { background: var(--row-current-bg); color: var(--row-current-text); font-weight: 500; }
+  td.c { background: var(--row-current-bg); color: var(--row-current-text); font-weight: 600; }
+  td.b { background: var(--row-back-bg); color: var(--row-back-text); font-weight: 600; }
+
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .swatch { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
 
   .ctrl {
     display: flex;
@@ -135,18 +156,21 @@
   <div class="info">
     <div class="meta" id="nf-meta"></div>
     <div class="title" id="nf-title">Initialize</div>
-    <div class="narr" id="nf-narr">All edges start with flow 0. We repeatedly find an augmenting path s → t in the residual graph and push its bottleneck capacity, until no path remains.</div>
+    <div class="narr" id="nf-narr"></div>
   </div>
 
-  <svg id="nf-svg" viewBox="0 0 600 360">
+  <svg id="nf-svg" viewBox="0 0 640 380">
     <defs>
-      <marker id="nf-arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <marker id="nf-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--edge-color)"/>
       </marker>
-      <marker id="nf-arr-a" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <marker id="nf-arr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--active-color)"/>
       </marker>
-      <marker id="nf-arr-cut" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <marker id="nf-arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--back-color)"/>
+      </marker>
+      <marker id="nf-arr-cut" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--cut-t-stroke)"/>
       </marker>
     </defs>
@@ -155,83 +179,101 @@
     <g id="nf-nodes"></g>
   </svg>
 
-  <table>
-    <thead>
-      <tr>
-        <th style="width: 70px;">flow/cap</th>
-        <th>s→a</th><th>s→b</th><th>a→b</th><th>a→t</th><th>b→t</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr id="nf-row"></tr>
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 52px;">f/cap</th>
+          <th>s→2</th><th>s→4</th><th>s→3</th><th>2→5</th><th>2→4</th><th>4→2</th><th>4→5</th><th>4→t</th><th>5→t</th><th>3→4</th><th>3→t</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="nf-row"></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <span><span class="swatch" style="background: var(--active-color);"></span> augmenting path (forward)</span>
+    <span><span class="swatch" style="background: var(--back-color);"></span> back edge (cancels flow)</span>
+    <span><span class="swatch" style="background: var(--cut-t-stroke);"></span> min-cut edge</span>
+  </div>
 
   <div class="ctrl">
     <button id="nf-prev">← Previous</button>
     <button id="nf-next">Next →</button>
     <button id="nf-reset">Reset</button>
-    <span class="ctr" id="nf-counter">Step 1 / 6</span>
+    <span class="ctr" id="nf-counter">Step 1 / 5</span>
   </div>
 </div>
 
 <script>
+  // Node layout mirrors the exam graph: s on the left, t on the right,
+  // 2 & 5 along the top, 4 in the centre, 3 along the bottom.
   const nfNodes = {
-    s: { x: 70,  y: 180 },
-    a: { x: 250, y: 80  },
-    b: { x: 250, y: 280 },
-    t: { x: 530, y: 180 }
+    s: { x: 52,  y: 212 },
+    '2': { x: 212, y: 74  },
+    '5': { x: 452, y: 70  },
+    '4': { x: 314, y: 206 },
+    '3': { x: 268, y: 332 },
+    t: { x: 590, y: 212 }
   };
 
-  // Edge label offset (perpendicular nudge) so the flow/cap badge sits clear of the line.
+  // Original directed edges with capacities. The 2↔4 pair is bidirectional in
+  // the source graph, so both arcs are bowed (curve:1) to keep them apart.
   const nfEdges = [
-    { f: 's', t: 'a', cap: 3 },
-    { f: 's', t: 'b', cap: 2 },
-    { f: 'a', t: 'b', cap: 2 },
-    { f: 'a', t: 't', cap: 2 },
-    { f: 'b', t: 't', cap: 3 }
+    { f: 's', t: '2', cap: 3 },
+    { f: 's', t: '4', cap: 2 },
+    { f: 's', t: '3', cap: 1 },
+    { f: '2', t: '5', cap: 2 },
+    { f: '2', t: '4', cap: 2, curve: 1 },
+    { f: '4', t: '2', cap: 3, curve: 1 },
+    { f: '4', t: '5', cap: 1 },
+    { f: '4', t: 't', cap: 3 },
+    { f: '5', t: 't', cap: 2 },
+    { f: '3', t: '4', cap: 1 },
+    { f: '3', t: 't', cap: 2 }
   ];
 
-  const EKEYS = ['s-a', 's-b', 'a-b', 'a-t', 'b-t'];
+  const EKEYS = ['s-2','s-4','s-3','2-5','2-4','4-2','4-5','4-t','5-t','3-4','3-t'];
   const ekey = (f, t) => f + '-' + t;
+
+  const baseFlow = {
+    's-2':3,'s-4':0,'s-3':1,'2-5':1,'2-4':2,'4-2':0,'4-5':0,'4-t':3,'5-t':1,'3-4':1,'3-t':0
+  };
 
   const nfSteps = [
     {
-      title: "Initialize — all flows 0",
-      narr: "Each edge is labelled flow / cap and starts at 0 / cap. We will run Ford-Fulkerson: repeatedly find an augmenting path s → t in the residual graph and push its bottleneck.",
-      flow: { 's-a': 0, 's-b': 0, 'a-b': 0, 'a-t': 0, 'b-t': 0 },
-      value: 0, path: [], bottleneck: null, mode: 'init'
+      title: "Given flow  |f| = 4  — is it maximum?",
+      narr: "We start from the flow drawn in the network (each badge is flow/cap; |f| = 4). Ford-Fulkerson formally begins at f ≡ 0, but the residual mechanics are identical from any valid flow: keep finding an augmenting path s → t in the residual graph G_f and pushing its bottleneck, until none remains. Out of s flows 3+0+1 = 4 and into t flows 3+1+0 = 4 — a valid flow. Is it maximum?",
+      flow: { ...baseFlow },
+      value: 4, path: [], back: [], bottleneck: null, mode: 'init'
     },
     {
-      title: "Augment along s → a → t  (bottleneck 2)",
-      narr: "First augmenting path: s → a → t. Residual capacities are 3 and 2, so the bottleneck is min(3, 2) = 2. Push 2 units along the path. Total flow rises to 2.",
-      flow: { 's-a': 2, 's-b': 0, 'a-b': 0, 'a-t': 2, 'b-t': 0 },
-      value: 2, path: ['s-a', 'a-t'], bottleneck: 2, mode: 'augment'
+      title: "Augment  s → 4 → 5 → t   (bottleneck 1)",
+      narr: "Residual capacities c_f = c − f along this path: s→4 has 2−0 = 2, 4→5 has 1−0 = 1, 5→t has 2−1 = 1. Bottleneck = min(2, 1, 1) = 1, so push 1 unit forward on each edge. |f| rises to 5; 4→5 and 5→t are now saturated.",
+      flow: { ...baseFlow, 's-4':1, '4-5':1, '5-t':2 },
+      value: 5, path: ['s-4','4-5','5-t'], back: [], bottleneck: 1, mode: 'augment'
     },
     {
-      title: "Augment along s → b → t  (bottleneck 2)",
-      narr: "Next path: s → b → t. Residual capacities are 2 and 3, so the bottleneck is min(2, 3) = 2. Push 2 more units. Total flow rises to 4.",
-      flow: { 's-a': 2, 's-b': 2, 'a-b': 0, 'a-t': 2, 'b-t': 2 },
-      value: 4, path: ['s-b', 'b-t'], bottleneck: 2, mode: 'augment'
-    },
-    {
-      title: "Augment along s → a → b → t  (bottleneck 1)",
-      narr: "s→a still has residual 1 (2 of 3 used), a→b has 2 free, and b→t has 1 left. The path s → a → b → t has bottleneck min(1, 2, 1) = 1. Push 1 unit. Total flow rises to 5.",
-      flow: { 's-a': 3, 's-b': 2, 'a-b': 1, 'a-t': 2, 'b-t': 3 },
-      value: 5, path: ['s-a', 'a-b', 'b-t'], bottleneck: 1, mode: 'augment'
+      title: "Augment  s → 4 → 3 → t   via the back edge 4→3   (bottleneck 1)",
+      narr: "No all-forward path is left, but a back edge opens one. The step 4 → 3 is the back edge of 3→4: its residual capacity equals the flow already on 3→4 (= 1), so traversing it cancels that unit. c_f = (s→4: 2−1 = 1, back 4→3: 1, 3→t: 2−0 = 2), bottleneck = 1. Pushing it sets f(3→4)=0 and reroutes the unit as s→4 and 3→t. |f| rises to 6. This 'undo' is exactly what plain greedy pushing cannot do on its own.",
+      flow: { ...baseFlow, 's-4':2, '4-5':1, '5-t':2, '3-4':0, '3-t':1 },
+      value: 6, path: ['s-4','3-4','3-t'], back: ['3-4'], bottleneck: 1, mode: 'augment'
     },
     {
       title: "No augmenting path remains",
-      narr: "Try to find another s → t path in the residual graph. From s we reach a (via the a→b back edge) and b, but every edge into t is saturated — t is unreachable. BFS from s reaches only {s, a, b}. Ford-Fulkerson halts: flow = 5 is maximum.",
-      flow: { 's-a': 3, 's-b': 2, 'a-b': 1, 'a-t': 2, 'b-t': 3 },
-      value: 5, path: [], bottleneck: null, mode: 'stop'
+      narr: "Look for another s → t path in G_f. Every edge leaving s — s→2 (3/3), s→4 (2/2), s→3 (1/1) — is now saturated, so the residual graph has no arc out of s at all. A BFS/DFS from s reaches only {s}. No augmenting path ⇒ Ford-Fulkerson halts: |f| = 6 is the maximum flow.",
+      flow: { ...baseFlow, 's-4':2, '4-5':1, '5-t':2, '3-4':0, '3-t':1 },
+      value: 6, path: [], back: [], bottleneck: null, mode: 'stop',
+      S: ['s']
     },
     {
-      title: "Min-cut  S = {s, a, b},  T = {t}",
-      narr: "S is exactly the set reachable from s in the final residual graph. The cut edges a→t and b→t cross from S to T and are both saturated: capacity = c(a,t) + c(b,t) = 2 + 3 = 5 = max-flow. Max-Flow Min-Cut confirmed.",
-      flow: { 's-a': 3, 's-b': 2, 'a-b': 1, 'a-t': 2, 'b-t': 3 },
-      value: 5, path: [], bottleneck: null, mode: 'cut',
-      S: ['s', 'a', 'b'], T: ['t'], cutEdges: ['a-t', 'b-t']
+      title: "Min-cut  S = {s},  T = {2,3,4,5,t}",
+      narr: "S is the set reachable from s in the final residual graph = {s}. The cut edges crossing S → T are exactly s's three out-edges, all saturated: c(S,T) = c(s,2) + c(s,4) + c(s,3) = 3 + 2 + 1 = 6 = |f|. Max-Flow Min-Cut confirmed — this is a minimum cut, and 6 is provably optimal.",
+      flow: { ...baseFlow, 's-4':2, '4-5':1, '5-t':2, '3-4':0, '3-t':1 },
+      value: 6, path: [], back: [], bottleneck: null, mode: 'cut',
+      S: ['s'], T: ['2','3','4','5','t'], cutEdges: ['s-2','s-4','s-3']
     }
   ];
 
@@ -246,7 +288,7 @@
     if (s.mode === 'augment') {
       html += '  ·  bottleneck pushed: <strong>' + s.bottleneck + '</strong>';
     } else if (s.mode === 'cut') {
-      html += '  ·  min-cut capacity: <strong>5</strong>';
+      html += '  ·  min-cut capacity: <strong>6</strong>';
     } else if (s.mode === 'stop') {
       html += '  ·  <strong>maximum</strong>';
     }
@@ -264,16 +306,41 @@
       return { fill: cssVar('--visited-fill'), stroke: cssVar('--visited-stroke'), tc: cssVar('--visited-text') };
     }
     if (s.mode === 'stop') {
-      // S = {s,a,b} reachable; t unreachable
-      if (name === 't') return { fill: bgPrimary, stroke: nodeStroke, tc: textPrimary };
-      return { fill: cssVar('--visited-fill'), stroke: cssVar('--visited-stroke'), tc: cssVar('--visited-text') };
+      if (s.S.includes(name)) {
+        return { fill: cssVar('--visited-fill'), stroke: cssVar('--visited-stroke'), tc: cssVar('--visited-text') };
+      }
+      return { fill: bgPrimary, stroke: nodeStroke, tc: textPrimary };
     }
-    // augment / init: highlight nodes on the current path
     const onPath = s.path.some(k => k.split('-').includes(name));
     if (onPath) {
       return { fill: cssVar('--current-fill'), stroke: cssVar('--current-stroke'), tc: cssVar('--current-text') };
     }
     return { fill: bgPrimary, stroke: nodeStroke, tc: textPrimary };
+  }
+
+  // Geometry for one edge: endpoints trimmed to the node circles, plus an
+  // optional bowed control point and the badge anchor.
+  function edgeGeom(e) {
+    const n1 = nfNodes[e.f], n2 = nfNodes[e.t];
+    const dx = n2.x - n1.x, dy = n2.y - n1.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const ux = dx / len, uy = dy / len;
+    const px = -uy, py = ux;
+    const r = 22;
+    const x1 = n1.x + ux * r, y1 = n1.y + uy * r;
+    const x2 = n2.x - ux * (r + 4), y2 = n2.y - uy * (r + 4);
+    if (e.curve) {
+      const bow = 32 * e.curve;
+      const cx = (n1.x + n2.x) / 2 + px * bow;
+      const cy = (n1.y + n2.y) / 2 + py * bow;
+      // Quadratic midpoint (t = 0.5) for the badge.
+      const bx = 0.25 * x1 + 0.5 * cx + 0.25 * x2;
+      const by = 0.25 * y1 + 0.5 * cy + 0.25 * y2;
+      return { x1, y1, x2, y2, cx, cy, curved: true, bx, by };
+    }
+    const bx = (n1.x + n2.x) / 2 + px * 15;
+    const by = (n1.y + n2.y) / 2 + py * 15;
+    return { x1, y1, x2, y2, curved: false, bx, by };
   }
 
   function nfDraw() {
@@ -287,65 +354,60 @@
 
     const edgeColor = cssVar('--edge-color');
     const activeColor = cssVar('--active-color');
+    const backColor = cssVar('--back-color');
     const bgPrimary = cssVar('--bg-primary');
     const textPrimary = cssVar('--text-primary');
     const textSecondary = cssVar('--text-secondary');
     const cutStroke = cssVar('--cut-t-stroke');
     const cutText = cssVar('--cut-t-text');
 
-    // Min-cut dividing line (only in cut step): separate {s,a,b} from {t}.
     if (s.mode === 'cut') {
-      cg.innerHTML += `<line x1="400" y1="20" x2="400" y2="340" stroke="${cutStroke}" stroke-width="2" stroke-dasharray="7 6" opacity="0.85"/>`;
-      cg.innerHTML += `<text x="380" y="36" text-anchor="end" font-size="13" font-weight="600" fill="${cutText}">cut</text>`;
+      cg.innerHTML += `<line x1="130" y1="24" x2="130" y2="360" stroke="${cutStroke}" stroke-width="2" stroke-dasharray="7 6" opacity="0.85"/>`;
+      cg.innerHTML += `<text x="130" y="18" text-anchor="middle" font-size="13" font-weight="600" fill="${cutText}">cut</text>`;
     }
 
     nfEdges.forEach(e => {
-      const n1 = nfNodes[e.f], n2 = nfNodes[e.t];
       const key = ekey(e.f, e.t);
+      const g = edgeGeom(e);
       const onPath = s.path.includes(key);
+      const isBack = s.back.includes(key);
       const isCut = s.mode === 'cut' && s.cutEdges.includes(key);
 
       let stroke = edgeColor, sw = 1.5, marker = 'url(#nf-arr)';
       if (isCut) { stroke = cutStroke; sw = 3; marker = 'url(#nf-arr-cut)'; }
+      else if (isBack) { stroke = backColor; sw = 3; marker = 'url(#nf-arr-b)'; }
       else if (onPath) { stroke = activeColor; sw = 3; marker = 'url(#nf-arr-a)'; }
 
-      const dx = n2.x - n1.x, dy = n2.y - n1.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      const ux = dx / len, uy = dy / len;
-      const r = 24;
-      const x1 = n1.x + ux * r, y1 = n1.y + uy * r;
-      const x2 = n2.x - ux * (r + 4), y2 = n2.y - uy * (r + 4);
+      const dash = isBack ? ' stroke-dasharray="6 4"' : '';
+      if (g.curved) {
+        eg.innerHTML += `<path d="M ${g.x1} ${g.y1} Q ${g.cx} ${g.cy} ${g.x2} ${g.y2}" fill="none" stroke="${stroke}" stroke-width="${sw}"${dash} marker-end="${marker}"/>`;
+      } else {
+        eg.innerHTML += `<line x1="${g.x1}" y1="${g.y1}" x2="${g.x2}" y2="${g.y2}" stroke="${stroke}" stroke-width="${sw}"${dash} marker-end="${marker}"/>`;
+      }
 
-      eg.innerHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${stroke}" stroke-width="${sw}" marker-end="${marker}"/>`;
-
-      // flow / cap badge, nudged perpendicular to the edge to avoid the line.
-      const px = -uy, py = ux;
-      const mx = (n1.x + n2.x) / 2 + px * 16;
-      const my = (n1.y + n2.y) / 2 + py * 16;
       const fl = s.flow[key];
       const saturated = fl === e.cap && fl > 0;
       let badgeStroke = stroke;
       let badgeText = textPrimary;
       if (isCut) { badgeText = cutText; }
-      else if (!onPath && saturated) { badgeStroke = activeColor; }
-      eg.innerHTML += `<rect x="${mx - 18}" y="${my - 11}" width="36" height="22" rx="6" fill="${bgPrimary}" stroke="${badgeStroke}" stroke-width="${(onPath || isCut || saturated) ? 1.5 : 1}"/>`;
-      eg.innerHTML += `<text x="${mx}" y="${my}" text-anchor="middle" dy="4" font-size="12" font-weight="${saturated ? 600 : 500}" fill="${badgeText}">${fl}/${e.cap}</text>`;
+      else if (isBack) { badgeText = backColor; }
+      else if (onPath) { badgeText = textPrimary; }
+      else if (saturated) { badgeStroke = activeColor; }
+      const emph = onPath || isBack || isCut || saturated;
+      eg.innerHTML += `<rect x="${g.bx - 17}" y="${g.by - 11}" width="34" height="22" rx="6" fill="${bgPrimary}" stroke="${badgeStroke}" stroke-width="${emph ? 1.5 : 1}"/>`;
+      eg.innerHTML += `<text x="${g.bx}" y="${g.by}" text-anchor="middle" dy="4" font-size="12" font-weight="${saturated ? 600 : 500}" fill="${badgeText}">${fl}/${e.cap}</text>`;
     });
 
     Object.keys(nfNodes).forEach(name => {
       const n = nfNodes[name];
       const col = nodeColors(name, s);
-      let label = name;
-      if (name === 's') label = 's';
-      if (name === 't') label = 't';
       ng.innerHTML += `<g>
-        <circle cx="${n.x}" cy="${n.y}" r="24" fill="${col.fill}" stroke="${col.stroke}" stroke-width="2"/>
-        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="6" font-size="18" font-weight="600" fill="${col.tc}">${label}</text>
+        <circle cx="${n.x}" cy="${n.y}" r="22" fill="${col.fill}" stroke="${col.stroke}" stroke-width="2"/>
+        <text x="${n.x}" y="${n.y}" text-anchor="middle" dy="6" font-size="17" font-weight="600" fill="${col.tc}">${name}</text>
       </g>`;
     });
 
-    // value label inside the SVG, lower-left
-    ng.innerHTML += `<text x="70" y="330" text-anchor="middle" font-size="13" font-weight="600" fill="${textSecondary}">|f| = ${s.value}</text>`;
+    ng.innerHTML += `<text x="52" y="360" text-anchor="middle" font-size="13" font-weight="600" fill="${textSecondary}">|f| = ${s.value}</text>`;
   }
 
   function nfUpdate() {
@@ -361,7 +423,8 @@
       const e = nfEdges.find(ed => ekey(ed.f, ed.t) === k);
       const fl = s.flow[k];
       let cls = '';
-      if (s.path.includes(k)) cls = 'c';
+      if (s.back.includes(k)) cls = 'b';
+      else if (s.path.includes(k)) cls = 'c';
       else if (s.mode === 'cut' && s.cutEdges.includes(k)) cls = 'c';
       else if (fl === e.cap && fl > 0) cls = 'v';
       row.innerHTML += `<td class="${cls}">${fl}/${e.cap}</td>`;
