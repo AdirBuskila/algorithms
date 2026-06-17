@@ -43,5 +43,419 @@
     "answer": false,
     "explanation": "False — different graphs can share the same transitive closure. Adding a single edge that is already implied by reachability (a transitive edge) changes the graph but not its closure.",
     "difficulty": "easy"
+  },
+  {
+    "id": "bellman-ford-2022-sembSample-q1a",
+    "algorithm": "bellman-ford",
+    "source": "2022 Sem-B Sample · Q1a",
+    "claim": "For every strongly connected directed graph $H(V,E)$ with positive edge weights, the running time of Bellman-Ford on $H$ is identical to the running time of Dijkstra on $H$.",
+    "answer": false,
+    "explanation": "False — Bellman-Ford always runs in $\\Theta(|V|\\cdot|E|)$ regardless of the weights, while Dijkstra runs in $\\Theta(|V|^2)$ or $O(|E|\\log|V|)$. On a dense graph Bellman-Ford is $\\Theta(|V|^3)$ versus Dijkstra's $\\Theta(|V|^2)$, so the running times differ.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bipartite-matching-2022-sembSample-q1b",
+    "algorithm": "bipartite-matching",
+    "source": "2022 Sem-B Sample · Q1b",
+    "claim": "Let $G$ be an undirected bipartite graph with a perfect matching $M$. If $G$ contains a cycle, then $G$ has another perfect matching $M' \\neq M$.",
+    "answer": false,
+    "explanation": "False — a bipartite graph can contain a cycle and still have exactly one perfect matching, when every perfect matching is forced edge by edge. The presence of a cycle does not create a second perfect matching.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2022-sembSample-q3b",
+    "algorithm": "network-flow",
+    "source": "2022 Sem-B Sample · Q3b",
+    "claim": "Given two flow networks on the same graph with $c_2(u,v) = c_1(u,v) + 1$ for every edge, a cut $(S,T)$ has minimum capacity in $N_1$ if and only if it has minimum capacity in $N_2$.",
+    "answer": false,
+    "explanation": "False — adding $1$ to every edge raises a cut's capacity by its number of crossing edges, so cuts with more edges are penalized more. A cut that is minimum in $N_1$ can stop being minimum in $N_2$.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "bipartite-matching-2022-sembA-q1a",
+    "algorithm": "bipartite-matching",
+    "source": "2022 Sem-B Mo'ed A · Q1a",
+    "claim": "Let $G(A,B,E)$ be a bipartite graph and let $G'$ be obtained by adding one edge $e=(a,b)$. Then the maximum matching of $G'$ cannot exceed that of $G$ by $2$ — i.e. it is impossible that $\\mu(G)+2 = \\mu(G')$.",
+    "answer": true,
+    "explanation": "True — via the reduction to max flow, adding one edge raises the min-cut/max-flow value by at most $1$, so $\\mu(G') \\le \\mu(G)+1$. Equivalently, deleting $e$ from a matching of $G'$ leaves a matching of $G$ of size at least $\\mu(G')-1$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "topological-sort-2022-sembB-q1a",
+    "algorithm": "topological-sort",
+    "source": "2022 Sem-B Mo'ed B · Q1a",
+    "claim": "Let $G$ be a DAG. Every topological ordering of $G$ can be produced by some run of $\\text{TOPOLOGICAL\\_SORT}(G)$.",
+    "answer": true,
+    "explanation": "True — given any topological order $v_1,\\dots,v_n$, run the DFS visiting vertices in the reverse order $v_n,\\dots,v_1$. Each $v_i$ has outgoing edges only to already-finished later vertices, so it is prepended to the output, yielding exactly $v_1,\\dots,v_n$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dijkstra-2022-sembB-q1b",
+    "algorithm": "dijkstra",
+    "source": "2022 Sem-B Mo'ed B · Q1b",
+    "claim": "In a connected undirected graph with positive, pairwise-distinct edge weights, the shortest path between every two vertices is unique.",
+    "answer": false,
+    "explanation": "False — distinct edge weights do not force distinct path sums. Two different paths between $s$ and $t$, such as $(s,t)$ and $(s,v,t)$, can have equal total weight, giving two different shortest paths. (Contrast: distinct weights *do* force a unique MST.)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2022-sembB-q3b1",
+    "algorithm": "network-flow",
+    "source": "2022 Sem-B Mo'ed B · Q3b(1)",
+    "claim": "In every flow network with positive integer capacities, there exists an edge whose capacity, if decreased by $1$, decreases the value of the maximum flow.",
+    "answer": true,
+    "explanation": "True — take any edge crossing a minimum cut. Decreasing its capacity by $1$ lowers that cut's capacity by $1$, so the minimum cut — and hence the maximum flow — drops by $1$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2022-sembB-q3b2",
+    "algorithm": "network-flow",
+    "source": "2022 Sem-B Mo'ed B · Q3b(2)",
+    "claim": "In every flow network there exists an edge whose capacity, if decreased by $1$, leaves the value of the maximum flow unchanged.",
+    "answer": false,
+    "explanation": "False — counterexample: a network consisting of a single edge $s \\to t$. Decreasing its capacity by $1$ decreases the maximum flow, and there is no other edge, so no edge can leave the flow unchanged.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2022-sembB-q3b3",
+    "algorithm": "network-flow",
+    "source": "2022 Sem-B Mo'ed B · Q3b(3)",
+    "claim": "If $d>0$ and every edge capacity in a flow network is an integer multiple of $d$, then the value of the maximum flow is an integer multiple of $d$.",
+    "answer": true,
+    "explanation": "True — by max-flow/min-cut the flow value equals the capacity of a minimum cut, which is a sum of edge capacities. Each is a multiple of $d$, so their sum — the maximum flow — is an integer multiple of $d$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dfs-2022-sembC-q1a",
+    "algorithm": "dfs",
+    "source": "2022 Sem-B Mo'ed C · Q1a",
+    "claim": "Let $G$ be an undirected graph containing a clique. In every DFS of $G$, all vertices of the clique lie on a single root-to-leaf path of the DFS tree.",
+    "answer": true,
+    "explanation": "True — undirected DFS has no cross edges, so for every edge one endpoint is an ancestor of the other. The clique's vertices are pairwise adjacent, hence pairwise in ancestor–descendant relation, so they form a chain along one root-to-leaf path (though not necessarily consecutively).",
+    "difficulty": "hard"
+  },
+  {
+    "id": "dfs-2022-sembC-q1b",
+    "algorithm": "dfs",
+    "source": "2022 Sem-B Mo'ed C · Q1b",
+    "claim": "Let $G$ be a connected undirected graph and let $b[v]$ be the DFS discovery time of $v$. Orienting every edge $(u,v)$ from the endpoint discovered earlier to the one discovered later yields a directed acyclic graph.",
+    "answer": true,
+    "explanation": "True — discovery times give a strict total order on the vertices, and every edge is oriented to agree with it. An orientation consistent with a total order cannot contain a directed cycle, so the result is a DAG.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dfs-2023-sembA-q1",
+    "algorithm": "dfs",
+    "source": "2023 Sem-B Mo'ed A · Q1",
+    "claim": "For every undirected graph with $n>5$ vertices, there is a DFS run in which the number of back edges equals the number of simple cycles in the graph.",
+    "answer": false,
+    "explanation": "False — the number of back edges in any DFS equals $|E|-|V|+(\\text{number of components})$, a value fixed independently of the run, while the number of simple cycles can be larger. For example $K_4$ plus two isolated vertices ($n=6$) always has $3$ back edges but $7$ simple cycles.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "dfs-2023-sembA-q2a",
+    "algorithm": "dfs",
+    "source": "2023 Sem-B Mo'ed A · Q2a",
+    "claim": "Running DFS on a directed rooted tree always produces only tree edges, regardless of the order in which the main loop visits vertices.",
+    "answer": false,
+    "explanation": "False — if the DFS main loop starts at a non-root vertex, an edge from an ancestor into an already-finished subtree becomes a cross edge. Only a DFS started at the root produces tree edges exclusively.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2023-sembA-q3b1",
+    "algorithm": "network-flow",
+    "source": "2023 Sem-B Mo'ed A · Q3b(1)",
+    "claim": "In every flow network whose capacities are each either an integer or $\\sqrt{2}$, the maximum flow is never an integer.",
+    "answer": false,
+    "explanation": "False — if a minimum cut is determined entirely by integer-capacity edges, the maximum flow is an integer. The $\\sqrt{2}$ edges need not constrain the flow at all.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2023-sembA-q3b2",
+    "algorithm": "network-flow",
+    "source": "2023 Sem-B Mo'ed A · Q3b(2)",
+    "claim": "In such a network (every capacity an integer or $\\sqrt{2}$), if there is an $s$–$t$ path all of whose edges have capacity $\\sqrt{2}$, then the maximum flow is not an integer.",
+    "answer": true,
+    "explanation": "True — every cut, in particular a minimum cut, separates $s$ from $t$, so it must contain at least one edge of that path, contributing $\\sqrt{2}$. The min-cut capacity is then an integer plus a positive multiple of $\\sqrt{2}$, which is irrational, so the maximum flow is not an integer.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "network-flow-2023-sembA-q3b3",
+    "algorithm": "network-flow",
+    "source": "2023 Sem-B Mo'ed A · Q3b(3)",
+    "claim": "In such a network, if the maximum flow is an integer, then there is no cut consisting only of edges with capacity $\\sqrt{2}$.",
+    "answer": false,
+    "explanation": "False — take $s \\to a$ and $s \\to b$ with capacity $\\sqrt{2}$, and $a \\to t$, $b \\to t$ with capacity $1$. The minimum cut $\\{s,a,b\\} \\mid \\{t\\}$ has capacity $2$ (an integer), yet the cut $\\{s\\} \\mid \\{a,b,t\\}$ consists only of the two $\\sqrt{2}$ edges.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "network-flow-2023-sembB-q3b",
+    "algorithm": "network-flow",
+    "source": "2023 Sem-B Mo'ed B · Q3b",
+    "claim": "In every flow network with pairwise-distinct edge capacities, the minimum cut is unique.",
+    "answer": false,
+    "explanation": "False — distinct capacities do not force a unique minimum cut. A network can have two different cuts of equal, minimum capacity even when all individual edge capacities differ.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dfs-2023-summerA-q1a",
+    "algorithm": "dfs",
+    "source": "2023 Summer Mo'ed A · Q1a",
+    "claim": "Let $G$ be connected and undirected with DFS run from $s$, and let $a$ be a vertex with more than one child in the DFS tree. Removing all vertices on the tree path $s \\dots a$ (with their incident edges) disconnects the graph.",
+    "answer": true,
+    "explanation": "True — the subtrees of $a$'s children connect upward only through $a$ or its ancestors, since undirected DFS has no cross edges. Removing the whole path $s \\dots a$ severs those connections, leaving $a$'s $\\ge 2$ child subtrees in separate components.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "bipartite-matching-2024-sembA-q1c",
+    "algorithm": "bipartite-matching",
+    "source": "2024 Sem-B Mo'ed A · Q1c",
+    "claim": "Let $G(A,B,E)$ be bipartite with $A=\\{a_1,\\dots,a_n\\}$ where $\\deg(a_i) \\ge i$ for all $i$. Then $G$ has a matching that saturates $A$.",
+    "answer": true,
+    "explanation": "True — for any $X \\subseteq A$ with $|X|=k$, $X$ contains some $a_i$ with $i \\ge k$, so $|N(X)| \\ge \\deg(a_i) \\ge k = |X|$. Hall's condition holds, so a matching saturating $A$ exists.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dfs-2024-sembA-q3d",
+    "algorithm": "dfs",
+    "source": "2024 Sem-B Mo'ed A · Q3d",
+    "claim": "A directed graph has $n$ vertices and every vertex has out-degree $\\lceil n/4 \\rceil$. A DFS scan of this graph runs in $\\Theta(n^2)$.",
+    "answer": true,
+    "explanation": "True — DFS runs in $\\Theta(|V|+|E|)$, and here $|E| = n \\cdot \\lceil n/4 \\rceil = \\Theta(n^2)$, which dominates $|V| = n$. So the total running time is $\\Theta(n^2)$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "topological-sort-2024-sembB-q1b",
+    "algorithm": "topological-sort",
+    "source": "2024 Sem-B Mo'ed B · Q1b",
+    "claim": "Let $G$ be a directed graph. If $G$ contains a cycle, then the $\\text{Topological\\_Sort}$ algorithm enters an infinite loop.",
+    "answer": false,
+    "explanation": "False — $\\text{Topological\\_Sort}$ runs a single DFS and returns the vertices by decreasing finish time; DFS always terminates once every vertex is black. With a cycle the output is simply not a valid topological order, but the algorithm still halts.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "scc-2024-summerB-q1a",
+    "algorithm": "scc",
+    "source": "2024 Summer Mo'ed B · Q1a",
+    "claim": "Let $G$ be a directed graph. If two vertices are in the same strongly connected component, then in every DFS of $G$ they end up in the same DFS tree.",
+    "answer": true,
+    "explanation": "True — let $x$ be the first vertex of the component to be discovered. Every other vertex of the component is reachable from $x$ along a path of then-white component vertices, so by the white-path theorem they all become descendants of $x$ in the same tree.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bipartite-matching-2024-summerB-q1b",
+    "algorithm": "bipartite-matching",
+    "source": "2024 Summer Mo'ed B · Q1b",
+    "claim": "Every $r$-regular graph has a perfect matching.",
+    "answer": false,
+    "explanation": "False — the triangle $C_3$ is $2$-regular but has an odd number of vertices, so it has no perfect matching. (Regularity guarantees a perfect matching only for *bipartite* graphs.)",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2024-summerB-q1c",
+    "algorithm": "network-flow",
+    "source": "2024 Summer Mo'ed B · Q1c",
+    "claim": "In a flow network with a vertex $v$, if there is no legal flow of value $20$ from $s$ to $v$ and no legal flow of value $20$ from $v$ to $t$, then there is no legal flow of value $20$ from $s$ to $t$.",
+    "answer": false,
+    "explanation": "False — an $s$–$t$ flow need not pass through $v$ at all. The network can route $20$ units along paths that avoid $v$, even though neither $s \\to v$ nor $v \\to t$ alone supports value $20$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bellman-ford-2024-summerC-q1a",
+    "algorithm": "bellman-ford",
+    "source": "2024 Summer Mo'ed C · Q1a",
+    "claim": "If a directed weighted graph contains a negative cycle, then running Bellman-Ford from any source $s$ necessarily reports that a negative cycle exists.",
+    "answer": false,
+    "explanation": "False — Bellman-Ford only detects negative cycles reachable from $s$. If the negative cycle lies in a part of the graph unreachable from $s$, those vertices keep distance $\\infty$ and the algorithm reports no negative cycle.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "transitive-closure-2024-summerC-q3e1",
+    "algorithm": "transitive-closure",
+    "source": "2024 Summer Mo'ed C · Q3e(1)",
+    "claim": "The transitive closure of a directed graph $G$ has at least as many edges as $G$.",
+    "answer": true,
+    "explanation": "True — every edge $(u,v)$ of $G$ is a path of length $1$, so $(u,v)$ also appears in the transitive closure. Hence $E(G) \\subseteq E(G^*)$ and $|E(G^*)| \\ge |E(G)|$.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "transitive-closure-2024-summerC-q3e2",
+    "algorithm": "transitive-closure",
+    "source": "2024 Summer Mo'ed C · Q3e(2)",
+    "claim": "It is impossible for the transitive closure of $G$ to have the same number of edges as $G$.",
+    "answer": false,
+    "explanation": "False — if $G$ is already transitively closed, the closure adds nothing. For example a single edge $a \\to b$ (or an edgeless graph) satisfies $|E(G^*)| = |E(G)|$.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "transitive-closure-2024-summerC-q3e3",
+    "algorithm": "transitive-closure",
+    "source": "2024 Summer Mo'ed C · Q3e(3)",
+    "claim": "Every directed graph has a transitive closure.",
+    "answer": true,
+    "explanation": "True — the reachability relation $\\{(u,v) : v \\text{ is reachable from } u\\}$ is well-defined for any directed graph, and it is exactly the (unique) transitive closure.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "topological-sort-2024-summerC-q3e4",
+    "algorithm": "topological-sort",
+    "source": "2024 Summer Mo'ed C · Q3e(4)",
+    "claim": "Every directed graph has a topological sort.",
+    "answer": false,
+    "explanation": "False — a topological sort exists only for acyclic directed graphs. A directed graph containing a cycle has no topological ordering.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "dfs-2025-sembA-q1a",
+    "algorithm": "dfs",
+    "source": "2025 Sem-B Mo'ed A · Q1a",
+    "claim": "Let $G$ be a directed graph. If there is a path from $x$ to $y$ in $G$, then in every DFS run the finish times satisfy $f(x) > f(y)$.",
+    "answer": false,
+    "explanation": "False — on a $2$-cycle $x \\to y \\to x$ there is a path from $x$ to $y$, but starting the DFS at $y$ makes $x$ a descendant of $y$, giving $f(x) < f(y)$. The 'path implies larger finish time' property holds only for acyclic graphs.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2025-sembA-q1b",
+    "algorithm": "network-flow",
+    "source": "2025 Sem-B Mo'ed A · Q1b",
+    "claim": "For a maximum flow $f$ in a network there exists a cut $(S,T)$ such that every edge from $S$ to $T$ is saturated and every edge from $T$ to $S$ carries zero flow.",
+    "answer": true,
+    "explanation": "True — let $S$ be the set of vertices reachable from $s$ in the residual graph. Since $f$ is maximum, $t \\notin S$, so $(S,T)$ is an $s$–$t$ cut; every forward edge across it is saturated and every backward edge carries zero, otherwise a residual edge would cross it.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "vertex-cover-2025-sembA-q3c1",
+    "algorithm": "vertex-cover",
+    "source": "2025 Sem-B Mo'ed A · Q3c(i)",
+    "claim": "For any matching $M$ and any minimum vertex cover $OPT$ of an undirected graph, $|M| \\le |OPT|$.",
+    "answer": true,
+    "explanation": "True — the edges of a matching are pairwise vertex-disjoint, and a vertex cover must contain at least one (distinct) endpoint of each. So any vertex cover has at least $|M|$ vertices, giving $|M| \\le |OPT|$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "vertex-cover-2025-sembA-q3c2",
+    "algorithm": "vertex-cover",
+    "source": "2025 Sem-B Mo'ed A · Q3c(ii)",
+    "claim": "For a maximal matching $M$ and a minimum vertex cover $OPT$ of an undirected graph, $|M| = |OPT|$.",
+    "answer": false,
+    "explanation": "False — on the path $1\\text{–}2\\text{–}3\\text{–}4$, the matching $\\{(2,3)\\}$ is maximal with size $1$, but the minimum vertex cover $\\{2,3\\}$ has size $2$. Equality holds for bipartite graphs (König's theorem with a maximum matching), not in general.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2025-sembA-q3b",
+    "algorithm": "network-flow",
+    "source": "2025 Sem-B Mo'ed A · Q3b",
+    "claim": "In a flow network with integer capacities, every maximum flow assigns an integer value to every edge.",
+    "answer": false,
+    "explanation": "False — the integrality theorem guarantees that *some* maximum flow is integral, not that every one is. Adding a fractional circulation of $\\tfrac{1}{2}$ around a cycle of unit-capacity edges yields a maximum flow with non-integer edge values.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bfs-2025-sembB-q3iii",
+    "algorithm": "bfs",
+    "source": "2025 Sem-B Mo'ed B · Q3(iii)",
+    "claim": "If BFS records a discovery time $b(v)$ and a finish time $f(v)$ for each vertex, then for every vertex $v$ with parent $\\pi(v)$: $b(\\pi(v)) < b(v) < f(v) < f(\\pi(v))$.",
+    "answer": false,
+    "explanation": "False — that nesting is the DFS parenthesis property. BFS uses a FIFO queue, so the parent is dequeued (finished) before the child finishes; the correct order is $b(\\pi(v)) < b(v) < f(\\pi(v)) < f(v)$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2025-sembB-q3e1",
+    "algorithm": "network-flow",
+    "source": "2025 Sem-B Mo'ed B · Q3e(i)",
+    "claim": "For a maximum flow there always exists a cut all of whose crossing edges (from $S$ to $T$) are saturated.",
+    "answer": true,
+    "explanation": "True — a minimum cut is such a cut: at maximum flow every forward edge crossing a minimum cut is saturated and every backward edge is empty.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2025-sembB-q3e2",
+    "algorithm": "network-flow",
+    "source": "2025 Sem-B Mo'ed B · Q3e(ii)",
+    "claim": "For a maximum flow there necessarily exists a cut all of whose crossing edges are unsaturated.",
+    "answer": false,
+    "explanation": "False — the guaranteed structure is the opposite: a minimum cut whose forward edges are all saturated. There is no guarantee of a cut with every crossing edge unsaturated (e.g. a network that is a single saturated edge $s \\to t$).",
+    "difficulty": "medium"
+  },
+  {
+    "id": "topological-sort-2025-summerA-q3c",
+    "algorithm": "topological-sort",
+    "source": "2025 Summer Mo'ed A · Q3c",
+    "claim": "If a DAG contains a directed path that visits all of its vertices, then its topological ordering is unique.",
+    "answer": true,
+    "explanation": "True — a directed path through every vertex totally orders them, and any topological order must respect that path, so exactly one ordering is possible.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dijkstra-2025-summerA-q3e",
+    "algorithm": "dijkstra",
+    "source": "2025 Summer Mo'ed A · Q3e",
+    "claim": "If a directed graph contains negative-weight edges, then running Dijkstra from $s$ necessarily returns an incorrect distance for at least one vertex.",
+    "answer": false,
+    "explanation": "False — if the negative edges are unreachable from $s$, or never lie on a shortest path, Dijkstra can still return correct distances for every vertex. Negative edges do not guarantee a wrong answer.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "topological-sort-2025-summerB-q1a",
+    "algorithm": "topological-sort",
+    "source": "2025 Summer Mo'ed B · Q1a",
+    "claim": "Let $G$ be a DAG. If $G$ has a topological ordering in which $u$ appears before $v$, then there is a path from $u$ to $v$ in $G$.",
+    "answer": false,
+    "explanation": "False — with edge $b \\to c$ and an isolated vertex $a$, the order $a,b,c$ is topological, yet there is no path from $a$ to $b$. Appearing earlier in a topological order does not imply reachability.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "dijkstra-2025-summerB-q1b",
+    "algorithm": "dijkstra",
+    "source": "2025 Summer Mo'ed B · Q1b",
+    "claim": "Dijkstra was run from $s$ on a graph with non-negative weights, giving distances $d[\\,\\cdot\\,]$. After adding a new edge $(u,v)$ of positive weight, at least one $d[\\,\\cdot\\,]$ value is necessarily now incorrect.",
+    "answer": false,
+    "explanation": "False — a new positive-weight edge between two existing vertices need not shorten any shortest path, so all $d[\\,\\cdot\\,]$ values can remain correct.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bipartite-matching-2025-summerB-q1c",
+    "algorithm": "bipartite-matching",
+    "source": "2025 Summer Mo'ed B · Q1c",
+    "claim": "Given a bipartite graph and a matching $M$, there is a linear-time algorithm that checks whether $M$ is a maximum matching.",
+    "answer": true,
+    "explanation": "True — build the standard flow reduction, push one unit of flow along each matching edge, and run a single augmenting-path search in $O(|V|+|E|)$. $M$ is a maximum matching if and only if no augmenting path is found.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2025-summerB-q3b1",
+    "algorithm": "network-flow",
+    "source": "2025 Summer Mo'ed B · Q3b(i)",
+    "claim": "If we increase the capacity of a single existing edge by $d$, the maximum flow increases by at most $d$.",
+    "answer": true,
+    "explanation": "True — raising one edge's capacity by $d$ increases the capacity of any cut by at most $d$, so by max-flow/min-cut the maximum flow can grow by at most $d$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2025-summerB-q3b2",
+    "algorithm": "network-flow",
+    "source": "2025 Summer Mo'ed B · Q3b(ii)",
+    "claim": "Adding a new edge to a flow network necessarily increases the maximum flow.",
+    "answer": false,
+    "explanation": "False — a new edge that lies on no augmenting path (for instance an edge entering $s$, or one that no minimum cut crosses) leaves the maximum flow unchanged.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "scc-2025-summerB-q3c1",
+    "algorithm": "scc",
+    "source": "2025 Summer Mo'ed B · Q3c(i)",
+    "claim": "The number of strongly connected components of a directed graph is at most the number of vertices.",
+    "answer": true,
+    "explanation": "True — the strongly connected components partition the vertex set and each contains at least one vertex, so there are at most $|V|$ of them.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "scc-2025-summerB-q3c2",
+    "algorithm": "scc",
+    "source": "2025 Summer Mo'ed B · Q3c(ii)",
+    "claim": "If a directed graph has exactly $k$ strongly connected components, then its condensation graph has exactly $k$ vertices and $k-1$ edges.",
+    "answer": false,
+    "explanation": "False — the condensation does have $k$ vertices, but it is a DAG whose edge count is not fixed: it can range from $0$ up to $\\binom{k}{2}$. The value $k-1$ is not forced.",
+    "difficulty": "medium"
   }
 ]
