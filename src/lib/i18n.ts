@@ -1,4 +1,5 @@
 import type { Group, Locale } from "./content";
+import type { DefinitionCategory } from "./definitions";
 
 export const LOCALE_NAMES: Record<Locale, string> = {
   en: "English",
@@ -59,6 +60,15 @@ interface Dict {
     backToNotes: string;
     allClear: string;
     noQuestions: string;
+  };
+  definitions: {
+    navLabel: string;
+    title: string;
+    intro: string;
+    searchPlaceholder: string;
+    noResults: string;
+    linkTitle: string;
+    categories: Record<DefinitionCategory, string>;
   };
 }
 
@@ -125,6 +135,25 @@ export const STRINGS: Record<Locale, Dict> = {
       allClear: "Nice — nothing flagged for review.",
       noQuestions: "No practice questions yet.",
     },
+    definitions: {
+      navLabel: "Definitions",
+      title: "Definitions",
+      intro:
+        "The core graph terms that recur on the exams, grouped by topic. Type to filter, and follow a term to its algorithm page where one exists.",
+      searchPlaceholder: "Filter definitions…",
+      noResults: "No matching definitions",
+      linkTitle: "Open the related algorithm page",
+      categories: {
+        "graph-basics": "Graph basics",
+        connectivity: "Connectivity",
+        trees: "Trees & forests",
+        distances: "Distances",
+        "special-graphs": "Special graphs",
+        ordering: "Ordering & closure",
+        flow: "Flow & cuts",
+        matching: "Matching & cover",
+      },
+    },
   },
   he: {
     htmlTitle: "אלגו 2 — מחברת אינטראקטיבית",
@@ -187,6 +216,25 @@ export const STRINGS: Record<Locale, Dict> = {
       backToNotes: "חזרה לסיכומים",
       allClear: "יפה — אין טענות מסומנות לחזרה.",
       noQuestions: "אין עדיין שאלות תרגול.",
+    },
+    definitions: {
+      navLabel: "הגדרות",
+      title: "הגדרות",
+      intro:
+        "מונחי הגרפים המרכזיים שחוזרים במבחנים, מקובצים לפי נושא. הקלידו לסינון, ולחצו על מונח כדי לעבור לדף האלגוריתם כשקיים כזה.",
+      searchPlaceholder: "סינון הגדרות…",
+      noResults: "אין הגדרות תואמות",
+      linkTitle: "פתיחת דף האלגוריתם הקשור",
+      categories: {
+        "graph-basics": "יסודות הגרף",
+        connectivity: "קשירוּת",
+        trees: "עצים ויערות",
+        distances: "מרחקים",
+        "special-graphs": "גרפים מיוחדים",
+        ordering: "סדר וסגור",
+        flow: "זרימה וחתכים",
+        matching: "זיווג וכיסוי",
+      },
     },
   },
 };

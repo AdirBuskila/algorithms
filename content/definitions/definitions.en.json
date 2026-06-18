@@ -1,0 +1,274 @@
+[
+  {
+    "id": "graph",
+    "category": "graph-basics",
+    "term": "Graph",
+    "aka": "$G=(V,E)$",
+    "definition": "A pair $G=(V,E)$ of a set of vertices $V$ and a set of edges $E$, where each edge joins two vertices."
+  },
+  {
+    "id": "directed-undirected-graph",
+    "category": "graph-basics",
+    "term": "Directed / undirected graph",
+    "definition": "In a directed graph each edge $(u,v)$ has a direction (from $u$ to $v$); in an undirected graph the edges are unordered pairs $\\{u,v\\}$."
+  },
+  {
+    "id": "degree",
+    "category": "graph-basics",
+    "term": "Degree",
+    "aka": "$\\deg(v)$",
+    "definition": "The number of edges incident to a vertex. In a directed graph a vertex has an in-degree (entering edges) and an out-degree (leaving edges)."
+  },
+  {
+    "id": "path",
+    "category": "graph-basics",
+    "term": "Path",
+    "definition": "A sequence of vertices $v_0,v_1,\\dots,v_k$ in which each consecutive pair is joined by an edge. In a simple path all the vertices are distinct."
+  },
+  {
+    "id": "walk",
+    "category": "graph-basics",
+    "term": "Walk",
+    "definition": "Like a path, but it may pass through the same vertices and the same edges more than once."
+  },
+  {
+    "id": "simple-cycle",
+    "category": "graph-basics",
+    "term": "Cycle / simple cycle",
+    "definition": "A path that starts and ends at the same vertex. In a simple cycle all the vertices are distinct (apart from the shared endpoint)."
+  },
+  {
+    "id": "connected-graph",
+    "category": "connectivity",
+    "term": "Connected graph",
+    "definition": "An undirected graph in which there is a path between every pair of vertices."
+  },
+  {
+    "id": "connected-component",
+    "category": "connectivity",
+    "term": "Connected component",
+    "definition": "A maximal set of mutually reachable vertices. An undirected graph splits into one or more connected components."
+  },
+  {
+    "id": "strongly-connected",
+    "category": "connectivity",
+    "term": "Strongly connected graph",
+    "definition": "A directed graph in which every vertex is reachable from every other vertex — a directed path exists in both directions for every pair."
+  },
+  {
+    "id": "scc",
+    "category": "connectivity",
+    "term": "Strongly connected component (SCC)",
+    "algorithm": "scc",
+    "definition": "A maximal set of vertices of a directed graph that are pairwise mutually reachable. Every two vertices of an SCC lie on a common directed cycle."
+  },
+  {
+    "id": "bridge",
+    "category": "connectivity",
+    "term": "Bridge",
+    "definition": "An edge of a connected undirected graph whose removal disconnects it (increases the number of connected components)."
+  },
+  {
+    "id": "tree",
+    "category": "trees",
+    "term": "Tree",
+    "definition": "A connected, acyclic undirected graph. A tree on $n$ vertices has exactly $n-1$ edges."
+  },
+  {
+    "id": "forest",
+    "category": "trees",
+    "term": "Forest",
+    "definition": "An acyclic undirected graph; equivalently, a disjoint union of trees."
+  },
+  {
+    "id": "spanning-tree",
+    "category": "trees",
+    "term": "Spanning tree",
+    "definition": "A subgraph of a connected graph that is a tree and includes all of the graph's vertices."
+  },
+  {
+    "id": "mst",
+    "category": "trees",
+    "term": "Minimum spanning tree (MST)",
+    "algorithm": "mst",
+    "aka": "MST",
+    "definition": "Among all spanning trees of a weighted connected graph, one whose total edge weight is smallest. With distinct weights it is unique."
+  },
+  {
+    "id": "root",
+    "category": "trees",
+    "term": "Root",
+    "definition": "In a directed graph, a vertex from which there is a directed path to every other vertex."
+  },
+  {
+    "id": "directed-tree",
+    "category": "trees",
+    "term": "Rooted (directed) tree",
+    "definition": "A directed acyclic graph with a single root of in-degree $0$, in which every other vertex has in-degree $1$."
+  },
+  {
+    "id": "dfs-tree",
+    "category": "trees",
+    "term": "DFS tree / forest & edge types",
+    "algorithm": "dfs",
+    "definition": "The tree(s) formed by the edges DFS uses to discover new vertices. The remaining edges are classified as back, forward, or cross edges; an undirected DFS produces only tree and back edges."
+  },
+  {
+    "id": "distance",
+    "category": "distances",
+    "term": "Distance",
+    "aka": "$d(u,v)$, $\\delta(u,v)$",
+    "definition": "The length — number of edges, or sum of weights — of a shortest path between two vertices; $\\infty$ if no path exists."
+  },
+  {
+    "id": "shortest-path",
+    "category": "distances",
+    "term": "Shortest path",
+    "definition": "A path between two vertices whose total weight (or, when unweighted, edge count) is the smallest possible."
+  },
+  {
+    "id": "diameter",
+    "category": "distances",
+    "term": "Diameter",
+    "definition": "The largest distance between any pair of vertices in the graph: $\\max_{u,v} d(u,v)$."
+  },
+  {
+    "id": "bipartite-graph",
+    "category": "special-graphs",
+    "term": "Bipartite graph",
+    "algorithm": "bipartite-matching",
+    "definition": "A graph whose vertices split into two sets $A,B$ so that every edge joins a vertex of $A$ to a vertex of $B$. Equivalently, a graph with no odd-length cycle."
+  },
+  {
+    "id": "complete-graph",
+    "category": "special-graphs",
+    "term": "Complete graph $K_n$",
+    "definition": "An undirected graph in which every pair of distinct vertices is joined by an edge."
+  },
+  {
+    "id": "clique",
+    "category": "special-graphs",
+    "term": "Clique",
+    "definition": "A subset of vertices in which every two vertices are adjacent — a complete subgraph."
+  },
+  {
+    "id": "dag",
+    "category": "special-graphs",
+    "term": "Directed acyclic graph (DAG)",
+    "aka": "DAG",
+    "definition": "A directed graph that contains no directed cycle. These are exactly the graphs that admit a topological ordering."
+  },
+  {
+    "id": "regular-graph",
+    "category": "special-graphs",
+    "term": "$r$-regular graph",
+    "definition": "A graph in which every vertex has the same degree $r$."
+  },
+  {
+    "id": "topological-sort",
+    "category": "ordering",
+    "term": "Topological sort",
+    "algorithm": "topological-sort",
+    "definition": "A linear ordering of the vertices of a DAG such that every edge $(u,v)$ goes from an earlier vertex $u$ to a later vertex $v$. It exists if and only if the graph is acyclic."
+  },
+  {
+    "id": "transitive-closure",
+    "category": "ordering",
+    "term": "Transitive closure",
+    "algorithm": "transitive-closure",
+    "aka": "$G^*$",
+    "definition": "The directed graph $G^*$ on the same vertices that has an edge $(u,v)$ whenever $v$ is reachable from $u$ in $G$."
+  },
+  {
+    "id": "flow-network",
+    "category": "flow",
+    "term": "Flow network",
+    "algorithm": "network-flow",
+    "aka": "$N=(G,s,t,c)$",
+    "definition": "A directed graph $N=(G,s,t,c)$ with a source $s$, a sink $t$, and a non-negative capacity $c(u,v)$ on each edge."
+  },
+  {
+    "id": "capacity",
+    "category": "flow",
+    "term": "Capacity",
+    "aka": "$c(u,v)$",
+    "definition": "The maximum amount of flow an edge is allowed to carry."
+  },
+  {
+    "id": "flow",
+    "category": "flow",
+    "term": "Flow & flow value",
+    "aka": "$f$, $|f|$",
+    "definition": "A function $f(u,v) \\le c(u,v)$ that conserves flow at every vertex except $s$ and $t$. Its value $|f|$ is the net flow leaving the source $s$."
+  },
+  {
+    "id": "cut",
+    "category": "flow",
+    "term": "Cut $(S,T)$",
+    "definition": "A partition of the vertices into $S \\ni s$ and $T \\ni t$. The capacity of the cut is the total capacity of the edges going from $S$ to $T$."
+  },
+  {
+    "id": "min-cut",
+    "category": "flow",
+    "term": "Minimum cut",
+    "definition": "A cut of smallest capacity. By the max-flow/min-cut theorem, its capacity equals the value of the maximum flow."
+  },
+  {
+    "id": "residual-graph",
+    "category": "flow",
+    "term": "Residual graph $G_f$",
+    "algorithm": "network-flow",
+    "aka": "$G_f$",
+    "definition": "The graph of remaining capacities under a flow $f$: each edge has a forward residual $c(u,v)-f(u,v)$ and a backward residual equal to $f(u,v)$."
+  },
+  {
+    "id": "augmenting-path",
+    "category": "flow",
+    "term": "Augmenting path",
+    "definition": "A path from $s$ to $t$ in the residual graph along which extra flow can be pushed. Ford–Fulkerson repeats until none exists."
+  },
+  {
+    "id": "saturated-edge",
+    "category": "flow",
+    "term": "Saturated edge",
+    "definition": "An edge whose flow equals its capacity, $f(u,v)=c(u,v)$; it has no forward residual capacity left."
+  },
+  {
+    "id": "matching",
+    "category": "matching",
+    "term": "Matching",
+    "definition": "A set of edges, no two of which share a vertex."
+  },
+  {
+    "id": "maximal-matching",
+    "category": "matching",
+    "term": "Maximal matching",
+    "definition": "A matching to which no further edge can be added — but not necessarily one of the largest possible size."
+  },
+  {
+    "id": "maximum-matching",
+    "category": "matching",
+    "term": "Maximum matching",
+    "algorithm": "bipartite-matching",
+    "definition": "A matching with the largest possible number of edges in the graph."
+  },
+  {
+    "id": "perfect-matching",
+    "category": "matching",
+    "term": "Perfect matching",
+    "definition": "A matching that covers every vertex of the graph — each vertex is an endpoint of exactly one matching edge."
+  },
+  {
+    "id": "independent-set",
+    "category": "matching",
+    "term": "Independent set",
+    "definition": "A set of vertices, no two of which are adjacent. It is the complement of a vertex cover: $\\alpha(G)+\\tau(G)=|V|$."
+  },
+  {
+    "id": "vertex-cover",
+    "category": "matching",
+    "term": "Vertex cover",
+    "algorithm": "vertex-cover",
+    "definition": "A set of vertices that touches every edge (each edge has at least one endpoint in the set). Minimum vertex cover is NP-hard; there is a factor-$2$ approximation."
+  }
+]

@@ -1,0 +1,274 @@
+[
+  {
+    "id": "graph",
+    "category": "graph-basics",
+    "term": "גרף",
+    "aka": "$G=(V,E)$",
+    "definition": "זוג $G=(V,E)$ של קבוצת צמתים $V$ וקבוצת צלעות $E$, כאשר כל צלע מחברת שני צמתים."
+  },
+  {
+    "id": "directed-undirected-graph",
+    "category": "graph-basics",
+    "term": "גרף מכוון / לא מכוון",
+    "definition": "בגרף מכוון לכל צלע $(u,v)$ יש כיוון (מ-$u$ ל-$v$); בגרף לא מכוון הצלעות הן זוגות לא סדורים $\\{u,v\\}$."
+  },
+  {
+    "id": "degree",
+    "category": "graph-basics",
+    "term": "דרגה",
+    "aka": "$\\deg(v)$",
+    "definition": "מספר הצלעות הפוגעות בצומת. בגרף מכוון לצומת יש דרגת כניסה (צלעות נכנסות) ודרגת יציאה (צלעות יוצאות)."
+  },
+  {
+    "id": "path",
+    "category": "graph-basics",
+    "term": "מסלול",
+    "definition": "סדרת צמתים $v_0,v_1,\\dots,v_k$ שבה כל זוג עוקב מחובר בצלע. במסלול פשוט כל הצמתים שונים זה מזה."
+  },
+  {
+    "id": "walk",
+    "category": "graph-basics",
+    "term": "טיול",
+    "definition": "כמו מסלול, אך מותר לעבור דרך אותם צמתים ואותן צלעות יותר מפעם אחת."
+  },
+  {
+    "id": "simple-cycle",
+    "category": "graph-basics",
+    "term": "מעגל / מעגל פשוט",
+    "definition": "מסלול שמתחיל ומסתיים באותו צומת. במעגל פשוט כל הצמתים שונים זה מזה (פרט לצומת המשותף בקצוות)."
+  },
+  {
+    "id": "connected-graph",
+    "category": "connectivity",
+    "term": "גרף קשיר",
+    "definition": "גרף לא מכוון שבו קיים מסלול בין כל זוג צמתים."
+  },
+  {
+    "id": "connected-component",
+    "category": "connectivity",
+    "term": "רכיב קשירות",
+    "definition": "קבוצה מקסימלית של צמתים הנגישים זה מזה. גרף לא מכוון מתפרק לרכיב קשירות אחד או יותר."
+  },
+  {
+    "id": "strongly-connected",
+    "category": "connectivity",
+    "term": "גרף קשיר היטב",
+    "definition": "גרף מכוון שבו כל צומת נגיש מכל צומת אחר — לכל זוג צמתים קיים מסלול מכוון בשני הכיוונים."
+  },
+  {
+    "id": "scc",
+    "category": "connectivity",
+    "term": "רכיב קשירות חזקה (רק\"ח)",
+    "algorithm": "scc",
+    "definition": "קבוצה מקסימלית של צמתים בגרף מכוון הנגישים הדדית בזוגות. כל שני צמתים ברק\"ח נמצאים על מעגל מכוון משותף."
+  },
+  {
+    "id": "bridge",
+    "category": "connectivity",
+    "term": "גשר",
+    "definition": "צלע בגרף לא מכוון קשיר שהסרתה מנתקת את הגרף (מגדילה את מספר רכיבי הקשירות)."
+  },
+  {
+    "id": "tree",
+    "category": "trees",
+    "term": "עץ",
+    "definition": "גרף לא מכוון קשיר וחסר מעגלים. בעץ על $n$ צמתים יש בדיוק $n-1$ צלעות."
+  },
+  {
+    "id": "forest",
+    "category": "trees",
+    "term": "יער",
+    "definition": "גרף לא מכוון חסר מעגלים; באופן שקול, איחוד זר של עצים."
+  },
+  {
+    "id": "spanning-tree",
+    "category": "trees",
+    "term": "עץ פורש",
+    "definition": "תת-גרף של גרף קשיר שהוא עץ ומכיל את כל צמתי הגרף."
+  },
+  {
+    "id": "mst",
+    "category": "trees",
+    "term": "עץ פורש מינימלי (MST)",
+    "algorithm": "mst",
+    "aka": "MST",
+    "definition": "מבין כל העצים הפורשים של גרף קשיר ממושקל, עץ שסכום משקלי צלעותיו הוא המינימלי. כאשר כל המשקלים שונים, העץ יחיד."
+  },
+  {
+    "id": "root",
+    "category": "trees",
+    "term": "שורש",
+    "definition": "בגרף מכוון, צומת שממנו קיים מסלול מכוון לכל אחד משאר הצמתים."
+  },
+  {
+    "id": "directed-tree",
+    "category": "trees",
+    "term": "עץ מכוון",
+    "definition": "גרף מכוון חסר מעגלים עם שורש יחיד שדרגת הכניסה שלו $0$, וכל שאר הצמתים בעלי דרגת כניסה $1$."
+  },
+  {
+    "id": "dfs-tree",
+    "category": "trees",
+    "term": "עץ/יער DFS וסוגי קשתות",
+    "algorithm": "dfs",
+    "definition": "העץ(ים) הנוצר מהקשתות שבהן DFS מגלה צמתים חדשים. שאר הקשתות מסווגות כקשתות אחוריות, קדמיות או חוצות; ב-DFS לא מכוון יש רק קשתות עץ ואחוריות."
+  },
+  {
+    "id": "distance",
+    "category": "distances",
+    "term": "מרחק",
+    "aka": "$d(u,v)$, $\\delta(u,v)$",
+    "definition": "האורך — מספר צלעות, או סכום משקלים — של מסלול קצר ביותר בין שני צמתים; $\\infty$ אם אין מסלול."
+  },
+  {
+    "id": "shortest-path",
+    "category": "distances",
+    "term": "מסלול קצר ביותר",
+    "definition": "מסלול בין שני צמתים שמשקלו הכולל (או, ללא משקלים, מספר צלעותיו) הוא הקטן ביותר האפשרי."
+  },
+  {
+    "id": "diameter",
+    "category": "distances",
+    "term": "קוטר",
+    "definition": "המרחק הגדול ביותר בין זוג צמתים כלשהו בגרף: $\\max_{u,v} d(u,v)$."
+  },
+  {
+    "id": "bipartite-graph",
+    "category": "special-graphs",
+    "term": "גרף דו-צדדי",
+    "algorithm": "bipartite-matching",
+    "definition": "גרף שצמתיו מתחלקים לשתי קבוצות $A,B$ כך שכל צלע מחברת צומת מ-$A$ לצומת מ-$B$. באופן שקול, גרף ללא מעגל באורך אי-זוגי."
+  },
+  {
+    "id": "complete-graph",
+    "category": "special-graphs",
+    "term": "גרף שלם $K_n$",
+    "definition": "גרף לא מכוון שבו כל זוג צמתים שונים מחובר בצלע."
+  },
+  {
+    "id": "clique",
+    "category": "special-graphs",
+    "term": "קליקה",
+    "definition": "תת-קבוצה של צמתים שבה כל שני צמתים שכנים — תת-גרף שלם."
+  },
+  {
+    "id": "dag",
+    "category": "special-graphs",
+    "term": "גרף מכוון חסר מעגלים (גמ\"ל)",
+    "aka": "DAG",
+    "definition": "גרף מכוון שאין בו מעגל מכוון. אלו בדיוק הגרפים שקיים להם מיון טופולוגי."
+  },
+  {
+    "id": "regular-graph",
+    "category": "special-graphs",
+    "term": "גרף $r$-רגולרי",
+    "definition": "גרף שבו לכל צומת אותה דרגה $r$."
+  },
+  {
+    "id": "topological-sort",
+    "category": "ordering",
+    "term": "מיון טופולוגי",
+    "algorithm": "topological-sort",
+    "definition": "סידור ליניארי של צמתי גמ\"ל כך שכל צלע $(u,v)$ הולכת מצומת מוקדם $u$ לצומת מאוחר $v$. קיים אם ורק אם הגרף חסר מעגלים."
+  },
+  {
+    "id": "transitive-closure",
+    "category": "ordering",
+    "term": "סגור טרנזיטיבי",
+    "algorithm": "transitive-closure",
+    "aka": "$G^*$",
+    "definition": "הגרף המכוון $G^*$ על אותם צמתים שיש בו קשת $(u,v)$ בכל פעם ש-$v$ נגיש מ-$u$ ב-$G$."
+  },
+  {
+    "id": "flow-network",
+    "category": "flow",
+    "term": "רשת זרימה",
+    "algorithm": "network-flow",
+    "aka": "$N=(G,s,t,c)$",
+    "definition": "גרף מכוון $N=(G,s,t,c)$ עם מקור $s$, בור $t$, וקיבול אי-שלילי $c(u,v)$ על כל צלע."
+  },
+  {
+    "id": "capacity",
+    "category": "flow",
+    "term": "קיבול",
+    "aka": "$c(u,v)$",
+    "definition": "כמות הזרימה המקסימלית שצלע רשאית לשאת."
+  },
+  {
+    "id": "flow",
+    "category": "flow",
+    "term": "זרימה וערך הזרימה",
+    "aka": "$f$, $|f|$",
+    "definition": "פונקציה $f(u,v) \\le c(u,v)$ המשמרת זרימה בכל צומת פרט ל-$s$ ול-$t$. ערכה $|f|$ הוא הזרימה נטו היוצאת מהמקור $s$."
+  },
+  {
+    "id": "cut",
+    "category": "flow",
+    "term": "חתך $(S,T)$",
+    "definition": "חלוקת הצמתים ל-$S \\ni s$ ול-$T \\ni t$. קיבול החתך הוא סך הקיבולים של הצלעות מ-$S$ ל-$T$."
+  },
+  {
+    "id": "min-cut",
+    "category": "flow",
+    "term": "חתך מינימום",
+    "definition": "חתך בעל הקיבול הקטן ביותר. לפי משפט הזרימה-המקסימלית/החתך-המינימלי, קיבולו שווה לערך הזרימה המקסימלית."
+  },
+  {
+    "id": "residual-graph",
+    "category": "flow",
+    "term": "גרף שיורי $G_f$",
+    "algorithm": "network-flow",
+    "aka": "$G_f$",
+    "definition": "גרף הקיבולים הנותרים תחת זרימה $f$: לכל צלע קיבול שיורי קדמי $c(u,v)-f(u,v)$ וקיבול שיורי אחורי השווה ל-$f(u,v)$."
+  },
+  {
+    "id": "augmenting-path",
+    "category": "flow",
+    "term": "מסלול שיפור",
+    "definition": "מסלול מ-$s$ ל-$t$ בגרף השיורי שלאורכו ניתן להזרים זרימה נוספת. פורד–פלקרסון חוזר על כך עד שלא קיים מסלול כזה."
+  },
+  {
+    "id": "saturated-edge",
+    "category": "flow",
+    "term": "קשת רוויה",
+    "definition": "צלע שזרימתה שווה לקיבולה, $f(u,v)=c(u,v)$; לא נותר לה קיבול שיורי קדמי."
+  },
+  {
+    "id": "matching",
+    "category": "matching",
+    "term": "זיווג",
+    "definition": "קבוצת צלעות שאף שתיים מהן אינן חולקות צומת."
+  },
+  {
+    "id": "maximal-matching",
+    "category": "matching",
+    "term": "זיווג מקסימלי",
+    "definition": "זיווג שלא ניתן להוסיף לו אף צלע — אך לא בהכרח בעל המספר הגדול ביותר של צלעות."
+  },
+  {
+    "id": "maximum-matching",
+    "category": "matching",
+    "term": "זיווג מקסימום",
+    "algorithm": "bipartite-matching",
+    "definition": "זיווג בעל מספר הצלעות הגדול ביותר האפשרי בגרף."
+  },
+  {
+    "id": "perfect-matching",
+    "category": "matching",
+    "term": "זיווג מושלם",
+    "definition": "זיווג המכסה כל צומת בגרף — כל צומת הוא קצה של בדיוק צלע אחת בזיווג."
+  },
+  {
+    "id": "independent-set",
+    "category": "matching",
+    "term": "קבוצה בלתי תלויה",
+    "definition": "קבוצת צמתים שאף שניים מהם אינם שכנים. היא המשלים של כיסוי בקודקודים: $\\alpha(G)+\\tau(G)=|V|$."
+  },
+  {
+    "id": "vertex-cover",
+    "category": "matching",
+    "term": "כיסוי בקודקודים",
+    "algorithm": "vertex-cover",
+    "definition": "קבוצת צמתים הנוגעת בכל צלע (לכל צלע לפחות קצה אחד בקבוצה). כיסוי מינימלי הוא NP-קשה; קיים קירוב פי $2$."
+  }
+]

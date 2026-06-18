@@ -8,6 +8,7 @@ import {
 } from "@/lib/content";
 import { t } from "@/lib/i18n";
 import AlgorithmCard from "@/components/AlgorithmCard";
+import HeroGraph from "@/components/HeroGraph";
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -40,6 +41,7 @@ export default async function Home({
       <section className="hero">
         <h1>{s.heroTitle}</h1>
         <p>{s.heroSubtitle}</p>
+        <HeroGraph />
       </section>
 
       <div className="section-label">{s.algorithmsLabel}</div>
