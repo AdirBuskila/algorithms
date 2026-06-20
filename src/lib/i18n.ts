@@ -1,5 +1,6 @@
 import type { Group, Locale } from "./content";
 import type { DefinitionCategory } from "./definitions";
+import type { PatternCategory } from "./patterns";
 
 export const LOCALE_NAMES: Record<Locale, string> = {
   en: "English",
@@ -69,6 +70,25 @@ interface Dict {
     noResults: string;
     linkTitle: string;
     categories: Record<DefinitionCategory, string>;
+  };
+  decision: {
+    startHere: string;
+    title: string;
+    intro: string;
+    back: string;
+    reset: string;
+    searchLabel: string;
+  };
+  patterns: {
+    navLabel: string;
+    title: string;
+    intro: string;
+    searchPlaceholder: string;
+    noResults: string;
+    trigger: string;
+    uses: string;
+    appearsIn: string;
+    categories: Record<PatternCategory, string>;
   };
 }
 
@@ -154,6 +174,32 @@ export const STRINGS: Record<Locale, Dict> = {
         matching: "Matching & cover",
       },
     },
+    decision: {
+      startHere: "Start here",
+      title: "Which algorithm does the question want?",
+      intro:
+        "Answer one question at a time and follow it to the tool — the same triage you should do in the first minute of every exam question.",
+      back: "Back",
+      reset: "Start over",
+      searchLabel: "Decision map — which algorithm?",
+    },
+    patterns: {
+      navLabel: "Patterns",
+      title: "Reduction & technique patterns",
+      intro:
+        "Cross-algorithm tricks that belong to no single algorithm: how to recognize them, the move itself, and which tools they run on. These are what Question 2 (algorithm design) is built from.",
+      searchPlaceholder: "Filter patterns…",
+      noResults: "No matching patterns",
+      trigger: "When you see",
+      uses: "Uses",
+      appearsIn: "Appears in patterns",
+      categories: {
+        reduction: "Reductions to flow & known tools",
+        "scc-toolkit": "SCC toolkit",
+        transform: "Graph transforms",
+        tree: "Trees",
+      },
+    },
   },
   he: {
     htmlTitle: "אלגו 2 — מחברת אינטראקטיבית",
@@ -234,6 +280,32 @@ export const STRINGS: Record<Locale, Dict> = {
         ordering: "סדר וסגור",
         flow: "זרימה וחתכים",
         matching: "זיווג וכיסוי",
+      },
+    },
+    decision: {
+      startHere: "מתחילים כאן",
+      title: "איזה אלגוריתם השאלה מבקשת?",
+      intro:
+        "עונים על שאלה אחת בכל פעם ועוקבים עד הכלי — אותו סיווג בדיוק שכדאי לעשות בדקה הראשונה של כל שאלה במבחן.",
+      back: "חזרה",
+      reset: "להתחיל מחדש",
+      searchLabel: "מפת החלטה — איזה אלגוריתם?",
+    },
+    patterns: {
+      navLabel: "תבניות",
+      title: "תבניות רדוקציה וטכניקות",
+      intro:
+        "טריקים חוצי-אלגוריתמים שאינם שייכים לאלגוריתם בודד: איך לזהות אותם, המהלך עצמו, ועל אילו כלים הם רצים. מאלה בנויה שאלה 2 (תכנון אלגוריתם).",
+      searchPlaceholder: "סינון תבניות…",
+      noResults: "אין תבניות תואמות",
+      trigger: "כשרואים",
+      uses: "משתמש ב-",
+      appearsIn: "מופיע בתבניות",
+      categories: {
+        reduction: "רדוקציות לזרימה וכלים מוכרים",
+        "scc-toolkit": "ארגז כלים ל-SCC",
+        transform: "טרנספורמציות גרף",
+        tree: "עצים",
       },
     },
   },

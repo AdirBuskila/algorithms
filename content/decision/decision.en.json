@@ -1,0 +1,140 @@
+{
+  "root": {
+    "q": "What is the question asking for?",
+    "branches": [
+      {
+        "label": "Shortest path from one source",
+        "node": {
+          "q": "What are the edge weights like?",
+          "branches": [
+            {
+              "label": "All weights ≥ 0",
+              "node": {
+                "tool": "Dijkstra",
+                "slug": "dijkstra",
+                "complexity": "O((V+E)·log V)",
+                "note": "Greedy. Disqualified the moment a negative edge appears."
+              }
+            },
+            {
+              "label": "Negative weights, graph is a DAG",
+              "node": {
+                "tool": "DAG-Shortest-Path",
+                "slug": "dag-shortest-path",
+                "complexity": "O(V+E)",
+                "note": "Relax in topological order. Faster than Bellman-Ford; also gives the longest path in a DAG via negation."
+              }
+            },
+            {
+              "label": "Negative weights, cycles possible",
+              "node": {
+                "tool": "Bellman-Ford",
+                "slug": "bellman-ford",
+                "complexity": "O(V·E)",
+                "note": "Also detects a negative cycle that is reachable from the source."
+              }
+            },
+            {
+              "label": "Integer weights 1..k (k constant)",
+              "node": {
+                "tool": "Split edges → BFS",
+                "slug": "bfs",
+                "complexity": "O(k·(V+E))",
+                "note": "Replace a weight-w edge by a chain of w unit edges, then run plain BFS."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "label": "Shortest path between all pairs",
+        "node": {
+          "q": "Do you need distances, or only reachability?",
+          "branches": [
+            {
+              "label": "Actual distances",
+              "node": {
+                "tool": "Floyd–Warshall",
+                "slug": "floyd-warshall",
+                "complexity": "O(V³)",
+                "note": "Handles negative weights (no negative cycle). D⁽ᵏ⁾ uses intermediate vertices only from {1..k}."
+              }
+            },
+            {
+              "label": "Only reachability (yes / no)",
+              "node": {
+                "tool": "Transitive Closure",
+                "slug": "transitive-closure",
+                "complexity": "O(V³)",
+                "note": "Boolean Floyd–Warshall with AND / OR instead of min / +."
+              }
+            }
+          ]
+        }
+      },
+      {
+        "label": "Reachability · mutual reachability · components · roots · drainage",
+        "node": {
+          "tool": "SCC → Condensation",
+          "slug": "scc",
+          "complexity": "O(V+E)",
+          "note": "Contract each SCC; the condensation is always a DAG. \"Who reaches u?\" → run on Gᵀ. This is almost always the Q2 design question."
+        }
+      },
+      {
+        "label": "Throughput · disjoint paths · assignment / matching",
+        "node": {
+          "tool": "Reduce to Max-Flow",
+          "slug": "network-flow",
+          "complexity": "O(V·E²)",
+          "note": "Build a flow network (super-source / sink, unit capacities for matching) and run Ford–Fulkerson / Edmonds–Karp."
+        }
+      },
+      {
+        "label": "Can it be split into 2 groups? (2-coloring)",
+        "node": {
+          "tool": "Bipartite check / Matching",
+          "slug": "bipartite-matching",
+          "complexity": "O(V+E)",
+          "note": "BFS 2-coloring; an odd-length cycle means it is not bipartite."
+        }
+      },
+      {
+        "label": "Order tasks with dependencies",
+        "node": {
+          "tool": "Topological Sort",
+          "slug": "topological-sort",
+          "complexity": "O(V+E)",
+          "note": "DFS by decreasing finish time; exists iff the graph is acyclic."
+        }
+      },
+      {
+        "label": "Tree: diameter or center",
+        "node": {
+          "tool": "Double-BFS",
+          "slug": "bfs",
+          "complexity": "O(V+E)",
+          "note": "BFS to the farthest vertex a, then BFS from a; that path is the diameter, its middle is the center."
+        }
+      },
+      {
+        "label": "Connect everything at minimum cost",
+        "node": {
+          "tool": "MST (Kruskal / Prim)",
+          "slug": "mst",
+          "complexity": "O(E·log V)",
+          "note": "The cut property and the cycle property power most MST proofs."
+        }
+      },
+      {
+        "label": "NP-hard — an approximation is allowed",
+        "node": {
+          "tool": "Vertex-Cover 2-approx",
+          "slug": "vertex-cover",
+          "complexity": "O(V+E)",
+          "note": "Pick an uncovered edge, add both endpoints; the chosen edges form a matching, so the ratio is ≤ 2."
+        }
+      }
+    ]
+  }
+}

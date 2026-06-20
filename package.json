@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/validate-questions.mjs && node scripts/validate-definitions.mjs && next build",
+    "build": "node scripts/validate-questions.mjs && node scripts/validate-definitions.mjs && node scripts/validate-content.mjs && next build",
     "start": "next start",
     "sync": "node scripts/sync-notes.mjs",
     "validate:questions": "node scripts/validate-questions.mjs",
-    "validate:definitions": "node scripts/validate-definitions.mjs"
+    "validate:definitions": "node scripts/validate-definitions.mjs",
+    "validate:content": "node scripts/validate-content.mjs"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

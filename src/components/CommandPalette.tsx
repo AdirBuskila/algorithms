@@ -4,19 +4,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export interface SearchItem {
-  slug: string;
   title: string;
-  group: string;
-  frequency: string;
+  /** Shown under the title — the group · frequency, the "finds" hint, etc. */
+  subtitle: string;
+  href: string;
+  /** Extra match terms (recognition cues, pattern triggers) — not displayed. */
+  keywords?: string[];
 }
 
 export default function CommandPalette({
   items,
-  lang,
   labels,
 }: {
   items: SearchItem[];
-  lang: string;
   labels: { search: string; searchPlaceholder: string; noResults: string };
 }) {
   const router = useRouter();
@@ -31,7 +31,8 @@ export default function CommandPalette({
     return items.filter(
       (it) =>
         it.title.toLowerCase().includes(q) ||
-        it.group.toLowerCase().includes(q),
+        it.subtitle.toLowerCase().includes(q) ||
+        (it.keywords ?? []).some((k) => k.toLowerCase().includes(q)),
     );
   }, [items, query]);
 
@@ -42,11 +43,11 @@ export default function CommandPalette({
   }, []);
 
   const go = useCallback(
-    (slug: string) => {
+    (href: string) => {
       close();
-      router.push(`/${lang}/algorithms/${slug}/`);
+      router.push(href);
     },
-    [close, lang, router],
+    [close, router],
   );
 
   // Global ⌘K / Ctrl+K
@@ -80,7 +81,7 @@ export default function CommandPalette({
       setActive((a) => Math.max(a - 1, 0));
     } else if (e.key === "Enter" && results[active]) {
       e.preventDefault();
-      go(results[active].slug);
+      go(results[active].href);
     }
   };
 
@@ -120,17 +121,15 @@ export default function CommandPalette({
                 <li className="palette-empty">{labels.noResults}</li>
               )}
               {results.map((it, i) => (
-                <li key={it.slug}>
+                <li key={it.href}>
                   <button
                     type="button"
                     className={`palette-item${i === active ? " is-active" : ""}`}
                     onMouseEnter={() => setActive(i)}
-                    onClick={() => go(it.slug)}
+                    onClick={() => go(it.href)}
                   >
                     <span className="palette-item-title">{it.title}</span>
-                    <span className="palette-item-meta">
-                      {it.group} · {it.frequency}
-                    </span>
+                    <span className="palette-item-meta">{it.subtitle}</span>
                   </button>
                 </li>
               ))}

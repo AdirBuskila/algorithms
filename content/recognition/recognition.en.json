@@ -1,0 +1,72 @@
+[
+  {
+    "slug": "dijkstra",
+    "finds": "Single-source shortest path, weights ≥ 0",
+    "cues": ["shortest path", "cheapest path", "lightest path", "non-negative weights", "positive weights", "one source", "single source"]
+  },
+  {
+    "slug": "bellman-ford",
+    "finds": "Shortest path with negative weights; detects negative cycles",
+    "cues": ["negative weight", "negative edge", "negative cycle", "detect negative cycle", "may be negative"]
+  },
+  {
+    "slug": "dag-shortest-path",
+    "finds": "Linear-time shortest path on a DAG (negative weights OK)",
+    "cues": ["dag shortest path", "acyclic shortest path", "shortest path dag", "longest path in dag", "no cycles shortest path"]
+  },
+  {
+    "slug": "floyd-warshall",
+    "finds": "All-pairs shortest paths / distance matrix",
+    "cues": ["all pairs", "every pair", "all-pairs", "distance matrix", "from every vertex to every vertex"]
+  },
+  {
+    "slug": "bfs",
+    "finds": "Unweighted shortest path, layers, tree diameter",
+    "cues": ["unweighted shortest path", "number of edges", "fewest edges", "layers", "reachability", "tree diameter", "double bfs", "two bfs", "center of tree", "2-coloring", "two coloring"]
+  },
+  {
+    "slug": "dfs",
+    "finds": "Discovery / finish times, edge classification, cycles",
+    "cues": ["discovery time", "finish time", "timestamps", "edge classification", "back edge", "cycle detection", "articulation point", "bridge"]
+  },
+  {
+    "slug": "topological-sort",
+    "finds": "Linear order of a DAG; task / prerequisite ordering",
+    "cues": ["topological", "topological sort", "ordering", "prerequisites", "dependencies", "task order", "this before that", "compile order"]
+  },
+  {
+    "slug": "scc",
+    "finds": "Strongly connected components + condensation DAG",
+    "cues": ["strongly connected", "mutual reachability", "components", "condensation", "super-graph", "go together", "reachable both ways", "drainage", "root vertex"]
+  },
+  {
+    "slug": "transitive-closure",
+    "finds": "Reachability graph G* — does a path exist?",
+    "cues": ["transitive closure", "reachability", "path exists", "g*", "one-way connected", "unilateral", "reachable"]
+  },
+  {
+    "slug": "network-flow",
+    "finds": "Max-flow / min-cut; bottleneck, throughput",
+    "cues": ["max flow", "maximum flow", "min cut", "minimum cut", "bottleneck", "capacity", "throughput", "source sink", "disjoint paths", "cut"]
+  },
+  {
+    "slug": "bipartite-matching",
+    "finds": "Maximum matching, Hall / marriage, split into 2 groups",
+    "cues": ["matching", "assignment", "bipartite", "two groups", "hall", "marriage", "perfect matching", "maximum matching", "2-coloring"]
+  },
+  {
+    "slug": "mst",
+    "finds": "Minimum-cost tree connecting all vertices",
+    "cues": ["minimum spanning tree", "mst", "connect all", "cheapest network", "spanning tree", "kruskal", "prim", "minimum cost connect"]
+  },
+  {
+    "slug": "vertex-cover",
+    "finds": "2-approximation for NP-hard vertex cover",
+    "cues": ["vertex cover", "approximation", "approx ratio", "approximation ratio", "np-hard", "cover all edges"]
+  },
+  {
+    "slug": "dp-on-graphs",
+    "finds": "DP recurrence for walks with an edge-count constraint",
+    "cues": ["dynamic programming", "exactly k edges", "walks", "dp recurrence", "number of paths", "paths of length k"]
+  }
+]

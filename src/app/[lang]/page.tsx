@@ -7,8 +7,10 @@ import {
   getAllAlgorithms,
 } from "@/lib/content";
 import { t } from "@/lib/i18n";
+import { getDecisionTree } from "@/lib/decision";
 import AlgorithmCard from "@/components/AlgorithmCard";
 import HeroGraph from "@/components/HeroGraph";
+import DecisionDiagram from "@/components/DecisionDiagram";
 
 export function generateStaticParams() {
   return LOCALES.map((lang) => ({ lang }));
@@ -29,6 +31,7 @@ export default async function Home({
   const L = lang as Locale;
   const s = t(L);
 
+  const decisionTree = getDecisionTree(L);
   const groups = getAlgorithmsByGroup(L);
   const byFrequency = getAllAlgorithms(L).sort(
     (a, b) =>
@@ -42,6 +45,17 @@ export default async function Home({
         <h1>{s.heroTitle}</h1>
         <p>{s.heroSubtitle}</p>
         <HeroGraph />
+      </section>
+
+      <section id="start-here" className="decision-panel">
+        <div className="section-label">{s.decision.startHere}</div>
+        <h2 className="decision-panel-title">{s.decision.title}</h2>
+        <p className="decision-panel-intro">{s.decision.intro}</p>
+        <DecisionDiagram
+          tree={decisionTree}
+          lang={L}
+          labels={{ back: s.decision.back, reset: s.decision.reset }}
+        />
       </section>
 
       <div className="section-label">{s.algorithmsLabel}</div>

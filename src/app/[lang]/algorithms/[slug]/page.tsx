@@ -10,6 +10,7 @@ import {
   getSlugMap,
 } from "@/lib/content";
 import { t } from "@/lib/i18n";
+import { getPatternsForAlgorithm } from "@/lib/patterns";
 import { preprocessMarkdown } from "@/lib/markdown/preprocess";
 import NoteContent from "@/components/NoteContent";
 import Visualization from "@/components/Visualization";
@@ -49,6 +50,7 @@ export default async function AlgorithmPage({
   const explanation = preprocessMarkdown(algo.explanation, slugMap, L);
   const onExam = preprocessMarkdown(algo.onExam, slugMap, L);
 
+  const patterns = getPatternsForAlgorithm(L, slug);
   const all = getAllAlgorithms(L);
   const idx = all.findIndex((a) => a.meta.slug === slug);
   const prev = idx > 0 ? all[idx - 1] : null;
@@ -85,6 +87,19 @@ export default async function AlgorithmPage({
         <section className="algo-section">
           <h2 className="section-title">{s.onExam}</h2>
           <NoteContent markdown={onExam} />
+        </section>
+      ) : null}
+
+      {patterns.length > 0 ? (
+        <section className="algo-section">
+          <h2 className="section-title">{s.patterns.appearsIn}</h2>
+          <ul className="appears-in">
+            {patterns.map((p) => (
+              <li key={p.id}>
+                <Link href={`/${L}/patterns/#${p.id}`}>{p.name}</Link>
+              </li>
+            ))}
+          </ul>
         </section>
       ) : null}
 

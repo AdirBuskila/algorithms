@@ -1,0 +1,124 @@
+[
+  {
+    "id": "bipartite-to-flow",
+    "category": "reduction",
+    "name": "Bipartite matching → max-flow",
+    "trigger": "Assign / match two groups (workers ↔ tasks); \"maximum matching\", \"perfect matching\".",
+    "idea": "Add a source $s$ and sink $t$. Edge $s\\to a$ with capacity $1$ for every $a\\in A$; keep each original edge $a\\to b$ with capacity $1$; edge $b\\to t$ with capacity $1$ for every $b\\in B$. Run max-flow: the **value equals the size of the maximum matching**, and the saturated $A\\to B$ edges *are* the matching.",
+    "complexity": "O(V·E)",
+    "algorithms": ["bipartite-matching", "network-flow"],
+    "diagram": "bipartiteFlow",
+    "source": "Part B §10 · ACE §5"
+  },
+  {
+    "id": "verify-maximum-matching",
+    "category": "reduction",
+    "name": "Verify a matching is maximum",
+    "trigger": "\"Give a linear-time check that matching $M$ is maximum.\"",
+    "idea": "Build the matching flow network, push $M$ as a flow, then run **one** augmenting-path search. If there is no augmenting path, $M$ is maximum (Max-Flow = Min-Cut / Berge's theorem).",
+    "complexity": "O(V+E)",
+    "algorithms": ["bipartite-matching", "network-flow"],
+    "source": "ACE §4"
+  },
+  {
+    "id": "super-source-sink",
+    "category": "reduction",
+    "name": "Multiple sources / sinks → super-source / super-sink",
+    "trigger": "A flow network with several sources or several sinks.",
+    "idea": "Add one super-source $s^{*}$ with $\\infty$-capacity edges into every real source (and symmetrically a super-sink $t^{*}$). If a per-source supply is given, use it as the capacity instead of $\\infty$. Then run ordinary Ford–Fulkerson / Edmonds–Karp.",
+    "complexity": "O(V·E²)",
+    "algorithms": ["network-flow"],
+    "source": "Part D"
+  },
+  {
+    "id": "vertex-capacity-split",
+    "category": "reduction",
+    "name": "Vertex capacity → split the vertex",
+    "trigger": "A capacity limit sits on a **vertex**, not on an edge.",
+    "idea": "Replace $v$ by two nodes $v_{\\text{in}}\\to v_{\\text{out}}$ joined by an edge of capacity $\\text{cap}(v)$. Route every edge entering $v$ into $v_{\\text{in}}$ and every edge leaving $v$ out of $v_{\\text{out}}$.",
+    "algorithms": ["network-flow"],
+    "diagram": "vertexSplit",
+    "source": "ACE §5"
+  },
+  {
+    "id": "scc-condensation",
+    "category": "scc-toolkit",
+    "name": "Contract SCCs → condensation DAG",
+    "trigger": "Reachability, mutual reachability, \"roots\", \"drainage\", counting or merging components.",
+    "idea": "Run SCC and contract each component to a single node. The **condensation is always a DAG**. A **source** SCC (in-degree 0) reaches everything down its branch; a **sink** SCC (out-degree 0) is reachable from its branch — a *drainage* vertex lives in a sink SCC, a *root* in the unique source SCC. \"Who reaches $u$?\" → run on $G^{T}$.",
+    "complexity": "O(V+E)",
+    "algorithms": ["scc", "topological-sort"],
+    "diagram": "condensation",
+    "source": "ACE §5 · Part D"
+  },
+  {
+    "id": "almost-strongly-connected",
+    "category": "scc-toolkit",
+    "name": "Almost strongly connected (one edge ⇒ SC)",
+    "trigger": "\"Can a single added edge make the whole graph strongly connected?\"",
+    "idea": "Build the condensation. One edge suffices **iff** it has exactly **one** source SCC and exactly **one** sink SCC; then add an edge from the sink SCC back to the source SCC.",
+    "complexity": "O(V+E)",
+    "algorithms": ["scc"],
+    "source": "Part D"
+  },
+  {
+    "id": "minimum-equivalent-graph",
+    "category": "scc-toolkit",
+    "name": "Minimum equivalent graph / transitive reduction",
+    "trigger": "\"Fewest edges that keep the same reachability / the same condensation.\"",
+    "idea": "Inside each SCC of size $s\\ge 2$, a single directed cycle through all $s$ nodes is enough ($s$ edges); a size-1 SCC needs $0$. Between SCCs, take the **transitive reduction** of the condensation DAG. Total $=\\Sigma(\\text{non-trivial SCC sizes}) + (\\text{reduction edges})$.",
+    "algorithms": ["scc", "transitive-closure"],
+    "source": "Part D"
+  },
+  {
+    "id": "layered-copies",
+    "category": "transform",
+    "name": "Layered graph (copies) for a counter along a path",
+    "trigger": "\"Lightest path using at most $k$ marked vertices\", a parity constraint, or \"≥ k red edges\".",
+    "idea": "Make $k{+}1$ copies (layers) of the graph; an edge that ends at a *marked* vertex jumps from layer $i$ to layer $i{+}1$. Edges that would exceed the cap are dropped. Run Dijkstra / BFS from layer 0 and take the minimum over $t$'s copies. The graph grows by a constant factor, so the complexity is unchanged.",
+    "complexity": "× constant",
+    "algorithms": ["dijkstra", "bfs"],
+    "diagram": "layered",
+    "source": "Part D"
+  },
+  {
+    "id": "edge-splitting-bounded",
+    "category": "transform",
+    "name": "Bounded integer weights {1..k} → unit edges + BFS",
+    "trigger": "All weights are integers in a constant range $1..k$ ($k$ independent of the graph size).",
+    "idea": "Replace each weight-$w$ edge by a chain of $w$ unit edges (helper vertices) and run plain **BFS** — no Dijkstra needed. The edge count grows by at most a factor of $k$, so it stays $O(V+E)$.",
+    "complexity": "O(k·(V+E))",
+    "algorithms": ["bfs"],
+    "source": "Part D"
+  },
+  {
+    "id": "longest-path-dag",
+    "category": "transform",
+    "name": "Longest path in a DAG → negate + DAG-SP",
+    "trigger": "\"Longest path\" in a DAG (NP-hard in a general graph).",
+    "idea": "Multiply every weight by $-1$ (or swap $\\min$ for $\\max$) and run **DAG-Shortest-Path**. Linear time — the topological order is exactly what makes it work.",
+    "complexity": "O(V+E)",
+    "algorithms": ["dag-shortest-path"],
+    "source": "Part D"
+  },
+  {
+    "id": "acyclic-orientation",
+    "category": "transform",
+    "name": "Orient an undirected graph acyclically",
+    "trigger": "\"Direct the edges so the result is a DAG\" (or strongly connected).",
+    "idea": "Run DFS and orient every edge from the earlier-discovered to the later-discovered endpoint ($d$ small → large). Every edge is a tree or back edge, so no directed cycle can form; the discovery order is a topological order. (A **strong** orientation is possible **iff** the graph is bridgeless — Robbins' theorem.)",
+    "complexity": "O(V+E)",
+    "algorithms": ["dfs", "topological-sort"],
+    "source": "Part D"
+  },
+  {
+    "id": "double-bfs-tree",
+    "category": "tree",
+    "name": "Tree diameter & center via double-BFS",
+    "trigger": "Any question about a tree's radius / diameter / center.",
+    "idea": "BFS from any vertex to find the farthest vertex $a$; BFS from $a$ to find the farthest vertex $b$. The path $a\\to b$ is a **diameter**, and its middle vertex (or middle edge) is the **center**.",
+    "complexity": "O(V+E)",
+    "algorithms": ["bfs"],
+    "source": "Part B §12"
+  }
+]
