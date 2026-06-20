@@ -85,10 +85,10 @@ export default function PatternsView({
                     )}
                   </header>
 
-                  <p className="pattern-trigger">
+                  <div className="pattern-trigger">
                     <span className="pattern-trigger-label">{labels.trigger}</span>
                     <NoteContent markdown={it.trigger} />
-                  </p>
+                  </div>
 
                   <div className="pattern-idea">
                     <NoteContent markdown={it.idea} />
