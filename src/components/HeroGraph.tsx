@@ -38,6 +38,7 @@ interface GNode {
   disc: number; // BFS discovery time offset (ms); Infinity = unreached this ripple
   act: number; // current activation 0..1
   source: boolean;
+  held: boolean; // pinned to a pointer while being dragged
 }
 
 export default function HeroGraph() {
@@ -96,8 +97,156 @@ export default function HeroGraph() {
         disc: Infinity,
         act: 0,
         source: false,
+        held: false,
       }));
+      drags.clear(); // node indices are fresh — drop any in-flight drags
+      canvas.style.cursor = "";
     };
+
+    // ---- node dragging (mouse + touch via pointer events) ----
+    interface Drag {
+      ni: number; // node index
+      lx: number; // last pointer position
+      ly: number;
+      lt: number; // last move timestamp
+      vx: number; // smoothed velocity (px per frame) for the release fling
+      vy: number;
+    }
+    const drags = new Map<number, Drag>();
+    const GRAB = 26; // generous hit radius so fingers can catch a 3px node
+
+    const toLocal = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+
+    const hitNode = (x: number, y: number): number => {
+      let best = -1;
+      let bestD = GRAB;
+      for (let i = 0; i < nodes.length; i++) {
+        const d = Math.hypot(nodes[i].x - x, nodes[i].y - y);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      }
+      return best;
+    };
+
+    // Obsidian-graph-view feel: dragging a node tows its connected component,
+    // with the pull decaying per BFS layer. Connections are the live proximity
+    // edges, so nodes swept close get caught and stragglers drop off exactly
+    // when their edge fades out.
+    const PULL_DECAY = 0.55;
+    const PULL_LAYERS = 3;
+    const pullFactors = (src: number): number[] => {
+      const n = nodes.length;
+      const layer = new Array<number>(n).fill(Infinity);
+      layer[src] = 0;
+      const queue = [src];
+      while (queue.length) {
+        const u = queue.shift() as number;
+        if (layer[u] >= PULL_LAYERS) continue;
+        for (let v = 0; v < n; v++) {
+          if (layer[v] === Infinity && dist(nodes[u], nodes[v]) < threshold) {
+            layer[v] = layer[u] + 1;
+            queue.push(v);
+          }
+        }
+      }
+      return layer.map((l) => (l === 0 || l === Infinity ? 0 : PULL_DECAY ** l));
+    };
+
+    const onPointerDown = (e: PointerEvent) => {
+      const { x, y } = toLocal(e);
+      const ni = hitNode(x, y);
+      if (ni < 0) return;
+      const node = nodes[ni];
+      node.held = true;
+      node.vx = 0;
+      node.vy = 0;
+      drags.set(e.pointerId, { ni, lx: x, ly: y, lt: e.timeStamp, vx: 0, vy: 0 });
+      canvas.setPointerCapture(e.pointerId);
+      canvas.style.cursor = "grabbing";
+      if (!running) draw();
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      const drag = drags.get(e.pointerId);
+      const { x, y } = toLocal(e);
+      if (!drag) {
+        // hover feedback only (mouse); cheap at ≤26 nodes
+        if (e.pointerType === "mouse" && drags.size === 0) {
+          canvas.style.cursor = hitNode(x, y) >= 0 ? "grab" : "";
+        }
+        return;
+      }
+      const node = nodes[drag.ni];
+      const pad = 12;
+      // tow factors from the node's position before this move
+      const pulls = pullFactors(drag.ni);
+      const oldX = node.x;
+      const oldY = node.y;
+      node.x = clamp(x, pad, w - pad);
+      node.y = clamp(y, pad, h - pad);
+      const dx = node.x - oldX;
+      const dy = node.y - oldY;
+      for (let k = 0; k < nodes.length; k++) {
+        const pull = pulls[k];
+        if (pull === 0 || nodes[k].held) continue;
+        nodes[k].x = clamp(nodes[k].x + dx * pull, pad, w - pad);
+        nodes[k].y = clamp(nodes[k].y + dy * pull, pad, h - pad);
+      }
+      // smoothed per-frame velocity, for a natural fling on release
+      const dt = Math.max(e.timeStamp - drag.lt, 1);
+      const scale = 1000 / 60 / dt; // convert px/ms to px/frame
+      drag.vx = drag.vx * 0.8 + (x - drag.lx) * scale * 0.2;
+      drag.vy = drag.vy * 0.8 + (y - drag.ly) * scale * 0.2;
+      drag.lx = x;
+      drag.ly = y;
+      drag.lt = e.timeStamp;
+      if (!running) draw();
+    };
+
+    const endDrag = (e: PointerEvent) => {
+      const drag = drags.get(e.pointerId);
+      if (!drag) return;
+      drags.delete(e.pointerId);
+      const node = nodes[drag.ni];
+      node.held = false;
+      // fling, capped so it keeps the ambient drift feel
+      const speed = Math.hypot(drag.vx, drag.vy);
+      const MAX = 0.6;
+      if (speed > 0.05) {
+        const k = Math.min(1, MAX / speed);
+        node.vx = drag.vx * k;
+        node.vy = drag.vy * k;
+        // the towed component inherits a share of the fling
+        const pulls = pullFactors(drag.ni);
+        for (let i = 0; i < nodes.length; i++) {
+          if (pulls[i] === 0 || nodes[i].held) continue;
+          nodes[i].vx = drag.vx * k * pulls[i];
+          nodes[i].vy = drag.vy * k * pulls[i];
+        }
+      } else {
+        node.vx = (Math.random() - 0.5) * 0.32;
+        node.vy = (Math.random() - 0.5) * 0.32;
+      }
+      canvas.style.cursor = drags.size > 0 ? "grabbing" : "";
+    };
+
+    // Block page scrolling only while a node is actually being dragged, so
+    // idle touches on the hero still scroll the page normally.
+    const onTouchMove = (e: TouchEvent) => {
+      if (drags.size > 0) e.preventDefault();
+    };
+
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerup", endDrag);
+    canvas.addEventListener("pointercancel", endDrag);
+    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+
     layout();
 
     const dist = (a: GNode, b: GNode) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -202,6 +351,7 @@ export default function HeroGraph() {
     const step = (now: number) => {
       const pad = 12;
       for (const node of nodes) {
+        if (node.held) continue; // pinned to a pointer — the drag handler moves it
         node.x += node.vx;
         node.y += node.vy;
         if (node.x < pad || node.x > w - pad) {
@@ -308,6 +458,11 @@ export default function HeroGraph() {
       document.removeEventListener("visibilitychange", onVisibility);
       themeMq.removeEventListener("change", onTheme);
       reduceMq.removeEventListener("change", onReduce);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerup", endDrag);
+      canvas.removeEventListener("pointercancel", endDrag);
+      canvas.removeEventListener("touchmove", onTouchMove);
     };
   }, []);
 
