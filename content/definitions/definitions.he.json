@@ -66,7 +66,8 @@
     "id": "bridge",
     "category": "connectivity",
     "term": "גשר",
-    "definition": "צלע בגרף לא מכוון קשיר שהסרתה מנתקת את הגרף (מגדילה את מספר רכיבי הקשירות)."
+    "definition": "קשת שהסרתה מגדילה את מספר רכיבי הקשירות. קשת היא גשר **בדיוק כאשר היא לא נמצאת על אף מעגל**.",
+    "algorithm": "bridges-fragile"
   },
   {
     "id": "tree",
@@ -270,5 +271,56 @@
     "term": "כיסוי בקודקודים",
     "algorithm": "vertex-cover",
     "definition": "קבוצת צמתים הנוגעת בכל צלע (לכל צלע לפחות קצה אחד בקבוצה). כיסוי מינימלי הוא NP-קשה; קיים קירוב פי $2$."
+  },
+  {
+    "id": "independence-number",
+    "category": "matching",
+    "term": "מספר אי-התלות",
+    "aka": "$\\alpha(G)$",
+    "definition": "הגודל של **קבוצה בלתי-תלויה** מקסימלית — קבוצת קדקודים שאין קשת בין אף שניים מהם. סימון: $\\alpha(G)$."
+  },
+  {
+    "id": "vertex-cover-number",
+    "category": "matching",
+    "term": "מספר הכיסוי",
+    "aka": "$\\eta(G)$ (גם $\\tau(G)$)",
+    "definition": "הגודל של **כיסוי קודקודים** מינימלי — קבוצת קדקודים שכל קשת נוגעת באחד מהם לפחות. סימון: $\\eta(G)$.",
+    "algorithm": "vertex-cover"
+  },
+  {
+    "id": "matching-number",
+    "category": "matching",
+    "term": "מספר הזיווג",
+    "aka": "$\\mu(G)$ (גם $\\nu(G)$)",
+    "definition": "הגודל של **זיווג** מקסימום — קבוצת קשתות שאין לשתיים מהן קצה משותף. סימון: $\\mu(G)$. תמיד $\\mu(G) \\le \\eta(G)$; שוויון מתקיים בגרפים דו-צדדיים (König).",
+    "algorithm": "bipartite-matching"
+  },
+  {
+    "id": "gallai-identity",
+    "category": "matching",
+    "term": "זהות Gallai",
+    "aka": "$\\alpha(G) + \\eta(G) = \\lvert V\\rvert$",
+    "definition": "בכל גרף, קבוצה $S$ היא בלתי-תלויה בדיוק כאשר $V \\setminus S$ היא כיסוי קודקודים, ולכן קבוצה בלתי-תלויה מקסימום וכיסוי מינימום תמיד מסתכמים ל-$\\lvert V\\rvert$."
+  },
+  {
+    "id": "fragile-graph",
+    "category": "connectivity",
+    "term": "גרף שביר",
+    "definition": "גרף לא-מכוון שבו הסרת **כל** צלע בודדת מגדילה את מספר רכיבי הקשירות — באופן שקול, כל צלע היא גשר, ובאופן שקול הגרף הוא **יער**. גרף שביר יכול לכלול כמה רכיבים, ולכן אינו חייב להיות עץ, ולעולם אינו מכיל מעגל.",
+    "algorithm": "bridges-fragile"
+  },
+  {
+    "id": "forest-edge-count",
+    "category": "trees",
+    "term": "מספר הצלעות ביער",
+    "aka": "$\\lvert E\\rvert = \\lvert V\\rvert - c$",
+    "definition": "ביער עם $c$ רכיבי קשירות יש בדיוק $\\lvert V\\rvert - c$ צלעות. עץ הוא המקרה $c=1$ עם $\\lvert V\\rvert - 1$ צלעות."
+  },
+  {
+    "id": "metric-tsp",
+    "category": "special-graphs",
+    "term": "TSP מטרי",
+    "definition": "בעיית הסוכן הנוסע על גרף שלם וממושקל שמשקליו מקיימים את אי-שוויון המשולש $w(u,v) \\le w(u,x) + w(x,v)$. הכפלת MST נותנת קירוב $2$ ו-Christofides קירוב $1.5$; ל-TSP **כללי** אין קירוב ביחס קבוע אלא אם $P=NP$.",
+    "algorithm": "tsp-approx"
   }
 ]

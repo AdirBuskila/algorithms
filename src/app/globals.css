@@ -1418,3 +1418,92 @@ a {
 .appears-in a:hover {
   border-color: var(--accent);
 }
+
+/* ---------- Claim bank (read-first reference of past-exam claims) ---------- */
+.claim-bank {
+  margin-top: 8px;
+}
+.claim-filterbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 8px;
+}
+.claim-filterbar .definitions-search {
+  flex: 1;
+}
+.claim-count {
+  color: var(--text-dim);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.claim-showall {
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: inherit;
+  white-space: nowrap;
+}
+.claim-showall:hover {
+  border-color: var(--accent);
+}
+.claim-topic {
+  margin: 18px 0 26px;
+}
+.claim-topic-title {
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+.claim-topic-title a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.claim-topic-title a:hover {
+  text-decoration: underline;
+}
+.claim-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.claim-item {
+  padding: 16px 18px;
+}
+.claim-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.claim-head .practice-source {
+  margin-bottom: 0;
+}
+.claim-verdict {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 2px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.claim-verdict.is-true {
+  color: #2e9c6a;
+  background: color-mix(in srgb, #2e9c6a 12%, transparent);
+  border: 1px solid color-mix(in srgb, #2e9c6a 40%, transparent);
+}
+.claim-verdict.is-false {
+  color: #cf4848;
+  background: color-mix(in srgb, #cf4848 12%, transparent);
+  border: 1px solid color-mix(in srgb, #cf4848 40%, transparent);
+}
+.claim-text {
+  margin: 10px 0 12px;
+  font-size: 15.5px;
+  line-height: 1.55;
+}

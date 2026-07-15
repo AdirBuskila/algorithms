@@ -80,5 +80,7 @@ Transitive closure appears in **~8 of 19** exams. From 2024 on it is almost alwa
 - *(2024 Summer Mo'ed B, Q3e)* / *(2024 Summer Mo'ed C, Q3e)* — the same transitive-closure claim bank as the Special Mo'ed.
 - *(2025 Sem-B Mo'ed A, Q3e)* — the relation between `G` and `G*`: every `G` edge is in `G*`, the closure of a DAG stays acyclic, etc. *Hint:* lean on the two invariants below.
 
+- *(2026 גרסה 2, Q3 section ד)* — **`G` and `G*` have exactly the same topological orders** (same set, same count): closure edges are already implied by reachability, so adding an edge **from** `G*` to `G` never changes the number of orders. But adding an edge **not** in `G*` (even one that keeps the graph acyclic) *can* collapse the count — take an isolated `a` plus `b→c`: three orders; add `a→b` and only `abc` survives.
+
 > [!info] The golden rule
 > **Boolean Floyd-Warshall computes the transitive closure in `O(|V|³)`** — it is literally the [[Floyd–Warshall Algorithm]] with `min → OR` and `+ → AND`. Memorize the two invariants every Q3e leans on: **every edge of `G` survives in `G*`** (`E ⊆ E*`, so `|E*| ≥ |E|`), and **the closure of a DAG stays acyclic**. On sparse graphs, `|V|` runs of BFS/DFS beat the cubic bound.

@@ -97,5 +97,7 @@ Floyd–Warshall is the **multiple-choice regular** — almost every 2024–2025
 - **Path reconstruction from the predecessor matrix `P`.** *(2024 Sem-B Sample, Q3d)* — reconstruct a shortest path from `P`; *Hint:* follow `P[i][j]` back from `j` to `i`. *(2024 Sem-B Mo'ed B / Special Mo'ed, Q3d; 2024 Summer Mo'ed B / C, Q3d)* — reconstruct/interpret the matrix (shortest path between two vertices). *(2025 Summer Mo'ed B, Q3d)* — reconstruct path `1→6` from a 7-vertex predecessor matrix.
 - **Did `k` land on a shortest path?** *(2025 Summer Mo'ed A, Q1c)* — prove/disprove: if iteration `k` performed `D[i][j] = D[i][k] + D[k][j]`, then `k` lies on a shortest `i→j` path in `G`.
 
+- **Reading the final matrix.** *(Mo'ed A review + 2024–25 MC bank)* — from a finished distance matrix you **can** infer: a column that is all $\infty$ (besides the diagonal) means **in-degree 0**, and an all-zero diagonal certifies **no negative cycle**. You **cannot** infer out-degrees or which entries correspond to direct edges — $D[i][j]$ finite says reachable, not adjacent.
+
 > [!tip] It also computes transitive closure
 > Replace `min / +` with boolean `OR / AND` and Floyd–Warshall becomes **reachability** in `O(|V|^3)` — the boolean [[Transitive Closure|transitive closure]] `G*`, a recurring Topic-5 design question.

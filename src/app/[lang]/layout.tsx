@@ -74,6 +74,9 @@ export default async function LocaleLayout({
             <Link href={`/${L}/practice/`} className="header-practice-link">
               {s.practice.navLabel}
             </Link>
+            <Link href={`/${L}/exam/`} className="header-practice-link">
+              {s.exam.navLabel}
+            </Link>
             <CommandPalette
               items={searchItems}
               labels={{

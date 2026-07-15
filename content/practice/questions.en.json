@@ -457,5 +457,302 @@
     "answer": false,
     "explanation": "False — the condensation does have $k$ vertices, but it is a DAG whose edge count is not fixed: it can range from $0$ up to $\\binom{k}{2}$. The value $k-1$ is not forced.",
     "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2026-v2-q3a1",
+    "algorithm": "network-flow",
+    "source": "2026 גרסה 2 · Q3 section א",
+    "claim": "In a flow network with integer capacities, if decreasing the capacity of an edge by $1$ decreases the maximum flow, then that edge belongs to at least one minimum cut.",
+    "answer": true,
+    "explanation": "If the edge were in no minimum cut, it would have at least one unit of slack against every cut, so a decrease of $1$ could not lower any cut value below the old min-cut value.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2026-v2-q3a2",
+    "algorithm": "network-flow",
+    "source": "2026 גרסה 2 · Q3 section א",
+    "claim": "In a flow network with integer capacities, if decreasing the capacity of an edge by some positive amount decreases the maximum flow, then that edge belongs to a minimum cut.",
+    "answer": false,
+    "explanation": "False for arbitrary decreases: a large enough drop creates a **new** bottleneck through an edge that was in no minimum cut. Only the exact $-1$ version implies min-cut membership.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "network-flow-2026-v2-q3a3",
+    "algorithm": "network-flow",
+    "source": "2026 גרסה 2 · Q3 section א",
+    "claim": "If an edge $e$ belongs to no minimum cut, then decreasing its capacity by $1$ does not change the maximum flow.",
+    "answer": true,
+    "explanation": "Against every cut, $e$ has slack of at least $1$ (otherwise some cut containing it would be minimum), so all cut values stay at or above the old minimum and the max flow is unchanged.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2026-v2-q3a4",
+    "algorithm": "network-flow",
+    "source": "2026 גרסה 2 · Q3 section א",
+    "claim": "If an edge $e$ belongs to no minimum cut, then decreasing its capacity by any amount does not change the maximum flow.",
+    "answer": false,
+    "explanation": "A large enough decrease turns $e$ itself into the bottleneck: some cut through $e$ drops below the old min-cut value. The claim is safe only for a decrease of $1$.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "bridges-fragile-2026-v2-q3b1",
+    "algorithm": "bridges-fragile",
+    "source": "2026 גרסה 2 · Q3 section ב",
+    "claim": "Every tree is a fragile graph (removing any single edge increases the number of connected components).",
+    "answer": true,
+    "explanation": "In a tree every edge is a bridge — there are no cycles, so no edge has an alternate route around it.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bridges-fragile-2026-v2-q3b2",
+    "algorithm": "bridges-fragile",
+    "source": "2026 גרסה 2 · Q3 section ב",
+    "claim": "Every fragile graph is a tree.",
+    "answer": false,
+    "explanation": "A fragile graph is exactly a **forest**, which may be disconnected: two disjoint edges on four vertices form a fragile graph that is not a tree.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bridges-fragile-2026-v2-q3b3",
+    "algorithm": "bridges-fragile",
+    "source": "2026 גרסה 2 · Q3 section ב",
+    "claim": "There can exist a fragile graph that contains a cycle.",
+    "answer": false,
+    "explanation": "An edge on a cycle is never a bridge — removing it leaves the detour around the cycle intact — so a fragile graph (all edges bridges) can contain no cycle.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "bridges-fragile-2026-v2-q3b4",
+    "algorithm": "bridges-fragile",
+    "source": "2026 גרסה 2 · Q3 section ב",
+    "claim": "The number of edges in a fragile graph is $\\lvert V\\rvert - 1$.",
+    "answer": false,
+    "explanation": "That is the connected case only (a tree). A fragile graph is a forest: with $c$ components it has $\\lvert V\\rvert - c$ edges — e.g. two disjoint edges on 4 vertices have $\\lvert V\\rvert - 2$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "topological-sort-2026-v2-q3c1",
+    "algorithm": "topological-sort",
+    "source": "2026 גרסה 2 · Q3 section ג",
+    "claim": "In a DAG, if $u$ appears before $v$ in every topological order, then the edge $u \\to v$ exists.",
+    "answer": false,
+    "explanation": "Order forces a **path**, not an edge: with $u \\to a \\to v$ and no direct edge, $u$ still precedes $v$ in every order.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "topological-sort-2026-v2-q3c2",
+    "algorithm": "topological-sort",
+    "source": "2026 גרסה 2 · Q3 section ג",
+    "claim": "If a DAG has two vertices of out-degree $0$, then it has at least two distinct topological orders.",
+    "answer": true,
+    "explanation": "Either sink can be placed last: take any valid order and swap which of the two closes it (nothing constrains them relative to each other).",
+    "difficulty": "easy"
+  },
+  {
+    "id": "topological-sort-2026-v2-q3c3",
+    "algorithm": "topological-sort",
+    "source": "2026 גרסה 2 · Q3 section ג",
+    "claim": "If a DAG has two vertices of in-degree $0$, then it has at least two distinct topological orders.",
+    "answer": true,
+    "explanation": "Either source can open the order — symmetric to the two-sinks case.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "topological-sort-2026-v2-q3c4",
+    "algorithm": "topological-sort",
+    "source": "2026 גרסה 2 · Q3 section ג",
+    "claim": "If a DAG has at least two distinct topological orders, then it contains two vertices of in-degree $0$ or two vertices of out-degree $0$.",
+    "answer": false,
+    "explanation": "The diamond $a\\to b$, $a\\to c$, $b\\to d$, $c\\to d$ has a single source ($a$) and a single sink ($d$), yet two orders: $abcd$ and $acbd$.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "transitive-closure-2026-v2-q3d1",
+    "algorithm": "transitive-closure",
+    "source": "2026 גרסה 2 · Q3 section ד",
+    "claim": "Adding to a DAG $G$ an edge taken from its transitive closure $G^{*}$ does not change the number of topological orders of $G$.",
+    "answer": true,
+    "explanation": "A closure edge $(u,v)$ is implied by an existing path $u \\rightsquigarrow v$, so every order already places $u$ before $v$ — the constraint is redundant.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "transitive-closure-2026-v2-q3d2",
+    "algorithm": "transitive-closure",
+    "source": "2026 גרסה 2 · Q3 section ד",
+    "claim": "Adding to a DAG $G$ an edge that is not in $G^{*}$ (and does not create a cycle) does not change the number of topological orders.",
+    "answer": false,
+    "explanation": "A genuinely new constraint can collapse the count: isolated $a$ next to $b \\to c$ has three orders; adding $a \\to b$ leaves only $abc$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "transitive-closure-2026-v2-q3d3",
+    "algorithm": "transitive-closure",
+    "source": "2026 גרסה 2 · Q3 section ד",
+    "claim": "A DAG $G$ and its transitive closure $G^{*}$ have the same number of topological orders.",
+    "answer": true,
+    "explanation": "Every added closure edge is implied by reachability, so the set of valid orders — and hence the count — is unchanged.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "transitive-closure-2026-v2-q3d4",
+    "algorithm": "transitive-closure",
+    "source": "2026 גרסה 2 · Q3 section ד",
+    "claim": "A DAG $G$ and its transitive closure $G^{*}$ have exactly the same topological orders (as sets, not just the same count).",
+    "answer": true,
+    "explanation": "An order is valid for $G^{*}$ exactly when it respects reachability in $G$, which is the same condition as validity for $G$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bipartite-matching-2026-v2-q3e1",
+    "algorithm": "bipartite-matching",
+    "source": "2026 גרסה 2 · Q3 section ה",
+    "claim": "In every undirected graph, the size of a maximum matching equals the size of a minimum vertex cover.",
+    "answer": false,
+    "explanation": "That is König's theorem and it needs **bipartiteness**: the triangle $C_3$ has $\\mu = 1$ but $\\eta = 2$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "bipartite-matching-2026-v2-q3e2",
+    "algorithm": "bipartite-matching",
+    "source": "2026 גרסה 2 · Q3 section ה",
+    "claim": "In every undirected graph, the size of every matching is at most the size of every vertex cover.",
+    "answer": true,
+    "explanation": "A cover must hit each matching edge, and matching edges are vertex-disjoint, so it spends a distinct vertex per edge: $\\mu \\le \\eta$ pointwise.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "vertex-cover-2026-v2-q3e3",
+    "algorithm": "vertex-cover",
+    "source": "2026 גרסה 2 · Q3 section ה",
+    "claim": "The set of endpoints of a maximal matching is a vertex cover.",
+    "answer": true,
+    "explanation": "If some edge had both endpoints unmatched, it could be added to the matching — contradicting maximality. This is exactly why `VC_improved` outputs a valid cover.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "vertex-cover-2026-v2-q3e4",
+    "algorithm": "vertex-cover",
+    "source": "2026 גרסה 2 · Q3 section ה",
+    "claim": "The set of endpoints of a maximum matching is a maximal vertex cover.",
+    "answer": false,
+    "explanation": "A *maximal* cover is one you cannot extend while staying \"needed\" — with isolated vertices around, the endpoint set is far from maximal, and the notion mixes up two different orders. The endpoints form *a* cover, not a maximal one.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "tsp-approx-2026-v2-q3f1",
+    "algorithm": "tsp-approx",
+    "source": "2026 גרסה 2 · Q3 section ו",
+    "claim": "In a metric complete graph, removing the heaviest edge of an optimal TSP tour always yields a minimum spanning tree.",
+    "answer": false,
+    "explanation": "The remaining Hamiltonian path spans $V$ but need not be minimum: the solved paper's counter-example leaves a path of weight $7$ while the MST weighs $6$.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "tsp-approx-2026-v2-q3f2",
+    "algorithm": "tsp-approx",
+    "source": "2026 גרסה 2 · Q3 section ו",
+    "claim": "The two metric-TSP approximation algorithms (MST-doubling and Christofides) can return exactly the same tour.",
+    "answer": true,
+    "explanation": "Nothing forces them apart — on many instances (e.g. all-equal weights) both shortcuts produce identical tours. The ratios $2$ and $1.5$ are worst-case bounds, not separations.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "tsp-approx-2026-v2-q3f3",
+    "algorithm": "tsp-approx",
+    "source": "2026 גרסה 2 · Q3 section ו",
+    "claim": "If all edge weights are equal, then every Hamiltonian cycle is an optimal TSP solution.",
+    "answer": true,
+    "explanation": "Every tour uses exactly $n$ edges, so every tour costs exactly $n \\cdot w$.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "tsp-approx-2026-v2-q3f4",
+    "algorithm": "tsp-approx",
+    "source": "2026 גרסה 2 · Q3 section ו",
+    "claim": "If all edge weights are pairwise distinct, then the optimal TSP solution is unique.",
+    "answer": false,
+    "explanation": "Distinct edges do not make distinct sums — two different tours can total the same weight, exactly like the distinct-weights ≠ unique-shortest-path diamond.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dijkstra-2026-v2-q3g1",
+    "algorithm": "dijkstra",
+    "source": "2026 גרסה 2 · Q3 section ז",
+    "claim": "After adding a new positive-weight edge $(u,v)$ to a weighted directed graph, the distance between some pair of vertices can increase.",
+    "answer": false,
+    "explanation": "Adding an edge only adds candidate paths; every old path still exists, so distances never grow.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "dijkstra-2026-v2-q3g2",
+    "algorithm": "dijkstra",
+    "source": "2026 גרסה 2 · Q3 section ז",
+    "claim": "After adding a new edge that creates no negative cycle, the distance between every pair of vertices can only decrease or stay the same.",
+    "answer": true,
+    "explanation": "Monotonicity of edge addition: old paths survive, new ones can only compete downward.",
+    "difficulty": "easy"
+  },
+  {
+    "id": "dijkstra-2026-v2-q3g3",
+    "algorithm": "dijkstra",
+    "source": "2026 גרסה 2 · Q3 section ז",
+    "claim": "If adding the new edge $(u,v)$ changes the distance of some pair, then every shortest path for that pair must pass through $(u,v)$.",
+    "answer": true,
+    "explanation": "Any shortest path avoiding the new edge already existed before the addition — so it would contradict the distance having changed.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dijkstra-2026-v2-q3g4",
+    "algorithm": "dijkstra",
+    "source": "2026 גרסה 2 · Q3 section ז",
+    "claim": "It is possible that adding the new edge changes no distances, yet the set of shortest paths does change.",
+    "answer": true,
+    "explanation": "Take $a\\to b\\to c$ with weights $1+1$ and add $a\\to c$ of weight $2$: all distances stay, but the pair now has two shortest paths instead of one.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "floyd-warshall-2025-summerA-q1c",
+    "algorithm": "floyd-warshall",
+    "source": "2025 קיץ מועד א · Q1c",
+    "claim": "If during iteration $k$ Floyd–Warshall performed the update $D[i][j] = D[i][k] + D[k][j]$, then $k$ lies on some shortest $i \\to j$ path in $G$.",
+    "answer": false,
+    "explanation": "An update only means \"best **so far**, using intermediates from $\\{1..k\\}$\" — a later iteration can strictly improve past $k$'s route, leaving $k$ on no final shortest path.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "floyd-warshall-radar-dk-meaning",
+    "algorithm": "floyd-warshall",
+    "source": "מלכודת מסכם · Topic 6c",
+    "claim": "$D^{(k)}[i][j]$ is the weight of the lightest $i \\to j$ path that uses exactly $k$ edges.",
+    "answer": false,
+    "explanation": "The superscript bounds the **intermediate vertex set** $\\{1..k\\}$, not the edge count. Paths of any length qualify as long as their intermediates come from $\\{1..k\\}$.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "dijkstra-radar-reweighting",
+    "algorithm": "dijkstra",
+    "source": "רב-ברירה חוזרת · כל מועדי קיץ 2024",
+    "claim": "If a graph has negative edge weights, adding the constant $\\lvert w_{\\min}\\rvert$ to every edge weight and running Dijkstra yields correct shortest paths for the original graph.",
+    "answer": false,
+    "explanation": "The shift penalizes paths **per edge**: a path with more edges absorbs more of the constant, so the reweighted shortest path can differ from the true one. Use Bellman–Ford instead.",
+    "difficulty": "hard"
+  },
+  {
+    "id": "network-flow-radar-saturated-cap",
+    "algorithm": "network-flow",
+    "source": "ראדאר מלכודות · Q1",
+    "claim": "If an edge is saturated under some maximum flow, then decreasing its capacity by $1$ decreases the maximum flow.",
+    "answer": false,
+    "explanation": "Saturated does not mean critical: only edges lying in a **minimum cut** control the flow value. A saturated edge outside every min cut has an alternate route compensating for it.",
+    "difficulty": "medium"
+  },
+  {
+    "id": "network-flow-2022-sembA-q3b1",
+    "algorithm": "network-flow",
+    "source": "2022 סמסטר ב מועד א · Q3b",
+    "claim": "If $f_1$ and $f_2$ are two maximum flows in the same network, then $h = \\tfrac{1}{2}f_1 + \\tfrac{1}{2}f_2$ is also a maximum flow.",
+    "answer": true,
+    "explanation": "Capacity and conservation constraints are linear, so a convex combination of feasible flows is feasible, and $\\lvert h\\rvert = \\tfrac{1}{2}\\lvert f_1\\rvert + \\tfrac{1}{2}\\lvert f_2\\rvert$ equals the maximum value. (Note $h$ may be non-integral — fine, since integrality is not required of *every* max flow.)",
+    "difficulty": "hard"
   }
 ]

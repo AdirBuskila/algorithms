@@ -1,6 +1,6 @@
 ---
 slug: dp-on-graphs
-order: 13
+order: 14
 group: approximation
 title: "Dynamic Programming on Graphs"
 summary: "Write an explicit DP recurrence for a path/walk problem with an edge-count constraint — a layered Bellman-Ford."

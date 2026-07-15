@@ -44,23 +44,18 @@ interface Dict {
     title: string;
     intro: string;
     practiceThisTopic: string;
-    practiceAll: string;
-    reviewFlagged: string;
-    questionsWord: string;
+    searchPlaceholder: string;
+    noResults: string;
     labelTrue: string;
     labelFalse: string;
-    correct: string;
-    incorrect: string;
     why: string;
-    next: string;
+    showAll: string;
+    claimsWord: string;
     readNote: string;
-    wentThrough: string;
-    worthReview: string;
-    practiceThese: string;
-    newSet: string;
-    backToNotes: string;
-    allClear: string;
-    noQuestions: string;
+  };
+  exam: {
+    navLabel: string;
+    title: string;
   };
   definitions: {
     navLabel: string;
@@ -132,28 +127,23 @@ export const STRINGS: Record<Locale, Dict> = {
       reference: "Reference",
     },
     practice: {
-      navLabel: "Practice",
-      title: "Practice",
+      navLabel: "Claim bank",
+      title: "Exam claim bank",
       intro:
-        "Quick True/False drills on real past-exam claims. Answer, then read why — this is practice, not a graded test.",
-      practiceThisTopic: "Practice this topic",
-      practiceAll: "Practice all",
-      reviewFlagged: "Review flagged claims",
-      questionsWord: "claims",
-      labelTrue: "True",
-      labelFalse: "False",
-      correct: "Correct",
-      incorrect: "Not quite",
+        "Every past-exam claim with its verdict and the one-line reason, grouped by topic. Read the FALSE ones twice — they are the exam's traps.",
+      practiceThisTopic: "All exam claims on this topic",
+      searchPlaceholder: "Filter claims…",
+      noResults: "No matching claims",
+      labelTrue: "TRUE",
+      labelFalse: "FALSE",
       why: "Why",
-      next: "Next",
-      readNote: "Read the note",
-      wentThrough: "You went through",
-      worthReview: "Worth another look",
-      practiceThese: "Practice these again",
-      newSet: "New set",
-      backToNotes: "Back to notes",
-      allClear: "Nice — nothing flagged for review.",
-      noQuestions: "No practice questions yet.",
+      showAll: "Show all topics",
+      claimsWord: "claims",
+      readNote: "Open the note",
+    },
+    exam: {
+      navLabel: "Exam kit",
+      title: "Exam kit — the battle plan",
     },
     definitions: {
       navLabel: "Definitions",
@@ -240,28 +230,23 @@ export const STRINGS: Record<Locale, Dict> = {
       reference: "עזר",
     },
     practice: {
-      navLabel: "תרגול",
-      title: "תרגול",
+      navLabel: "בנק טענות",
+      title: "בנק הטענות מהמבחנים",
       intro:
-        "תרגול נכון/לא-נכון מהיר על טענות אמיתיות ממבחנים. ענו, ואז קראו למה — זהו תרגול, לא מבחן עם ציון.",
-      practiceThisTopic: "תרגול הנושא הזה",
-      practiceAll: "תרגול הכול",
-      reviewFlagged: "חזרה על טענות מסומנות",
-      questionsWord: "טענות",
+        "כל טענה ממבחני העבר עם הפסק שלה והנימוק בשורה אחת, מקובץ לפי נושא. קראו את השגויות פעמיים — הן המלכודות של המבחן.",
+      practiceThisTopic: "כל טענות המבחן בנושא הזה",
+      searchPlaceholder: "סינון טענות…",
+      noResults: "אין טענות תואמות",
       labelTrue: "נכון",
       labelFalse: "לא נכון",
-      correct: "נכון!",
-      incorrect: "לא בדיוק",
       why: "למה",
-      next: "הבא",
-      readNote: "למעבר לדף",
-      wentThrough: "עברת על",
-      worthReview: "שווה מבט נוסף",
-      practiceThese: "תרגול שוב",
-      newSet: "סבב חדש",
-      backToNotes: "חזרה לסיכומים",
-      allClear: "יפה — אין טענות מסומנות לחזרה.",
-      noQuestions: "אין עדיין שאלות תרגול.",
+      showAll: "הצגת כל הנושאים",
+      claimsWord: "טענות",
+      readNote: "פתיחת דף הנושא",
+    },
+    exam: {
+      navLabel: "ערכת מבחן",
+      title: "ערכת מבחן — תוכנית הקרב",
     },
     definitions: {
       navLabel: "הגדרות",

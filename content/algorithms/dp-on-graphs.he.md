@@ -1,6 +1,6 @@
 ---
 slug: dp-on-graphs
-order: 13
+order: 14
 group: approximation
 title: "תכנון דינמי על גרפים"
 summary: "ניסוח נוסחת נסיגה (DP) מפורשת לבעיית מסלול/טיול עם אילוץ מספר קשתות — Bellman-Ford שכבתי."

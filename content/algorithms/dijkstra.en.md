@@ -56,5 +56,8 @@ Dijkstra is almost never a bare "run Dijkstra" question — it's used as a **bla
 - **Property prove/disprove.** *(2025 Summer Mo'ed B, Q1b)* — prove/disprove: after Dijkstra from `s`, adding a **positive-weight** edge `(u,v)` necessarily breaks (changes) at least one `d[]`.
 - **Dijkstra-variant MC.** *(2025 Sem-B Mo'ed B, Q3b)* — a "longest-path" Dijkstra variant (`d[v] = −∞`, max-heap, reversed relax): what can you infer? *Hint:* the answer is **none of the options** — greedy fails for longest paths.
 
+- **Reweighting does NOT rescue negative edges.** *(recurring MC in every 2024 Summer mo'ed)* — shifting all weights by a constant $w'(e) = w(e) + \lvert w_{\min}\rvert$ does **not** make Dijkstra correct: longer paths absorb more of the added constant, so a *different* path can become "shortest". The right tool for negative edges is [[Bellman-Ford Algorithm|Bellman-Ford]].
+- **Adding an edge — distances are monotone.** *(2026 גרסה 2, Q3 section ז)* — adding an edge (no negative cycle created) can only **lower or preserve** every pairwise distance, never raise one. If some pair's distance *does* change, every new shortest path for that pair must use the new edge. And the **set** of shortest paths can change even when all distances stay the same (add $a\to c$ of weight 2 next to $a\to b\to c$ of weight $1+1$ — two shortest paths now).
+
 > [!tip] The single most common shortest-path question
 > When weights are **bounded integers** `w : E → {1..k}` with **constant `k`**, don't reach for Dijkstra — **split each edge into `k` unit edges and run BFS** for `Θ(|V| + |E|)`, beating Dijkstra's `O(|E| + |V|\log|V|)`. *(2023 Summer Mo'ed A, Q2a; 2024 Summer Mo'ed A, Q3e.)*

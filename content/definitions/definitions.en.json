@@ -66,7 +66,8 @@
     "id": "bridge",
     "category": "connectivity",
     "term": "Bridge",
-    "definition": "An edge of a connected undirected graph whose removal disconnects it (increases the number of connected components)."
+    "definition": "An edge whose removal increases the number of connected components. An edge is a bridge **exactly when it lies on no cycle**.",
+    "algorithm": "bridges-fragile"
   },
   {
     "id": "tree",
@@ -270,5 +271,57 @@
     "term": "Vertex cover",
     "algorithm": "vertex-cover",
     "definition": "A set of vertices that touches every edge (each edge has at least one endpoint in the set). Minimum vertex cover is NP-hard; there is a factor-$2$ approximation."
+  },
+  {
+    "id": "independence-number",
+    "category": "matching",
+    "term": "Independence number",
+    "aka": "$\\alpha(G)$",
+    "definition": "The size of a largest **independent set** — a set of vertices with no edge between any two of them. Notation: $\\alpha(G)$."
+  },
+  {
+    "id": "vertex-cover-number",
+    "category": "matching",
+    "term": "Vertex-cover number",
+    "aka": "$\\eta(G)$ (also $\\tau(G)$)",
+    "definition": "The size of a smallest **vertex cover** — a set of vertices touching every edge. Notation: $\\eta(G)$.",
+    "algorithm": "vertex-cover"
+  },
+  {
+    "id": "matching-number",
+    "category": "matching",
+    "term": "Matching number",
+    "aka": "$\\mu(G)$ (also $\\nu(G)$)",
+    "definition": "The size of a largest **matching** — a set of edges no two of which share an endpoint. Notation: $\\mu(G)$. Always $\\mu(G) \\le \\eta(G)$; equality holds in bipartite graphs (König).",
+    "algorithm": "bipartite-matching"
+  },
+  {
+    "id": "gallai-identity",
+    "category": "matching",
+    "term": "Gallai identity",
+    "aka": "$\\alpha(G) + \\eta(G) = \\lvert V\\rvert$",
+    "definition": "In every graph, a set $S$ is independent exactly when $V \\setminus S$ is a vertex cover, so the maximum independent set and the minimum vertex cover always add up to $\\lvert V\\rvert$."
+  },
+  {
+    "id": "fragile-graph",
+    "category": "connectivity",
+    "term": "Fragile graph",
+    "aka": "שביר",
+    "definition": "An undirected graph in which removing **any** single edge increases the number of connected components — equivalently, every edge is a bridge, equivalently the graph is a **forest**. A fragile graph can have several components, so it need not be a tree, and it can never contain a cycle.",
+    "algorithm": "bridges-fragile"
+  },
+  {
+    "id": "forest-edge-count",
+    "category": "trees",
+    "term": "Forest edge count",
+    "aka": "$\\lvert E\\rvert = \\lvert V\\rvert - c$",
+    "definition": "A forest with $c$ connected components has exactly $\\lvert V\\rvert - c$ edges. A tree is the $c=1$ case with $\\lvert V\\rvert - 1$ edges."
+  },
+  {
+    "id": "metric-tsp",
+    "category": "special-graphs",
+    "term": "Metric TSP",
+    "definition": "The Travelling-Salesman Problem on a complete weighted graph whose weights satisfy the triangle inequality $w(u,v) \\le w(u,x) + w(x,v)$. MST-doubling gives a $2$-approximation and Christofides a $1.5$-approximation; **general** TSP has no constant-factor approximation unless $P=NP$.",
+    "algorithm": "tsp-approx"
   }
 ]
