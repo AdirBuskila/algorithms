@@ -26,6 +26,7 @@ interface Dict {
   runningTime: string;
   space: string;
   footer: string;
+  deckLink: string;
   exams: string;
   tableAlgorithm: string;
   tableAppears: string;
@@ -106,6 +107,7 @@ export const STRINGS: Record<Locale, Dict> = {
     space: "Space",
     footer:
       "Algorithms 2 (HIT 73106) · interactive course notes · open in any modern browser.",
+    deckLink: "More study tools for other courses",
     exams: "exams",
     tableAlgorithm: "Algorithm",
     tableAppears: "Appears in",
@@ -209,6 +211,7 @@ export const STRINGS: Record<Locale, Dict> = {
     space: "מקום (זיכרון)",
     footer:
       "אלגוריתמים 2 (HIT 73106) · מחברת קורס אינטראקטיבית · נפתח בכל דפדפן מודרני.",
+    deckLink: "עוד כלי תרגול לקורסים אחרים",
     exams: "מבחנים",
     tableAlgorithm: "אלגוריתם",
     tableAppears: "מופיע ב-",

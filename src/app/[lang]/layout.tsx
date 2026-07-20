@@ -90,7 +90,13 @@ export default async function LocaleLayout({
         </div>
       </header>
       {children}
-      <footer className="site-footer">{s.footer}</footer>
+      <footer className="site-footer">
+        <p>{s.footer}</p>
+        <a className="deck-link" href="https://adirbuskila.github.io/">
+          <span className="deck-arrow" aria-hidden="true">↗</span>
+          {s.deckLink}
+        </a>
+      </footer>
     </div>
   );
 }
