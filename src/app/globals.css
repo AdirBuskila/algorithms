@@ -144,9 +144,7 @@ a {
   padding: 9px 17px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
   background: var(--card);
-  background: color-mix(in oklab, var(--accent) 14%, transparent);
   color: var(--text);
   font-weight: 600;
   text-decoration: none;
@@ -160,9 +158,23 @@ a {
 .deck-link:hover,
 .deck-link:focus-visible {
   border-color: var(--accent);
-  background: color-mix(in oklab, var(--accent) 24%, transparent);
   box-shadow: 0 6px 18px -8px var(--accent);
   transform: translateY(-1px);
+}
+
+/* The accent tint is gated behind @supports on purpose. Written as bare fallback +
+   color-mix declarations, the CSS minifier downlevels the tint to a FULL-opacity
+   var(--accent) fill for non-supporting browsers, which puts --text on solid accent
+   (~1.7:1). Gating it keeps those browsers on the plain --card pill above. */
+@supports (color: color-mix(in oklab, red, red)) {
+  .deck-link {
+    border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+    background: color-mix(in oklab, var(--accent) 14%, transparent);
+  }
+  .deck-link:hover,
+  .deck-link:focus-visible {
+    background: color-mix(in oklab, var(--accent) 24%, transparent);
+  }
 }
 
 .deck-link .deck-arrow {
@@ -174,8 +186,13 @@ a {
   width: 1.35em;
   height: 1.35em;
   border-radius: 50%;
-  background: color-mix(in oklab, var(--accent) 22%, transparent);
   transition: transform 0.18s ease;
+}
+
+@supports (color: color-mix(in oklab, red, red)) {
+  .deck-link .deck-arrow {
+    background: color-mix(in oklab, var(--accent) 22%, transparent);
+  }
 }
 
 .deck-link:hover .deck-arrow,
