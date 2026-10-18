@@ -6,6 +6,7 @@ import { getRecognitionMap } from "@/lib/recognition";
 import { getPatterns } from "@/lib/patterns";
 import { t, dir } from "@/lib/i18n";
 import LanguageToggle from "@/components/LanguageToggle";
+import FeedbackLink from "@/components/FeedbackLink";
 import CommandPalette, { type SearchItem } from "@/components/CommandPalette";
 
 export function generateStaticParams() {
@@ -92,6 +93,9 @@ export default async function LocaleLayout({
       {children}
       <footer className="site-footer">
         <p>{s.footer}</p>
+        <p className="feedback-line">
+          <FeedbackLink subject={s.feedbackSubject}>{s.feedbackLine}</FeedbackLink>
+        </p>
         <a className="deck-link" href="https://adirbuskila.github.io/">
           <span className="deck-arrow" aria-hidden="true">↗</span>
           {s.deckLink}

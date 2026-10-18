@@ -134,6 +134,30 @@ a {
   margin: 0 0 14px;
 }
 
+/* "Found a mistake?" mail link (FeedbackLink): small and muted; the href is set on the client. */
+.site-footer .feedback-line {
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.feedback-link {
+  color: var(--text-dim);
+  text-decoration: none;
+  border-bottom: 1px dotted currentColor;
+  overflow-wrap: anywhere;
+}
+
+.feedback-link:hover,
+.feedback-link:focus-visible {
+  color: var(--text);
+}
+
+.feedback-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 /* Back to the study-tools deck. Deliberately the one warm spot in the footer — as
    muted fine print it read as a disclaimer and got missed. The pre-color-mix
    declarations are the old look, kept as a fallback for older browsers. */
