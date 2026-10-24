@@ -1940,6 +1940,15 @@ a {
   }
 }
 
+/* help courses: an inline code span is an LTR isolate, so the punctuation between a formula and the
+   next code span resolves with the Hebrew sentence (left of the formula) instead of joining the LTR run */
+.help-md code,
+.help-option code,
+.gfig-cap code {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 /* math is always left-to-right, even inside a right-to-left sentence */
 .katex {
   direction: ltr;

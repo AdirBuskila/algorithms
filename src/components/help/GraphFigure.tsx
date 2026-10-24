@@ -1,5 +1,6 @@
 import { useId } from "react";
 import type { HelpEdge, HelpGraph } from "@/lib/helpTypes";
+import { HelpInline } from "@/components/help/HelpMd";
 
 const R = 17; // node radius
 
@@ -119,7 +120,11 @@ export default function GraphFigure({ graph, caption }: { graph: HelpGraph; capt
           );
         })}
       </svg>
-      {caption && <figcaption className="gfig-cap" dir="auto">{caption}</figcaption>}
+      {caption && (
+        <figcaption className="gfig-cap" dir="rtl" lang="he">
+          <HelpInline md={caption} />
+        </figcaption>
+      )}
     </figure>
   );
 }
