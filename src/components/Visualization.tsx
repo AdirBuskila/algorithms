@@ -2,10 +2,12 @@ export default function Visualization({
   file,
   height,
   title,
+  caption,
 }: {
   file: string;
   height: number;
   title: string;
+  caption?: string;
 }) {
   // Each widget lives at public/visualizations/<name>/index.html (the `file`
   // frontmatter value is "<name>.html"). With trailingSlash:true, static hosts
@@ -24,9 +26,9 @@ export default function Visualization({
         loading="lazy"
         title={title}
       />
-      <figcaption className="viz-cap">
-        ↑ Interactive — step through with the buttons or the ◀ ▶ arrow keys
-        (click the widget first).
+      <figcaption className="viz-cap" dir={caption ? "rtl" : undefined}>
+        {caption ??
+          "↑ Interactive — step through with the buttons or the ◀ ▶ arrow keys (click the widget first)."}
       </figcaption>
     </figure>
   );

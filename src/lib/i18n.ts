@@ -60,6 +60,42 @@ interface Dict {
     navLabel: string;
     title: string;
   };
+  help: {
+    navLabel: string;
+    title: string;
+    intro: string;
+    hebrewOnly: string;
+    levels: string;
+    questions: string;
+    start: string;
+    resume: string;
+    passedOf: string;
+    notes: string;
+    goal: string;
+    boss: string;
+    levelWord: string;
+    passed: string;
+    next: string;
+    lessonLabel: string;
+    startQuiz: string;
+    questionOf: string;
+    check: string;
+    nextQuestion: string;
+    seeResult: string;
+    correct: string;
+    wrong: string;
+    score: string;
+    passMsg: string;
+    failMsg: string;
+    retry: string;
+    nextLevel: string;
+    backToCourse: string;
+    backToHub: string;
+    reportError: string;
+    feedbackSubject: string;
+    verified: string;
+    homeBlurb: string;
+  };
   definitions: {
     navLabel: string;
     title: string;
@@ -151,6 +187,43 @@ export const STRINGS: Record<Locale, Dict> = {
     exam: {
       navLabel: "Exam kit",
       title: "Exam kit — the battle plan",
+    },
+    help: {
+      navLabel: "🧭 Need help?",
+      title: "🧭 Need help? Guided courses",
+      intro:
+        "Four courses on the hardest exam areas. Each goes from tiny exercises up to exam level: a short lesson (with the step-through visualizations), then a few questions, and a 🏆 boss level at the end. Pass a level with 80%.",
+      hebrewOnly: "The course content is in Hebrew.",
+      levels: "levels",
+      questions: "questions",
+      start: "Start",
+      resume: "Continue",
+      passedOf: "levels passed",
+      notes: "Reference notes",
+      goal: "Goal",
+      boss: "Boss level",
+      levelWord: "Level",
+      passed: "Passed",
+      next: "Next up",
+      lessonLabel: "Lesson",
+      startQuiz: "To the questions",
+      questionOf: "Question",
+      check: "Check",
+      nextQuestion: "Next question",
+      seeResult: "See result",
+      correct: "Correct",
+      wrong: "Not quite",
+      score: "Score",
+      passMsg: "Level passed.",
+      failMsg: "Re-read the lesson and try again. You need 80%.",
+      retry: "Try again",
+      nextLevel: "Next level",
+      backToCourse: "Back to the course",
+      backToHub: "All courses",
+      reportError: "📩 Mistake in this question? Tell me",
+      feedbackSubject: "Algo 2 — Need help — Feedback",
+      verified: "Every answer here is recomputed by a script (networkx plus reference implementations).",
+      homeBlurb: "Guided courses from small exercises up to exam level, on the hardest topics.",
     },
     definitions: {
       navLabel: "Definitions",
@@ -257,6 +330,43 @@ export const STRINGS: Record<Locale, Dict> = {
     exam: {
       navLabel: "ערכת מבחן",
       title: "ערכת מבחן — תוכנית הקרב",
+    },
+    help: {
+      navLabel: "🧭 צריך עזרה?",
+      title: "🧭 צריך עזרה? קורסים מודרכים",
+      intro:
+        "ארבעה קורסים על הנושאים הקשים במבחן. כל קורס עולה מתרגילים קטנים עד רמת מבחן: שיעור קצר (עם הווידג'טים של האלגוריתמים), כמה שאלות, ובסוף שלב 🏆 אתגר. עוברים שלב ב-80%.",
+      hebrewOnly: "תוכן הקורסים בעברית.",
+      levels: "שלבים",
+      questions: "שאלות",
+      start: "מתחילים",
+      resume: "ממשיכים",
+      passedOf: "שלבים עברתם",
+      notes: "דפי הנושא",
+      goal: "המטרה",
+      boss: "שלב אתגר",
+      levelWord: "שלב",
+      passed: "עבר",
+      next: "הבא בתור",
+      lessonLabel: "שיעור",
+      startQuiz: "לשאלות",
+      questionOf: "שאלה",
+      check: "בדיקה",
+      nextQuestion: "לשאלה הבאה",
+      seeResult: "לתוצאה",
+      correct: "נכון",
+      wrong: "לא בדיוק",
+      score: "ציון",
+      passMsg: "עברתם את השלב.",
+      failMsg: "כדאי לקרוא שוב את השיעור ולנסות שוב. צריך 80%.",
+      retry: "עוד פעם",
+      nextLevel: "לשלב הבא",
+      backToCourse: "חזרה לקורס",
+      backToHub: "כל הקורסים",
+      reportError: "📩 טעות בשאלה? כתבו לי",
+      feedbackSubject: "אלגו 2 — צריך עזרה — משוב",
+      verified: "כל תשובה כאן חושבה מחדש בסקריפט (networkx ומימושי ייחוס).",
+      homeBlurb: "קורסים מודרכים מתרגילים קטנים ועד רמת מבחן, על הנושאים הקשים.",
     },
     definitions: {
       navLabel: "הגדרות",

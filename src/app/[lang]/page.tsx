@@ -47,6 +47,11 @@ export default async function Home({
         <HeroGraph />
       </section>
 
+      <Link href={`/${L}/help/`} className="help-promo">
+        <span className="help-promo-title">{s.help.title}</span>
+        <span className="help-promo-text">{s.help.homeBlurb}</span>
+      </Link>
+
       <section id="start-here" className="decision-panel">
         <div className="section-label">{s.decision.startHere}</div>
         <h2 className="decision-panel-title">{s.decision.title}</h2>

@@ -52,7 +52,14 @@ export default async function LocaleLayout({
     href: `/${L}/#start-here`,
     keywords: ["decision", "which algorithm", "help me pick", "מפת החלטה"],
   };
+  const helpItem: SearchItem = {
+    title: s.help.navLabel,
+    subtitle: s.help.homeBlurb,
+    href: `/${L}/help/`,
+    keywords: ["צריך עזרה", "help", "course", "קורס", "flow", "זרימה", "dijkstra", "matching"],
+  };
   const searchItems: SearchItem[] = [
+    helpItem,
     decisionItem,
     ...algoItems,
     ...patternItems,
@@ -66,6 +73,9 @@ export default async function LocaleLayout({
             {s.brand} <span>· {s.brandSuffix}</span>
           </Link>
           <div className="header-actions">
+            <Link href={`/${L}/help/`} className="header-practice-link header-help-link">
+              {s.help.navLabel}
+            </Link>
             <Link href={`/${L}/patterns/`} className="header-practice-link">
               {s.patterns.navLabel}
             </Link>

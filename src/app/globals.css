@@ -1615,3 +1615,333 @@ a {
   font-size: 15.5px;
   line-height: 1.55;
 }
+
+/* ============================================================
+   "צריך עזרה?" guided courses (/[lang]/help)
+   ============================================================ */
+.help-promo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 28px;
+  padding: 16px 18px;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--card);
+  border: 0.5px solid var(--accent);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  transition: transform 0.1s;
+}
+.help-promo:hover {
+  transform: translateY(-2px);
+}
+.help-promo-title {
+  font-weight: 700;
+  font-size: 17px;
+}
+.help-promo-text {
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
+.header-help-link {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.help-intro {
+  color: var(--text-dim);
+  max-width: 62ch;
+}
+.help-note {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.help-crumb {
+  font-size: 13.5px;
+  margin: 0 0 8px;
+}
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+.help-card-icon {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.help-bar {
+  margin-top: 14px;
+}
+.help-bar-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.help-progressbar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--code-bg);
+  overflow: hidden;
+}
+.help-progressbar > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.25s;
+}
+.help-levels {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.help-level {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.help-level:hover {
+  border-color: var(--accent);
+}
+.help-level-next {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1.5px var(--accent);
+}
+.help-level-ok {
+  opacity: 0.85;
+}
+.help-level-icon {
+  font-size: 24px;
+  line-height: 1.2;
+}
+.help-level-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.help-level-title {
+  font-weight: 700;
+}
+.help-level-goal {
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
+.help-level-meta {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.help-level-ok .help-level-meta {
+  color: var(--accent);
+}
+.help-md {
+  margin: 0 0 14px;
+}
+.help-md .note > :first-child {
+  margin-top: 0;
+}
+.help-md .note {
+  overflow-x: auto;
+}
+.help-lesson .viz {
+  margin: 18px 0;
+}
+.help-stem {
+  font-size: 17px;
+  margin: 12px 0 8px;
+}
+.help-stem .help-md {
+  margin: 0;
+}
+.help-qmeta {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.help-options {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+}
+.help-option {
+  font: inherit;
+  text-align: right;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.help-option:hover:not(:disabled),
+.help-option:focus-visible {
+  border-color: var(--accent);
+}
+.help-option:disabled {
+  cursor: default;
+  color: var(--text);
+}
+.help-option-right {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--card));
+}
+.help-option-wrong {
+  border-color: #c0392b;
+  background: color-mix(in srgb, #c0392b 14%, var(--card));
+}
+.help-feedback {
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+.help-feedback-ok {
+  border-color: var(--accent);
+}
+.help-feedback-bad {
+  border-color: #c0392b;
+}
+.help-why {
+  margin: 6px 0;
+}
+.help-report {
+  margin: 8px 0 12px;
+  font-size: 13px;
+}
+.help-btn {
+  display: inline-block;
+  font: inherit;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.help-btn:hover {
+  border-color: var(--accent);
+}
+.help-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+}
+.help-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.help-score {
+  font-size: 22px;
+  font-weight: 700;
+}
+.help-score-pass {
+  color: var(--accent);
+}
+.help-score-fail {
+  color: #c0392b;
+}
+.gfig {
+  margin: 14px 0;
+  text-align: center;
+}
+.gfig svg {
+  width: 100%;
+  height: auto;
+}
+.gfig-edge {
+  stroke: var(--text-dim);
+  stroke-width: 1.8;
+}
+.gfig-edge-hl {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.gfig-arrow {
+  fill: var(--text-dim);
+}
+.gfig-arrow-hl {
+  fill: var(--accent);
+}
+.gfig-label {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--text);
+  stroke: var(--bg);
+  stroke-width: 4px;
+  paint-order: stroke;
+}
+.gfig-node {
+  fill: var(--card);
+  stroke: var(--text-dim);
+  stroke-width: 1.8;
+}
+.gfig-node-st {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+}
+.gfig-node-hl {
+  fill: color-mix(in srgb, var(--accent) 28%, var(--card));
+}
+.gfig-node-text {
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text);
+}
+.gfig-note {
+  font-size: 12px;
+  fill: var(--text-dim);
+}
+.gfig-cap {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* the English header (brand + six links + search + toggle) used to be 502px wide:
+   let the actions wrap under the brand on narrow screens */
+@media (max-width: 760px) {
+  .site-header-inner {
+    padding: 10px 16px;
+    gap: 8px;
+  }
+  .site-brand {
+    flex: 1 1 100%;
+    margin-right: 0;
+  }
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 6px;
+    width: 100%;
+  }
+  .header-practice-link {
+    padding: 4px 10px;
+  }
+  .page {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* math is always left-to-right, even inside a right-to-left sentence */
+.katex {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

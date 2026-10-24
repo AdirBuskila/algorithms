@@ -9,7 +9,9 @@
     "sync": "node scripts/sync-notes.mjs",
     "validate:questions": "node scripts/validate-questions.mjs",
     "validate:definitions": "node scripts/validate-definitions.mjs",
-    "validate:content": "node scripts/validate-content.mjs"
+    "validate:content": "node scripts/validate-content.mjs",
+    "typecheck": "tsc --noEmit",
+    "help:verify": "node --experimental-strip-types scripts/help/dump.mts && python scripts/help/verify.py"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
