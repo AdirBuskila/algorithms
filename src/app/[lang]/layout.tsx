@@ -102,6 +102,16 @@ export default async function LocaleLayout({
       </header>
       {children}
       <footer className="site-footer">
+        <p className="coffee-row">
+          <a
+            className="coffee-link"
+            href="https://buymeacoffee.com/adirbuskila"
+            target="_blank"
+            rel="noopener"
+          >
+            {s.coffeeLine}
+          </a>
+        </p>
         <p>{s.footer}</p>
         <p className="feedback-line">
           <FeedbackLink subject={s.feedbackSubject}>{s.feedbackLine}</FeedbackLink>

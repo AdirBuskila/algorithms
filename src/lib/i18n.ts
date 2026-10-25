@@ -29,6 +29,7 @@ interface Dict {
   deckLink: string;
   feedbackLine: string;
   feedbackSubject: string;
+  coffeeLine: string;
   exams: string;
   tableAlgorithm: string;
   tableAppears: string;
@@ -149,6 +150,7 @@ export const STRINGS: Record<Locale, Dict> = {
     feedbackLine:
       "Found a mistake? A new exam that isn't here? 📩 Email me and I'll add it",
     feedbackSubject: "Algo 2 — Interactive Notes — Feedback",
+    coffeeLine: "☕ Did this help? Buy me a coffee",
     exams: "exams",
     tableAlgorithm: "Algorithm",
     tableAppears: "Appears in",
@@ -292,6 +294,7 @@ export const STRINGS: Record<Locale, Dict> = {
     deckLink: "עוד כלי תרגול לקורסים אחרים",
     feedbackLine: "מצאתם טעות? יצא מבחן חדש שלא מופיע כאן? 📩 כתבו לי ואוסיף",
     feedbackSubject: "אלגו 2 — מחברת אינטראקטיבית — משוב",
+    coffeeLine: "☕ עזר לכם? אפשר לקנות לי קפה",
     exams: "מבחנים",
     tableAlgorithm: "אלגוריתם",
     tableAppears: "מופיע ב-",
