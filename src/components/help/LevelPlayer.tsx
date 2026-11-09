@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import FeedbackLink from "@/components/FeedbackLink";
 import { saveScore } from "@/lib/helpProgress";
@@ -66,6 +66,27 @@ export default function LevelPlayer({
     window.scrollTo({ top: 0 });
   }
 
+  // the quiz has its own URL (?play=1): a refresh lands back in it and the back button returns to the lesson
+  const playing = () => new URLSearchParams(window.location.search).has("play");
+  function setPlayUrl(on: boolean) {
+    if (playing() === on) return;
+    window.history.pushState(null, "", window.location.pathname + (on ? "?play=1" : "") + window.location.hash);
+  }
+  function reset() {
+    setIdx(0);
+    setPicked(null);
+    setRight(0);
+  }
+  useEffect(() => {
+    if (playing()) setPhase("quiz");
+    const onPop = () => {
+      if (!playing()) { reset(); setPhase("lesson"); }
+      else setPhase((ph) => (ph === "lesson" ? "quiz" : ph));   // the lesson always holds a fresh score
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   function choose(i: number) {
     if (picked !== null) return;
     setPicked(i);
@@ -99,6 +120,7 @@ export default function LevelPlayer({
           type="button"
           className="help-btn help-btn-primary"
           onClick={() => {
+            setPlayUrl(true);
             setPhase("quiz");
             top();
           }}
@@ -129,6 +151,7 @@ export default function LevelPlayer({
             type="button"
             className="help-btn"
             onClick={() => {
+              setPlayUrl(false);
               setPhase("lesson");
               setIdx(0);
               setPicked(null);
